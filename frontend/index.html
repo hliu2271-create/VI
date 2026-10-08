@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+<title>Aegis 神盾 · 算力保险协议 | ComputeShield</title>
+<link rel="stylesheet" href="assets/fonts/MiSans-Regular.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Medium.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Semibold.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Bold.min.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="hero-video.css">
+<link rel="stylesheet" href="refinement.css">
+<link rel="stylesheet" href="floating-video.css">
+<link rel="stylesheet" href="professional.css">
+<link rel="stylesheet" href="suite-theme.css">
+<link rel="stylesheet" href="workspace.css">
+<link rel="stylesheet" href="layout-V.css">
+<link rel="stylesheet" href="/mobile-VI.css"><script src="/mobile-VI.js" defer></script></head>
+<body data-suite="home">
+<canvas class="mesh-bg" id="mesh"></canvas>
+<div class="progress" id="progressBar"><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ===================== 顶栏（毛玻璃，滚动浮现） ===================== -->
+<header class="top" id="topbar">
+  <div class="top-in">
+    <div class="brand">
+      <div class="mk" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2.4l7.5 3v6.2c0 4.5-3 8.2-7.5 9.6-4.5-1.4-7.5-5.1-7.5-9.6V5.4l7.5-3z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+      </div>
+      <b>Aegis 神盾</b><span>ComputeShield</span>
+    </div>
+    <nav class="nav">
+      <a href="#group" class="on">概览</a>
+      <a href="#business">业务</a>
+      <a href="#terminal">工作台</a>
+      <a href="#data">数据</a>
+</nav>
+    <div class="top-right">
+      <span class="mode" id="modePill">本地演示</span>
+      <span class="net"><span class="dot"></span><span id="netName">钱包未连接</span></span>
+      <span hidden aria-hidden="true"><b id="block">—</b></span>
+      <button class="btn ghost sm" id="walletBtn" onclick="connectWallet()">连接钱包</button>
+      <button class="btn primary sm" onclick="playDemoVideo()">开始演示</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== Hero 主视觉 ===================== -->
+<section class="hero" id="hero">
+  <div class="hero-veil"></div>
+  <div class="hero-in">
+    <span class="eyebrow">COMPUTESHIELD · VERIFIABLE PROTOTYPE</span>
+    <h1 data-split>算力服务，按约保障。</h1>
+    <p class="lead">以节点质押为基础，按风险报价与 SLA 参数投保。监测异常后进入挑战窗口，经裁决确认后执行赔付。</p>
+    <div class="hero-cta">
+      <button class="btn primary lg" onclick="playDemoVideo()"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5z"/></svg>观看演示</button>
+      <button class="btn outline lg" onclick="connectWallet()">连接钱包</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hs"><div class="hs-v" id="hPool">—</div><div class="hs-l">风险池资本 (BOT)</div></div>
+      <div class="hs"><div class="hs-v" id="hPolicies">—</div><div class="hs-l">有效保单</div></div>
+      <div class="hs"><div class="hs-v" id="hPaid">—</div><div class="hs-l">累计赔款 (BOT)</div></div>
+    </div>
+    <div class="hero-film-slot" id="heroFilmSlot">
+    <figure class="hero-film" aria-label="算力保险协议流程演示视频">
+      <div class="hero-film-bar">
+        <span class="hero-film-mark" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2.4l7.5 3v6.2c0 4.5-3 8.2-7.5 9.6-4.5-1.4-7.5-5.1-7.5-9.6V5.4l7.5-3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+        <b><span class="film-title-full">算力保险协议 · 流程演示</span><span class="film-title-mini">协议演示</span></b><span class="hero-film-duration">48 秒</span>
+        <div class="hero-film-tools">
+          <button type="button" data-film-toggle aria-label="收起视频小窗" aria-expanded="true" title="收起 / 展开视频">−</button>
+          <button type="button" data-film-return aria-label="返回首屏视频" title="返回首屏"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16L18 6M10 6h8v8M6 4H4v16h16v-2"/></svg></button>
+          <button type="button" data-film-close aria-label="关闭悬浮视频" title="关闭小窗"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+      </div>
+      <video id="heroDemoVideo" controls muted loop playsinline preload="metadata" poster="assets/aegis-demo-poster.png" aria-label="Aegis 神盾：质押、投保、监控、违约、挑战、裁决和自动赔付的七步字幕演示">
+        <source src="assets/aegis-demo.mp4" type="video/mp4">
+        您的浏览器不支持视频播放。<a href="assets/aegis-demo.mp4">下载演示视频</a>
+      </video>
+      <figcaption class="hero-film-foot"><span>流程示意 · 非链上实录</span><a href="assets/aegis-demo.mp4" download="Aegis-算力保险演示.mp4">下载视频 ↗</a></figcaption>
+    </figure>
+    </div>
+  </div>
+</section>
+
+<section class="evidence-entry" aria-labelledby="evidenceEntryTitle"><div><span class="kicker">项目验证 / REPORTS</span><h2 id="evidenceEntryTitle">机制可以演示，结果应当可查。</h2><p>查看本地 EVM 合约验证、模型实际运行记录与适用边界。目标链部署尚未完成，经营数据来自内部仿真。</p></div><a class="btn outline" href="evidence.html" data-workspace="evidence">查看项目验证 <span aria-hidden="true">↗</span></a></section>
+<!-- ===================== 概览 ===================== -->
+<section class="about layout-section" id="group" aria-labelledby="mechanismTitle">
+ <div class="about-head section-heading-V" data-reveal><div><span class="section-label"><span>01</span>保障机制</span><h2 class="about-title" id="mechanismTitle">保障如何生效。</h2></div><p class="about-p">先约定服务条件，再持续核验履约。<br>赔付依据来自条款、观测与独立裁决。</p></div>
+ <div class="about-grid">
+  <div class="overview-visual" data-reveal><div class="visual-caption"><span>从 SLA 到结算</span><span>机制示意</span></div>
+   <div class="policy-composition" aria-hidden="true"><div class="policy-back pb-one"></div><div class="policy-back pb-two"></div><div class="policy-sheet"><div class="sheet-brand"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg><span>Aegis / ComputeShield</span></div><div class="sheet-title">算力履约保障</div><div class="sheet-sub">SLA Coverage</div><div class="sheet-rule"></div><div class="sheet-pair"><span>服务指标</span><b>可用时长 · 响应情况</b></div><div class="sheet-pair"><span>保障条件</span><b>保额 · 期间 · 免赔</b></div><div class="sheet-stamp">按条款核验</div></div><span class="policy-token pt-node"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="6" rx="2"/><rect x="4" y="14" width="16" height="6" rx="2"/><path d="M8 7h1M8 17h1M15 7h2M15 17h2"/></svg>节点质押</span><span class="policy-token pt-pool"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg>保费入池</span></div>
+   <ol class="coverage-path"><li><span>01</span>约定条件</li><li><span>02</span>监测履约</li><li><span>03</span>核验结算</li></ol><div class="visual-bottom"><span>条款在前，证据在后。</span><a href="plan.html" data-workspace="plan">查看机制 <span aria-hidden="true">↗</span></a></div>
+  </div>
+  <div class="mechanism-cards"><article class="principle mechanism-stake" data-reveal><div class="mechanism-head"><span class="pr-ic p-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span><span class="mechanism-index">承诺</span></div><h3>节点先质押</h3><p>登记节点与质押，为履约责任提供约束。</p><span class="mechanism-foot">NodeRegistry</span></article><article class="principle mechanism-challenge" data-reveal><div class="mechanism-head"><span class="pr-ic p-purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M6 21h12M4 7h16M6 7l-3 7h6L6 7zM18 7l-3 7h6l-3-7z"/></svg></span><span class="mechanism-index">核验</span></div><h3>争议独立裁决</h3><p>确认证据后进入挑战期，有异议再交裁决。</p><span class="mechanism-foot">默认挑战期 24h</span></article>
+   <article class="principle mechanism-monitor" data-reveal><div class="monitor-text"><div class="mechanism-head"><span class="pr-ic p-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2-5 4 10 3-5h5"/></svg></span><span class="mechanism-index">观测</span></div><h3>服务持续监测</h3><p>周期检查 HTTP 响应，记录异常与证据。<br>本地演练采用压缩时间。</p></div><div class="monitor-graphic" aria-hidden="true"><div class="monitor-grid"></div><svg viewBox="0 0 220 90" fill="none"><path d="M0 52h39l10-4 7 8 10-35 12 53 8-23h48l10-5 8 8 10-28 10 43 10-18h48" stroke="currentColor" stroke-width="2"/></svg><span>观测流程示意</span></div></article>
+  </div>
+ </div>
+</section>
+
+<!-- ===================== 四大业务 ===================== -->
+<section class="biz layout-section" id="business" aria-labelledby="rolesTitle">
+ <div class="biz-head section-heading-V" data-reveal><div><span class="section-label"><span>02</span>参与角色</span><h2 class="sec-title" id="rolesTitle">参与角色与操作入口</h2></div><p class="biz-sub">选择你的角色，<br>直接进入对应的操作流程。</p></div>
+ <div class="biz-grid">
+  <article class="biz-card g-blue role-node" data-reveal><div class="role-card-head"><span class="biz-role">节点运营方</span><span class="biz-no">01 / NODE</span></div><div class="role-main"><div class="role-copy"><h3>登记节点与<br>履约状态</h3><p>提交质押与节点信息，<br>让履约状态有据可查。</p><span class="role-detail">质押 · 观测 · 履约</span></div><div class="node-illustration" aria-hidden="true"><div class="node-halo"></div><div class="server-stack"><div class="server-unit"><i></i><span></span><span></span></div><div class="server-unit"><i></i><span></span><span></span></div><div class="server-unit"><i></i><span></span><span></span></div></div><span class="illustration-label">节点结构示意</span></div></div><button class="biz-open" type="button" data-workspace="protocol" data-native-tab="1">查看节点<span aria-hidden="true">↗</span></button></article>
+  <article class="biz-card g-purple role-lp" data-reveal><div class="role-card-head"><span class="biz-role">资金提供方</span><span class="biz-no">02 / LP</span></div><h3>承保资金池</h3><p>保单占用承保额度，<br>LP 从可用资金中赎回份额。</p><div class="pool-illustration" aria-hidden="true"><div><span></span>池内资金</div><div><span></span>保单预留</div><div><span></span>可用承保资金</div><small>资金结构示意</small></div><button class="biz-open" type="button" data-workspace="insurance">查看保险总览<span aria-hidden="true">↗</span></button></article>
+  <article class="biz-card g-teal role-insured" data-reveal><div class="role-card-head"><span class="biz-role">投保方</span><span class="biz-no">03 / INSURED</span></div><h3>配置你的保障</h3><p>按节点、保额和期间获取报价。<br>确认条款后生成保单。</p><div class="terms-illustration" aria-hidden="true"><div class="terms-top"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6V3zM14 3v5h4M9 12h6M9 16h4"/></svg>保障配置<span>SLA</span></div><div><span>被保节点</span><i>选择服务</i></div><div><span>保额与期间</span><i>按需配置</i></div><div><span>服务阈值</span><i>事先约定</i></div></div><button class="biz-open" type="button" data-workspace="insurance" data-intent="apply">开始投保<span aria-hidden="true">↗</span></button></article>
+  <article class="biz-card g-orange role-rules" data-reveal><div class="role-card-head"><span class="biz-role">规则与证据</span><span class="biz-no">04 / REVIEW</span></div><div class="review-copy"><h3>报价、证据与结算</h3><p>规则负责报价与演练；<br>授权证据确认和独立裁决负责链上核验。</p></div><ol class="review-stages"><li><span>01</span><b>评估与报价</b><small>规则和风险参数</small></li><li><span>02</span><b>确认事故</b><small>观测与证据摘要</small></li><li><span>03</span><b>争议与结算</b><small>独立裁决与合约</small></li></ol><div class="review-note">模型辅助研判可在“项目验证”中单独查看。</div><button class="biz-open" type="button" data-workspace="lab">查看理赔流程<span aria-hidden="true">↗</span></button></article>
+ </div>
+</section>
+
+<!-- ===================== 数据看板 ===================== -->
+<section class="data layout-section" id="data" aria-labelledby="metricsTitle">
+ <div class="data-head section-heading-V" data-reveal><div><span class="section-label"><span>03</span>经营数据</span><h2 class="sec-title" id="metricsTitle">当前经营状态</h2></div><div class="metrics-source"><span class="source-dot"></span>本地演示数据<span id="dataFreshness" role="status">正在连接…</span></div></div>
+ <div class="data-grid">
+  <article class="stat-card capital-card" data-reveal><div class="capital-card-top"><span>风险池资本</span><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg></div><div class="stat-body"><div class="v" id="kPool">—</div><span class="capital-unit">BOT</span></div><p>用于承接保单的资金基础。</p><div class="capital-card-foot"><span>资金 → 承保 → 结算</span><a href="insurer.html" data-workspace="insurance">查看账务 <span aria-hidden="true">↗</span></a></div></article>
+  <article class="stat-card metric-node" data-reveal><div class="stat-body"><div class="l">已注册节点</div><div class="v" id="kNodes">—</div></div><div class="metric-mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="6" rx="2"/><rect x="4" y="14" width="16" height="6" rx="2"/><path d="M8 7h1M8 17h1M15 7h2M15 17h2"/></svg></div><span class="metric-caption">当前经营服务登记的节点</span></article>
+  <article class="stat-card metric-policy" data-reveal><div class="stat-body"><div class="l">有效保单</div><div class="v" id="kPolicies">—</div></div><div class="metric-mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6V3zM14 3v5h4M9 12h6M9 16h4"/></svg></div><span class="metric-caption">状态为生效中的保障</span></article>
+  <article class="stat-card metric-paid" data-reveal><div class="stat-body"><div class="l">累计赔款 <em>BOT</em></div><div class="v" id="kPaid">—</div></div><div class="metric-mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg></div><span class="metric-caption">累计总赔款，非净赔付</span></article>
+  <article class="stat-card metric-open" data-reveal><div class="stat-body"><div class="l">在途赔案</div><div class="v" id="kOpenClaims">—</div></div><div class="metric-mark"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M6 21h12M4 7h16M6 7l-3 7h6L6 7zM18 7l-3 7h6l-3-7z"/></svg></div><span class="metric-caption">仍在处理流程中的案件</span></article>
+ </div><p class="data-note">与保险工作台使用同一服务。内部仿真结果，不代表真实收益或目标链运行状态。</p>
+</section><!-- ===================== 协议终端（保留全部功能） ===================== -->
+<section class="unified-workspace" id="terminal">
+ <span id="workspace" class="workspace-anchor" aria-hidden="true"></span>
+ <div class="workspace-heading"><div><span class="kicker">04 · WORKBENCH</span><h2>业务工作区</h2><p>投保、监控、理赔与证据核查，在同一工作区继续。</p></div><span class="workspace-version">Aegis · VI</span></div>
+ <div class="workbench" id="workbench">
+  <div class="workbench-bar"><div class="workbench-brand"><span class="wb-mark" aria-hidden="true">A</span><b>业务工作台</b><span class="wb-session">本地演示</span></div><button class="wb-expand" id="wbExpand" type="button" aria-expanded="false" aria-controls="workbench"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg><span>展开工作台</span></button></div>
+  <div class="wb-tabs" role="tablist" aria-label="工作台功能"><button type="button" role="tab" id="wb-tab-insurance" data-workspace="insurance" aria-controls="wb-panel-insurance" aria-selected="true" tabindex="0"><span class="wb-tab-num">01</span>保险工作台</button><button type="button" role="tab" id="wb-tab-lab" data-workspace="lab" aria-controls="wb-panel-lab" aria-selected="false" tabindex="-1"><span class="wb-tab-num">02</span>理赔实验室</button><button type="button" role="tab" id="wb-tab-market" data-workspace="market" aria-controls="wb-panel-market" aria-selected="false" tabindex="-1"><span class="wb-tab-num">03</span>行情终端</button><button type="button" role="tab" id="wb-tab-protocol" data-workspace="protocol" aria-controls="wb-panel-protocol" aria-selected="false" tabindex="-1"><span class="wb-tab-num">04</span>协议接入</button><button type="button" role="tab" id="wb-tab-plan" data-workspace="plan" aria-controls="wb-panel-plan" aria-selected="false" tabindex="-1"><span class="wb-tab-num">05</span>项目计划</button><button type="button" role="tab" id="wb-tab-evidence" data-workspace="evidence" aria-controls="wb-panel-evidence" aria-selected="false" tabindex="-1"><span class="wb-tab-num">06</span>项目验证</button></div>
+  <div class="wb-context"><span id="wbDescription">承保、核保、赔案与证据，在同一处处理。</span><a href="plan.html" data-workspace="plan">项目说明 <span aria-hidden="true">↗</span></a></div>
+  <div class="wb-panels"><div class="wb-panel" id="wb-panel-insurance" role="tabpanel" aria-labelledby="wb-tab-insurance" ><div class="wb-loading" data-loading="insurance" role="status"><span></span>正在载入保险工作台…</div><iframe data-workspace-frame="insurance" title="保险工作台" data-src="insurer.html?embed=1" allow="clipboard-write" loading="lazy"></iframe></div><div class="wb-panel" id="wb-panel-lab" role="tabpanel" aria-labelledby="wb-tab-lab" hidden><div class="wb-loading" data-loading="lab" role="status"><span></span>正在载入理赔实验室…</div><iframe data-workspace-frame="lab" title="理赔实验室" data-src="lab.html?embed=1" allow="clipboard-write" loading="lazy"></iframe></div><div class="wb-panel" id="wb-panel-market" role="tabpanel" aria-labelledby="wb-tab-market" hidden><div class="wb-loading" data-loading="market" role="status"><span></span>正在载入行情终端…</div><iframe data-workspace-frame="market" title="行情终端" data-src="market.html?embed=1" allow="clipboard-write" loading="lazy"></iframe></div><div class="wb-panel" id="wb-panel-protocol" role="tabpanel" aria-labelledby="wb-tab-protocol" hidden><div class="wb-native"><div class="protocol-session"><span>协议会话 · 独立于保险经营账</span><div>风险池 <b id="pPool">0</b> BOT · 节点 <b id="pNodes">0</b> · 保单 <b id="pPolicies">0</b> · 赔付 <b id="pPaid">0</b> BOT · 罚没 <b id="pSlash">0</b> BOT</div></div><div class="term-window in">
+    <div class="tw-bar">
+      <div class="tw-dots"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+      <div class="tw-title" id="twTitle">ComputeShield — 链上接入</div>
+      <div class="tw-right" id="terminalMode">本地演示</div>
+    </div>
+
+    <div class="tw-layout">
+      <aside class="tw-side">
+        <button class="side-item active" data-tab="0">
+          <span class="side-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7.2 7l2.8 2.8M16.8 7L14 9.8M7.2 17l2.8-2.8M16.8 17L14 14.2"/></svg></span>
+          <span>链上接入</span>
+        </button>
+        <button class="side-item" data-tab="1">
+          <span class="side-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2.5l7.5 3v6.2c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V5.5l7.5-3z"/></svg></span>
+          <span>算力节点</span>
+        </button>
+        <button class="side-item" data-tab="2">
+          <span class="side-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6V3z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span>
+          <span>保险台</span>
+        </button>
+        <button class="side-item" data-tab="3">
+          <span class="side-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3L20 9l-4 3.9 1 5.6-5-2.6-5 2.6 1-5.6L4 9l5.4-.7L12 3z"/></svg></span>
+          <span>规则与证据</span>
+        </button>
+      </aside>
+
+      <div class="tw-main">
+
+        <div class="view active" data-view="0">
+          <div class="panel-hd">
+            <div class="panel-ic ic-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7.2 7l2.8 2.8M16.8 7L14 9.8M7.2 17l2.8-2.8M16.8 17L14 14.2"/></svg></div>
+            <div class="panel-tt"><h3>钱包与合约配置</h3><p>选择网络，保存四个 IV 合约地址，再校验绑定关系。</p></div>
+            <span class="chain-st" id="chainSt">演示模式</span>
+          </div>
+          <div class="chain-grid" id="chainBar">
+            <div class="field chain-network"><label for="cNet">目标网络</label>
+              <select id="cNet">
+                <option value="bohr">BOT Chain 测试网 · Bohr（ChainID 968）</option>
+                <option value="botchain">BOT Chain 主网（ChainID 677）</option>
+                <option value="localhost">Hardhat 本地链（31337）</option>
+              </select></div>
+            <div class="field"><label for="cCore">保障协议 <small>ComputeShieldCore</small></label><input id="cCore" placeholder="0x…（部署后填入）"></div>
+            <div class="field"><label for="cPool">承保资金池 <small>RiskPool</small></label><input id="cPool" placeholder="0x…"></div>
+            <div class="field"><label for="cReg">节点登记 <small>NodeRegistry</small></label><input id="cReg" placeholder="0x…"></div>
+            <div class="field"><label for="cAi">规则报价 <small>AIReporterMock</small></label><input id="cAi" placeholder="0x…（IV 报价合约，必填）"></div>
+            <div class="field chain-actions"><label>保存与核验</label>
+              <div class="row">
+                <button class="btn sm" onclick="saveChainCfg()">保存地址</button>
+                <button class="btn ghost sm" onclick="readChainState()">读取链上状态</button>
+                <button class="btn danger sm" onclick="clearChainCfg()">清空</button>
+              </div></div>
+          </div>
+          <details class="chain-notes"><summary>网络信息与操作说明</summary><div class="hint" id="chainHint"></div></details>
+        <div class="spark-wrap">
+          <div class="spark-hd"><span>本地演示 · 无实时区块数据</span><b id="sparkVal">—</b></div>
+          <canvas id="spark" class="spark"></canvas>
+        </div>
+        </div>
+
+        <div class="view" data-view="1">
+          <div class="panel-hd">
+            <div class="panel-ic ic-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2.5l7.5 3v6.2c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V5.5l7.5-3z"/></svg></div>
+            <div class="panel-tt"><h3>DePIN 算力节点</h3><p>被保方 · 质押注册、心跳监控、宕机触发赔付</p></div>
+          </div>
+          <div class="ecg-wrap">
+            <div class="ecg-hd"><span class="ch-dot"></span>实时心跳监测<span class="ecg-state" id="ecgState">待机</span></div>
+            <canvas id="ecg" class="ecg"></canvas>
+          </div>
+          <div class="panel-body panel-2col">
+            <div class="pane">
+              <h4>真实节点服务</h4>
+              <div class="srv">
+                <div class="srv-hd"><span>节点服务</span><span class="pill off" id="srvPill">未连接</span></div>
+                <input id="srvUrl" type="text" value="http://127.0.0.1:8787">
+                <div class="srv-meta" id="srvMeta">延迟 — · 风险分 — · uptime —</div>
+                <div class="grid2">
+                  <div class="field"><label>测试并发</label><select id="atkN"><option>6</option><option selected>12</option><option>24</option></select></div>
+                  <div class="field"><label>阻塞时长</label><select id="atkMs"><option value="4">4 秒</option><option value="6" selected>6 秒</option><option value="10">10 秒</option></select></div>
+                </div>
+                <div class="row">
+                  <button class="btn sm" onclick="connectServer()">接入并开始探测</button>
+                  <button class="btn sm danger" onclick="attackServer()">运行负载测试</button>
+                </div>
+                <div class="row">
+                  <button class="btn ghost sm" onclick="killServer()">模拟服务停止</button>
+                  <button class="btn ghost sm" onclick="reviveServer()">恢复服务</button>
+                </div>
+                <div class="hint">每 3 秒探测 /health，超时为 2.5 秒；连续 2 次失败启动违约演示，随后进入挑战窗口。</div>
+              </div>
+              <button class="btn block" id="registerNodeBtn" onclick="registerNode()">注册模拟节点（1,000 BOT 起）</button>
+            </div>
+            <div class="pane">
+              <h4>已注册节点</h4>
+              <div id="nodeList" class="stack"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" data-view="2">
+          <div class="panel-hd">
+            <div class="panel-ic ic-purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6V3z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></div>
+            <div class="panel-tt"><h3>保险台 · 风险池</h3><p>选择投保参数与查看报价，或作为 LP 存入风险池资金</p></div>
+          </div>
+          <div class="panel-body panel-2col">
+            <div class="pane">
+              <h4>风险报价与投保</h4>
+              <div class="field"><label>被保节点</label><select id="fNode" onchange="refreshQuote()"></select></div>
+              <div class="field"><label>保额 <b id="fCovL">5,000 BOT</b></label>
+                <input type="range" id="fCov" min="1000" max="20000" step="500" value="5000" oninput="refreshQuote()"></div>
+              <div class="grid2">
+                <div class="field"><label>保障时长</label><select id="fDur"><option value="86400">24 小时</option><option value="604800">7 天</option><option value="2592000">30 天</option></select></div>
+                <div class="field"><label>SLA 容忍宕机</label><select id="fSla"><option value="60">1 分钟</option><option value="300">5 分钟</option><option value="900">15 分钟</option></select></div>
+              </div>
+              <div class="quote" id="quoteBox">
+                <div class="qh">当前参数报价</div>
+                <div class="qv" id="qPremium">— BOT</div>
+                <div class="qd" id="qDetail"></div>
+              </div>
+              <button class="btn primary block" onclick="buyPolicy()">购买保单（保费进入 RiskPool）</button>
+            </div>
+            <div class="pane">
+              <h4>风险池 RiskPool</h4>
+              <div class="row">
+                <button class="btn sm" onclick="lpDeposit(10000)">LP 存入 10,000 BOT</button>
+                <button class="btn sm" onclick="lpDeposit(50000)">LP 存入 50,000 BOT</button>
+              </div>
+              <div id="policyList" class="stack"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" data-view="3">
+          <div class="panel-hd">
+            <div class="panel-ic ic-teal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3L20 9l-4 3.9 1 5.6-5-2.6-5 2.6 1-5.6L4 9l5.4-.7L12 3z"/></svg></div>
+            <div class="panel-tt"><h3>AI Agent</h3><p>查看风控、定价与理赔记录；演示事件和链上交易分别标注</p></div>
+          </div>
+          <div class="agents">
+            <div class="agent" id="ag0"><div class="ai-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg></div><div>风控 Agent</div></div>
+            <div class="agent" id="ag1"><div class="ai-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 3"/></svg></div><div>定价 Agent</div></div>
+            <div class="agent" id="ag2"><div class="ai-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3L20 9l-4 3.9 1 5.6-5-2.6-5 2.6 1-5.6L4 9l5.4-.7L12 3z"/></svg></div><div>理赔 Agent</div></div>
+          </div>
+          <div class="consoles">
+            <div class="console">
+              <div class="console-hd"><span class="ch-dot"></span>AI 风控日志</div>
+              <div class="term ai" id="aiLog"></div>
+            </div>
+            <div class="console">
+              <div class="console-hd"><span class="ch-dot"></span>操作事件记录</div>
+              <div class="term ev" id="evLog"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe pipe-hidden" id="pipe" aria-hidden="true">
+          <div class="ps" data-s="0"><div class="pn">1</div><div class="pl">心跳模拟</div></div>
+          <div class="ps" data-s="1"><div class="pn">2</div><div class="pl">风控评估</div></div>
+          <div class="ps" data-s="2"><div class="pn">3</div><div class="pl">AI 定价投保</div></div>
+          <div class="ps" data-s="3"><div class="pn">4</div><div class="pl">监控违约触发</div></div>
+          <div class="ps" data-s="4"><div class="pn">5</div><div class="pl">24h 挑战窗口</div></div>
+          <div class="ps" data-s="5"><div class="pn">6</div><div class="pl">AI 裁决赔付</div></div>
+          <div class="step-now" id="stepNow">待命</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div></div><div class="wb-panel" id="wb-panel-evidence" role="tabpanel" aria-labelledby="wb-tab-evidence" hidden><div class="wb-loading" data-loading="evidence" role="status"><span></span>正在载入项目验证…</div><iframe data-workspace-frame="evidence" title="项目验证" data-src="evidence.html?embed=1" loading="lazy"></iframe></div><div class="wb-panel" id="wb-panel-plan" role="tabpanel" aria-labelledby="wb-tab-plan" hidden><div class="wb-loading" data-loading="plan" role="status"><span></span>正在载入项目计划…</div><iframe data-workspace-frame="plan" title="项目计划" data-src="plan.html?embed=1" allow="clipboard-write" loading="lazy"></iframe></div></div>
+  <div class="wb-foot"><span>ComputeShield Protocol</span><span>切换功能，继续当前操作</span></div>
+ </div>
+</section>
+<dialog class="workspace-drawer" id="workspaceDrawer" aria-labelledby="drawerTitle"><div class="drawer-head"><div><span class="kicker">LAB · DETAIL</span><h2 id="drawerTitle">流程演练</h2></div><button type="button" id="drawerClose" aria-label="关闭详情面板">✕</button></div><div class="drawer-content" id="drawerContent"></div></dialog>
+<section class="cta" data-reveal>
+  <div class="cta-in">
+    <div class="cta-orb o1"></div><div class="cta-orb o2"></div>
+    <span class="closing-kicker">AEGIS · COMPUTESHIELD</span><h2>让每一份算力承诺，<br>都有保障。</h2>
+    <p>从节点质押到风险赔付，<br class="closing-mobile-break">让服务有约可循，让责任有据可查。</p>
+    <div class="closing-signature"><span></span>Aegis 神盾<span></span></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-in">
+    <div class="fbrand"><div class="mk sm" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2.4l7.5 3v6.2c0 4.5-3 8.2-7.5 9.6-4.5-1.4-7.5-5.1-7.5-9.6V5.4l7.5-3z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg></div><b>Aegis 神盾</b><span>ComputeShield Protocol</span></div>
+    <div class="fmeta">Core / NodeRegistry / RiskPool / AIReporter<br>本地演示 · 挑战窗口 24s；链上模式使用合约配置</div>
+  </div>
+</footer>
+
+<!-- ===================== 赔付闪光 ===================== -->
+<div id="flash" onclick="hideFlash()" role="dialog" aria-labelledby="flTitle">
+  <div class="tx" onclick="event.stopPropagation()">
+    <button type="button" class="flash-close" onclick="hideFlash()" aria-label="关闭赔付提示">✕</button>
+    <div class="tk">⚡</div>
+    <h4 id="flTitle">演示赔付已完成</h4>
+    <div class="amt" id="flAmt">+0 BOT</div>
+    <div class="to" id="flTo">→ 投保方钱包</div>
+    <div class="steps" id="flSteps"></div>
+    <div class="hash" id="flHash"></div>
+    <div class="close">点击任意处关闭</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ===================== 沉浸式演示（全屏 Sheet + 横向滑动） ===================== -->
+<div id="deck" class="deck" aria-hidden="true">
+  <div class="deck-scrim" id="deckScrim"></div>
+  <div class="deck-panel" id="deckPanel">
+    <button class="deck-close" id="deckClose" aria-label="关闭">✕</button>
+    <div class="deck-view" id="deckView">
+      <div class="deck-track" id="deckTrack">
+        <div class="slide" data-slide="0">
+          <div class="slide-inner">
+            <div class="slide-kicker">STEP 01 · 06</div>
+            <h2 class="slide-title">心跳模拟</h2>
+            <p class="slide-desc">模拟节点周期更新心跳，用于展示在线状态。</p>
+            <div class="slide-viz"><div class="w-heart"><span class="beat">💓</span><div>心跳正常 · 每 3 秒上报一次</div></div></div>
+          </div>
+        </div>
+        <div class="slide" data-slide="1">
+          <div class="slide-inner">
+            <div class="slide-kicker">STEP 02 · 06</div>
+            <h2 class="slide-title">风控评估</h2>
+            <p class="slide-desc">风控 Agent 实时评估节点风险分，作为动态定价依据。</p>
+            <div class="slide-viz"><div class="w-gauge"><div class="g-num" id="vRisk">—</div><div class="g-lbl">风险分 / 100</div></div></div>
+          </div>
+        </div>
+        <div class="slide" data-slide="2">
+          <div class="slide-inner">
+            <div class="slide-kicker">STEP 03 · 06</div>
+            <h2 class="slide-title">AI 定价投保</h2>
+            <p class="slide-desc">AI 定价 Agent 动态报价，生成保单，保费进入 RiskPool。</p>
+            <div class="slide-viz"><div class="w-quote">当前参数报价 <b id="vPrem">— BOT</b></div></div>
+          </div>
+        </div>
+        <div class="slide" data-slide="3">
+          <div class="slide-inner">
+            <div class="slide-kicker">STEP 04 · 06</div>
+            <h2 class="slide-title">违约触发</h2>
+            <p class="slide-desc">演示节点服务异常，风控模块记录违约状态。</p>
+            <div class="slide-viz"><div class="w-alert"><span>!</span> 连续心跳丢失 · 节点判定宕机</div></div>
+          </div>
+        </div>
+        <div class="slide" data-slide="4">
+          <div class="slide-inner">
+            <div class="slide-kicker">STEP 05 · 06</div>
+            <h2 class="slide-title">24h 挑战窗口</h2>
+            <p class="slide-desc">违约上链，进入乐观挑战窗口（演示压缩为 24 秒倒计时）。</p>
+            <div class="slide-viz"><div class="w-cd"><div class="cd-ring" id="vCdRing"><b id="vCdNum">24</b></div><div class="cd-lbl">秒后自动裁决</div></div></div>
+          </div>
+        </div>
+        <div class="slide" data-slide="5">
+          <div class="slide-inner">
+            <div class="slide-kicker">STEP 06 · 06</div>
+            <h2 class="slide-title">自动赔付</h2>
+            <p class="slide-desc">演示裁决通过后，展示风险池支付与节点罚没结果。</p>
+            <div class="slide-viz"><div class="w-pay">✅ 自动赔付 <b id="vPay">+0 BOT</b> 已到账</div></div>
+          </div>
+        </div>
+        <div class="slide end" data-slide="6">
+          <div class="slide-inner">
+            <div class="slide-kicker">DEMO COMPLETE</div>
+            <h2 class="slide-title">全流程演示完成</h2>
+            <p class="slide-desc">节点质押、投保、违约、挑战与赔付。当前结果为演示预设。</p>
+            <div class="slide-viz"><div class="w-end"><div class="end-ic">🛡️</div><div class="end-t">Aegis 神盾 · 自动赔付闭环</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="deck-foot">
+      <div class="deck-dots" id="deckDots"></div>
+      <div class="deck-ctrl">
+        <button class="dbtn" id="deckPrev" aria-label="上一页">←</button>
+        <button class="dbtn" id="deckReplay" aria-label="重播">⟳ 重播</button>
+        <button class="dbtn" id="deckNext" aria-label="下一页">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="protocol-capital.css">
+<script src="chain.js"></script>
+<script src="app.js"></script>
+<script src="protocol-capital.js"></script>
+<script src="fx.js"></script>
+<script src="flow.js"></script>
+<script src="components.js"></script>
+<script src="hero-video.js"></script>
+<script src="suite-ui.js"></script>
+<script src="workspace.js"></script>
+<script src="session-data.js"></script>
+<script src="layout-motion.js"></script>
+</body>
+</html>
+

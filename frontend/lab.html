@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+<title>Aegis 神盾 · 理赔实验室</title>
+<link rel="stylesheet" href="insurer.css">
+<link rel="stylesheet" href="motion.css">
+<style>
+/* 实验室内容布局；品牌视觉由 suite-theme.css 提供。 */
+.cols.lab { grid-template-columns: 372px 1fr; }
+@media (max-width: 1080px) { .cols.lab { grid-template-columns: 1fr; } }
+
+.doc { display: flex; align-items: center; gap: 9px; padding: 6px 0; cursor: pointer; font-size: 12px; }
+.doc input { width: 13px; height: 13px; accent-color: #1a1a1a; margin: 0; flex: none; }
+.doc .dn { flex: 1; }
+.doc .dw { font-family: var(--mono); font-size: 9.5px; color: var(--muted); }
+.doc.off { opacity: .45; }
+
+.pre { display: grid; gap: 6px; }
+.pre button {
+  text-align: left; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  padding: 8px 11px; font-family: inherit; font-size: 12px; cursor: pointer; line-height: 1.4;
+}
+.pre button:hover { border-color: var(--ink); }
+.pre button.on { border-color: var(--ink); box-shadow: inset 3px 0 0 var(--ink); background: #f6f6f4; }
+.pre button small { display: block; font-family: var(--mono); font-size: 9.5px; color: var(--muted); margin-top: 3px; letter-spacing: .04em; }
+
+/* Agent 时间线 */
+.tl { position: relative; }
+.tl .ag { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.tl .ag:last-child { border-bottom: 0; }
+.tl .ag .no { font-family: var(--mono); font-size: 10px; color: var(--muted); padding-top: 3px; letter-spacing: .1em; }
+.tl .ag .ah { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.tl .ag .an { font-size: 13px; font-weight: 700; letter-spacing: -.01em; }
+.tl .ag .ar { font-family: var(--mono); font-size: 9.5px; color: var(--muted); letter-spacing: .1em; }
+.tl .ag .cf { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.tl .ag .cfb { flex: 1; height: 3px; background: var(--line); max-width: 220px; }
+.tl .ag .cfb i { display: block; height: 100%; background: var(--ink); transform-origin: left; animation: mvSweep .7s cubic-bezier(.2,.7,.3,1) both; }
+.tl .ag .cfv { font-family: var(--mono); font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tl .ag .rs { margin-top: 9px; display: grid; gap: 7px; }
+.tl .ag .r { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: baseline; }
+.tl .ag .rk { font-family: var(--mono); font-size: 9.5px; color: var(--muted); letter-spacing: .06em; }
+.tl .ag .rd { font-size: 11.5px; line-height: 1.65; color: var(--ink); }
+.tl .ag .rw { grid-column: 2; height: 2px; background: var(--line); margin-top: 3px; }
+.tl .ag .rw i { display: block; height: 100%; background: var(--ink); opacity: .55; transform-origin: left; animation: mvSweep .8s cubic-bezier(.2,.7,.3,1) both; }
+.tl .ag .evs { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 5px; }
+.tl .ag .ev { font-family: var(--mono); font-size: 9.5px; border: 1px solid var(--line); padding: 2px 7px; color: var(--muted); }
+.tl .ag .ev b { color: var(--ink); font-weight: 500; }
+/* 逐级浮现 */
+.tl.run .ag { animation: mvRise .38s cubic-bezier(.2,.7,.3,1) both; }
+.tl.run .ag:nth-child(1) { animation-delay: 0s; }
+.tl.run .ag:nth-child(2) { animation-delay: .07s; }
+.tl.run .ag:nth-child(3) { animation-delay: .14s; }
+.tl.run .ag:nth-child(4) { animation-delay: .21s; }
+.tl.run .ag:nth-child(5) { animation-delay: .28s; }
+.tl.run .ag:nth-child(6) { animation-delay: .35s; }
+.tl.run .ag:nth-child(n+7) { animation-delay: .42s; }
+
+/* 结论卡 */
+.verdict { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.verdict .big { font-family: var(--mono); font-size: 22px; font-weight: 500; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.cnt { font-variant-numeric: tabular-nums; }
+.exl { display: grid; gap: 8px; }
+.exl .ex { border-left: 3px solid var(--line); padding: 2px 0 2px 10px; }
+.exl .ex.hit { border-left-color: var(--ink); }
+.exl .exd { font-size: 11.5px; line-height: 1.6; color: var(--muted); margin-top: 2px; }
+.cmp tr.on td { background: #f6f6f4; font-weight: 500; }
+.live .li { display: grid; grid-template-columns: 92px 1fr auto; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 11.5px; align-items: baseline; }
+.live .li:last-child { border-bottom: 0; }
+.live .li .t { font-family: var(--mono); font-size: 9.5px; color: var(--muted); }
+.live .li .d { font-family: var(--mono); font-size: 10.5px; }
+.live .li .n { font-family: var(--mono); font-size: 9.5px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) {
+  .tl.run .ag, .tl .ag .cfb i, .tl .ag .rw i { animation: none !important; }
+}
+</style>
+<link rel="stylesheet" href="assets/fonts/MiSans-Regular.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Medium.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Semibold.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Bold.min.css">
+<link rel="stylesheet" href="suite-theme.css">
+<script>if(window.parent!==window && new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('workbench-embedded');</script><link rel="stylesheet" href="embedded.css">
+<link rel="stylesheet" href="/mobile-VI.css"><script src="/mobile-VI.js" defer></script></head>
+<body data-suite="lab">
+
+<header class="hd">
+  <div class="hd-in">
+    <a class="lg" href="insurer.html">Aegis 神盾<span class="lg-tag">CLAIMS LAB</span></a>
+    <nav class="nv">
+      <a href="insurer.html"><span class="idx">01</span>保险核心</a>
+      <a href="index.html"><span class="idx">02</span>协议演示</a>
+      <a href="market.html"><span class="idx">03</span>行情终端</a>
+      <a href="plan.html"><span class="idx">04</span>项目计划书</a>
+      <span class="vsep"></span>
+      <a class="on">理赔实验室</a>
+    </nav>
+    <div class="hd-r">
+      <span class="srv"><span class="dot" id="srvDot"></span><span id="srvTxt">连接中</span></span>
+      <button class="btn pri" id="runBtn" onclick="run()">▶ 运行链路</button>
+    </div>
+  </div>
+</header>
+
+<main class="pg">
+  <div class="vw-hd">
+    <div class="label">— 06 · 规则演练</div>
+    <h1>理赔实验室<span class="chev"> ›</span></h1>
+    <span class="vw-sub">选择场景与证据，逐项查看规则依据。演练结果不入经营账；真实模型研判在项目验证页。</span>
+  </div>
+
+  <div class="cols lab">
+    <!-- ═══ 左：场景构造 ═══ -->
+    <div class="card">
+      <div class="sect">
+        <h4>预设场景</h4>
+        <div class="pre" id="presets"></div>
+      </div>
+      <div class="sect">
+        <h4>事故与保单</h4>
+        <div class="f" style="margin-bottom:10px">
+          <label>报案来源</label>
+          <select id="sSrc">
+            <option value="AUTO">保险人监控自动报案（参数化）</option>
+            <option value="MANUAL">投保人人工报案</option>
+            <option value="BLIND">监控盲区补录</option>
+          </select>
+        </div>
+        <div class="frow" style="display:flex;gap:10px">
+          <div class="f" style="margin-bottom:10px">
+            <label>险种</label>
+            <select id="sProd">
+              <option value="DOWNTIME">节点宕机险</option>
+              <option value="LATENCY">延迟超标险</option>
+              <option value="HASHRATE">算力不足险</option>
+            </select>
+          </div>
+          <div class="f" style="margin-bottom:10px">
+            <label>被保节点</label>
+            <select id="sNode"></select>
+          </div>
+        </div>
+        <div class="frow" style="display:flex;gap:10px">
+          <div class="f" style="margin-bottom:10px"><label>保额 BOT</label><input id="sSum" value="20000"></div>
+          <div class="f" style="margin-bottom:10px"><label>免赔额 BOT</label><input id="sDed" value="0"></div>
+        </div>
+        <div class="f"><label>事故持续时长 h</label><input id="sHrs" value="3"></div>
+      </div>
+      <div class="sect">
+        <h4>提交单证</h4>
+        <div id="docList"></div>
+        <div class="hint">勾选即视为投保人已提交；每份都走与线上相同的六维核验（格式 / 完整性 / 指纹唯一性 / 时效 / 相关性 / 交叉验证）。</div>
+      </div>
+      <div class="sect">
+        <h4>事故描述（写入单证正文）</h4>
+        <div class="f"><textarea id="sNote" rows="3" placeholder="留空为默认突发故障。写入「计划内维护」「上游机房」「人为误操作」等可触发对应除外条款。" style="font-family:var(--mono);font-size:11px;padding:8px 10px;border:1px solid var(--line);background:var(--card);color:var(--ink);resize:vertical"></textarea></div>
+        <div class="hint">除外条款由关键词命中触发，但<b>举证要件不齐则除外不成立、仍须赔付</b>——这是本实验室最值得对比的一组场景。</div>
+      </div>
+      <div class="sect">
+        <button class="btn pri" style="width:100%" onclick="run()">▶ 运行规则演练</button>
+        <div class="hint">干跑（DRY RUN）：不调度异步流程、单证原文不落盘、结束后整库回滚 —— 只推演，不入账。</div>
+      </div>
+    </div>
+
+    <!-- ═══ 右：链路 + 结论 ═══ -->
+    <div style="display:grid;gap:16px">
+      <div class="card">
+        <div class="sect" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <h4 style="margin:0">规则处理流程</h4>
+          <span class="dim mono" id="chainSub" style="font-size:10px">待运行</span>
+        </div>
+        <div class="tl" id="chain"><div class="empty">设置场景后点「运行链路」</div></div>
+      </div>
+
+      <div class="card">
+        <div class="sect">
+          <h4>核赔结论</h4>
+          <div id="verdict"><div class="empty">待运行</div></div>
+        </div>
+        <div class="sect" id="lossSect" style="display:none">
+          <h4>损失分项核定</h4>
+          <table class="tb" id="lossTbl"></table>
+        </div>
+        <div class="sect" id="exSect" style="display:none">
+          <h4>除外责任核查（举证责任在保险人）</h4>
+          <div class="exl" id="exList"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sect">
+          <h4>双轨理赔对照</h4>
+          <table class="tb cmp" id="cmpTbl"></table>
+        </div>
+        <div class="sect">
+          <h4>当前会话规则记录</h4>
+          <div class="live" id="live"><div class="empty">暂无决策记录</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sect">
+          <h4>跨险种参考实现（网络安全保险场景）</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a class="btn sm" href="lab/cyber-claims-demo.html" target="_blank" rel="noopener">理赔核定演练</a>
+            <a class="btn sm" href="lab/midflow-A-orchestration.html" target="_blank" rel="noopener">中间流程 · 编排调度型</a>
+            <a class="btn sm" href="lab/midflow-B-decision-engine.html" target="_blank" rel="noopener">中间流程 · 决策引擎型</a>
+          </div>
+          <div class="hint">这些预设案例用于比较不同险种的规则处理：除外条款举证、因果核减、第三方定损与职责分离，以及直通和编排两种流程。案例通过不代表真实业务效果。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="conn-guard.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => n == null || isNaN(n) ? '-' : Number(n).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+const pct = n => n == null || isNaN(n) ? '-' : Number(n).toFixed(1) + '%';
+
+const DOCS = [
+  ['HEARTBEAT_LOG', '心跳 / 监控日志', .30],
+  ['OPS_TICKET', '运维工单 / 事故报告', .25],
+  ['CLOUD_BILL', '云厂商账单 / 算力对账单', .15],
+  ['SELF_PROOF', '在线自证材料', .20],
+  ['AUDIT_REPORT', '第三方审计报告', .08],
+  ['CHAIN_PROOF', '链上凭证 (tx)', .10],
+];
+const PRESETS = [
+  ['直通件 · 监控自动报案', '参数化赔案，决策引擎秒核定', { src: 'AUTO', docs: [], note: '' }],
+  ['人工报案 · 未提交单证', '触发《补充单证通知书》，挂起待补证', { src: 'MANUAL', docs: [], note: '' }],
+  ['人工报案 · 单证齐全', '心跳日志 + 运维工单，正常赔付', { src: 'MANUAL', docs: ['HEARTBEAT_LOG', 'OPS_TICKET'], note: '' }],
+  ['计划内维护 · 除外成立', '工单检出计划内维护，举证齐备 → 拒赔', { src: 'MANUAL', docs: ['HEARTBEAT_LOG', 'OPS_TICKET'], note: '本次为计划内维护窗口内的例行停机，已提前公告。' }],
+  ['上游故障 · 举证不足', '命中 EX-03 但缺云账单 → 除外不成立，仍须赔付', { src: 'MANUAL', docs: ['HEARTBEAT_LOG', 'OPS_TICKET'], note: '根因定位为上游机房可用区故障，骨干网中断，非本节点自身过错。' }],
+  ['上游故障 · 账单齐备', '补齐云账单 → 除外成立 + 第三方代位追偿', { src: 'MANUAL', docs: ['HEARTBEAT_LOG', 'OPS_TICKET', 'CLOUD_BILL'], note: '根因定位为上游机房可用区故障，骨干网中断。' }],
+  ['大额件 · 超授权', '自留超阈值 → 升级二级核赔人复核', { src: 'AUTO', docs: [], note: '', sum: 400000, hrs: 12 }],
+  ['监控盲区 · 节点自证', '举证责任倒置，节点自证在线', { src: 'BLIND', docs: ['SELF_PROOF'], note: '' }],
+];
+const AGENTS = [
+  ['单证Agent', '受理分诊 · 单证齐备性'],
+  ['证据核验Agent', '单证六维核验'],
+  ['查勘定损Agent', '查勘定损 · 理算'],
+  ['合规Agent', '除外责任举证核查'],
+  ['核赔Agent', '核赔决策 · 反欺诈'],
+  ['二级核赔Agent', '超授权升级复核'],
+  ['直通引擎Agent', '直通结算'],
+  ['追偿Agent', '代位追偿'],
+];
+const VERDICT = {
+  APPROVED: ['核准赔付', 'st-ok'], DECLINED: ['拒赔', 'st-bad'],
+  PENDING_EVIDENCE: ['挂起待补证', 'st-warn'], REFERRED: ['升级复核中', 'st-warn'],
+};
+
+let S = null, curPreset = 0;
+
+/* ── 面板 ── */
+$('presets').innerHTML = PRESETS.map((p, i) =>
+  `<button class="${i === 0 ? 'on' : ''}" onclick="usePreset(${i})">${esc(p[0])}<small>${esc(p[1])}</small></button>`).join('');
+$('docList').innerHTML = DOCS.map(([k, n, w]) =>
+  `<label class="doc off" id="doc-${k}"><input type="checkbox" data-k="${k}" onchange="syncDoc()">
+   <span class="dn">${esc(n)}</span><span class="dw">权重 ${w.toFixed(2)}</span></label>`).join('');
+function syncDoc() {
+  document.querySelectorAll('#docList input').forEach(i => {
+    $('doc-' + i.dataset.k).classList.toggle('off', !i.checked);
+  });
+}
+function usePreset(i) {
+  curPreset = i;
+  document.querySelectorAll('#presets button').forEach((b, j) => b.classList.toggle('on', j === i));
+  const p = PRESETS[i][2];
+  $('sSrc').value = p.src;
+  $('sNote').value = p.note || '';
+  $('sSum').value = p.sum || 20000;      // 预设未指定则回到默认，避免沿用上一场景
+  $('sHrs').value = p.hrs || 3;
+  document.querySelectorAll('#docList input').forEach(x => { x.checked = (p.docs || []).indexOf(x.dataset.k) >= 0; });
+  syncDoc();
+}
+
+/* ── 干跑 ── */
+let running = false;
+async function run() {
+  if (running) return;
+  running = true; $('runBtn').disabled = true;
+  const docs = [...document.querySelectorAll('#docList input')].filter(i => i.checked).map(i => i.dataset.k);
+  const body = {
+    src: $('sSrc').value, product: $('sProd').value, nodeId: $('sNode').value,
+    sumInsured: +$('sSum').value || 20000, deductible: +$('sDed').value || 0,
+    hours: +$('sHrs').value || 0, docs, note: $('sNote').value.trim(),
+  };
+  try {
+    const r = await fetch('/api/lab/sim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(x => x.json());
+    if (!r.ok) throw new Error(r.error || '干跑失败');
+    render(r);
+  } catch (e) {
+    $('chain').innerHTML = '<div class="empty">干跑失败：' + esc(e.message) + '</div>';
+  } finally {
+    running = false; $('runBtn').disabled = false;
+  }
+}
+
+/* ── 数字补间 ── */
+const CNT = {};
+const REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const cntFmt = (v, k) => k === 'pct' ? Number(v || 0).toFixed(1) + '%' : fmt(Math.round(Number(v || 0) * 100) / 100);
+function cntSpan(v, k, key) {
+  return `<span class="cnt" data-kind="${k}" data-to="${(Number(v) || 0).toFixed(2)}" data-k="${key}">—</span>`;
+}
+function tween(root) {
+  (root || document).querySelectorAll('.cnt').forEach(el => {
+    const to = parseFloat(el.dataset.to) || 0, k = el.dataset.kind || 'int', key = el.dataset.k;
+    const from = CNT[key] == null ? 0 : CNT[key];
+    CNT[key] = to;
+    if (REDUCE || Math.abs(to - from) < 0.05) { el.textContent = cntFmt(to, k); return; }
+    const t0 = performance.now(), dur = 520;
+    const step = now => {
+      const p = Math.min(1, (now - t0) / dur);
+      el.textContent = cntFmt(from + (to - from) * (1 - Math.pow(1 - p, 3)), k);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+/* ── 渲染 ── */
+function render(r) {
+  const c = r.claim;
+  // 链路
+  const got = r.agents || [];
+  const ordered = [];
+  AGENTS.forEach(([name, role]) => got.filter(a => a.agent === name).forEach(a => ordered.push([name, role, a])));
+  got.forEach(a => { if (!AGENTS.some(x => x[0] === a.agent)) ordered.push([a.agent, '补充环节', a]); });
+  $('chainSub').textContent = `${ordered.length} 个环节 · ${esc(PRESETS[curPreset][0])}`;
+  $('chain').innerHTML = ordered.length
+    ? ordered.map(([name, role, a], i) => `
+      <div class="ag">
+        <div class="no">${String(i + 1).padStart(2, '0')}</div>
+        <div>
+          <div class="ah"><span class="an">${esc(String(name || '').replace(/Agent/g, '规则'))}</span><span class="ar">${esc(role)}</span>
+            <span class="pill st-ok"><span class="dot"></span>${esc(a.decision)}</span></div>
+          <div class="cf"><span class="cfb"><i style="width:${Math.round((a.conf || 0) * 100)}%"></i></span>
+            <span class="cfv">规则评分 ${(a.conf || 0).toFixed(2)}</span></div>
+          <div class="rs">${(a.reasoning || []).map(x => `
+            <div class="r"><div class="rk">${esc(x.s)}</div><div class="rd">${esc(x.d)}</div>
+              <div class="rw"><i style="width:${Math.round((x.w || 0) * 100)}%"></i></div></div>`).join('')}</div>
+          ${(a.evidence || []).length ? `<div class="evs">${a.evidence.map(e =>
+            `<span class="ev">${esc(e.k)} <b>${esc(e.v)}</b></span>`).join('')}</div>` : ''}
+        </div>
+      </div>`).join('')
+    : '<div class="empty">本次场景无规则评估记录</div>';
+  const tl = $('chain'); tl.classList.remove('run'); void tl.offsetWidth; tl.classList.add('run');
+
+  // 结论
+  const [vt, vc] = VERDICT[c.decision] || [c.decision, 'st-mut'];
+  const AMT_LBL = { APPROVED: 'BOT 应付', REFERRED: 'BOT 待复核', PENDING_EVIDENCE: 'BOT 暂估', DECLINED: 'BOT 核定 · 不赔付' }[c.decision] || 'BOT';
+  $('verdict').innerHTML = `
+    <div class="verdict">
+      <span class="pill ${vc} stamp"><span class="dot"></span>${esc(vt)}</span>
+      <span class="big">${c.payable ? cntSpan(c.payable, 'int', 'pay') + ' <small style="font-size:11px;color:var(--muted)">' + AMT_LBL + '</small>' : '—'}</span>
+      <span class="dim mono" style="font-size:11px">轨道 ${esc(c.track || '-')} · 规则评分 ${(c.conf || 0).toFixed(2)}</span>
+    </div>
+    <div class="kv" style="margin-top:12px">
+      <div><div class="k">事故时长</div><div class="v">${c.hours} h</div></div>
+      <div><div class="k">申报金额</div><div class="v">${cntSpan(c.claimed, 'int', 'clm')}</div></div>
+      <div><div class="k">核减</div><div class="v">${cntSpan(c.cut, 'int', 'cut')}</div></div>
+      <div><div class="k">再保摊回</div><div class="v">${cntSpan(c.ceded, 'int', 'ced')}</div></div>
+      <div><div class="k">公司自留</div><div class="v">${cntSpan(c.net, 'int', 'net')}</div></div>
+      <div><div class="k">核减率</div><div class="v">${pct(c.claimed ? c.cut / c.claimed * 100 : 0)}</div></div>
+      <div><div class="k">因果强度</div><div class="v">${pct((c.causation || 0) * 100)}</div></div>
+      <div><div class="k">欺诈评分</div><div class="v">${c.fraud} / 100</div></div>
+      <div><div class="k">理赔费用 LAE</div><div class="v">${c.lae} BOT</div></div>
+      <div><div class="k">第三方公估</div><div class="v">${c.adjuster ? esc(c.adjuster.name) : '-'}</div></div>
+      <div><div class="k">复核意见</div><div class="v" style="font-size:11px">${esc((c.critic && c.critic.note) || '-')}</div></div>
+    </div>
+    <div class="hint" style="margin-top:12px"><b>依据：</b>${esc(c.why || '-')}</div>
+    ${r.recovery && (r.recovery.node || r.recovery.thirdParty) ? `
+    <div class="hint" style="margin-top:6px"><b>追偿预判：</b>向节点代位追偿 ${fmt(r.recovery.node)} BOT` +
+      `${r.recovery.thirdParty ? ` · 向责任第三方追偿 ${fmt(r.recovery.thirdParty)} BOT（EX-03）` : ''}` +
+      ` → 最终净损失 <b>${fmt(r.recovery.netLoss)} BOT</b></div>` : ''}`;
+  tween($('verdict'));
+
+  // 损失分项
+  if ((c.items || []).length) {
+    $('lossSect').style.display = '';
+    $('lossTbl').innerHTML = `<tr><th>损失项</th><th class="num">申报</th><th class="num">市场基准</th><th class="num">因果强度</th><th class="num">核定</th><th class="num">核减</th></tr>` +
+      c.items.map(i => `<tr><td>${esc(i.name)}</td><td class="num">${fmt(i.claimed)}</td><td class="num">${fmt(i.market)}</td>
+        <td class="num">${Math.round((i.causation || 0) * 100)}%</td><td class="num">${fmt(i.adj)}</td><td class="num dim">${fmt(i.cut)}</td></tr>`).join('');
+  } else { $('lossSect').style.display = 'none'; $('lossTbl').innerHTML = ''; }
+
+  // 除外核查
+  if ((c.exclusions || []).length) {
+    $('exSect').style.display = '';
+    $('exList').innerHTML = c.exclusions.map(h => `
+      <div class="ex ${h.outcome === 'EXCLUSION_APPLIED' ? 'hit' : ''}">
+        <div><span class="pill ${h.outcome === 'EXCLUSION_APPLIED' ? 'st-bad' : 'st-warn'}"><span class="dot"></span>${esc(h.code)} ${esc(h.name)}</span>
+          ${h.thirdParty ? '<span class="pill st-mut">第三方责任</span>' : ''}</div>
+        <div class="exd">${esc(h.detail)}</div></div>`).join('');
+  } else { $('exSect').style.display = 'none'; $('exList').innerHTML = ''; }
+
+  // 双轨对照
+  const on = r.compare.track === 'STP' ? 'stp' : 'orch';
+  $('cmpTbl').innerHTML = `<tr><th>轨道</th><th class="num">编排步骤</th><th class="num">单均 LAE</th><th class="num">标称耗时</th><th>说明</th></tr>
+    <tr class="${on === 'stp' ? 'on' : ''}"><td>直通 STP</td><td class="num">—</td><td class="num">${r.compare.stp.lae} BOT</td><td class="num">决策引擎直核</td><td class="dim">${esc(r.compare.stp.note)}</td></tr>
+    <tr class="${on === 'orch' ? 'on' : ''}"><td>编排调度</td><td class="num">${r.compare.orch.steps}</td><td class="num">${r.compare.orch.lae} BOT</td><td class="num">${r.compare.orch.ms} ms</td><td class="dim">${esc(r.compare.orch.note)}</td></tr>`;
+}
+
+/* ── 线上智能体决策流 ── */
+function renderLive() {
+  const ai = (S && S.ai) || [];
+  $('live').innerHTML = ai.length
+    ? ai.slice(0, 10).map(a => `<div class="li"><span class="t">${esc(a.t)}</span>
+        <span><b class="mono">${esc(String(a.agent || '').replace(/Agent/g, '规则'))}</b> <span class="d">${esc(a.decision)}</span></span>
+        <span class="n">${esc(a.claimNo || '-')} · ${(a.confidence || 0).toFixed(2)}</span></div>`).join('')
+    : '<div class="empty">暂无决策记录</div>';
+}
+
+async function pull() {
+  try {
+    S = await fetch('/api/state').then(r => r.json());
+    $('srvDot').className = 'dot ok'; $('srvTxt').textContent = '核心在线';
+    const sel = $('sNode'), sig = (S.nodes || []).map(n => n.id).join('|');
+    if (sel.dataset.sig !== sig) {
+      sel.dataset.sig = sig;
+      sel.innerHTML = (S.nodes || []).map(n => `<option value="${esc(n.id)}">${esc(n.id)}${n.real ? ' · 真实' : ''}</option>`).join('');
+    }
+    renderLive();
+  } catch (e) {
+    $('srvDot').className = 'dot bad'; $('srvTxt').textContent = '连接中断';
+  }
+}
+
+usePreset(0);
+pull();
+setInterval(pull, 2600);
+</script>
+<script src="suite-ui.js"></script>
+<script src="embedded.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+/* Additive styles: original homepage rules remain in style.css. */
+.hero-film{
+  position:absolute;right:26px;top:110px;
+  /* Keep clear of the existing 5vw title while enlarging the 16:9 picture. */
+  width:min(540px,calc(50vw - 60px));margin:0;
+  border:1px solid rgba(255,255,255,.64);border-radius:24px;overflow:hidden;
+  background:linear-gradient(130deg,rgba(246,250,255,.75),rgba(239,237,253,.64));
+  box-shadow:0 26px 64px -30px rgba(54,73,142,.29),inset 0 1px 0 rgba(255,255,255,.7);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.hero-film-bar{display:flex;align-items:center;gap:10px;padding:13px 16px;font-size:13px;line-height:20px;color:var(--ink)}
+.hero-film-mark{width:19px;height:19px;display:grid;place-items:center;border-radius:6px;background:linear-gradient(135deg,#0071e3,#5856d6);color:#fff;flex:none}
+.hero-film-bar b{font-weight:600;letter-spacing:.02em}
+.hero-film-duration{margin-left:auto;font-size:11px;color:var(--blue);background:rgba(0,113,227,.07);border-radius:99px;padding:1px 9px}
+.hero-film video{display:block;width:calc(100% - 20px);margin:0 10px;aspect-ratio:16/9;object-fit:contain;border-radius:15px;background:#edf2fc}
+.hero-film-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 16px 12px;font-size:11px;line-height:18px;color:#536080}
+.hero-film-foot a{color:var(--blue);text-decoration:none;white-space:nowrap}
+.hero-film-foot a:hover{text-decoration:underline}
+.hero-film-foot a:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:3px}
+@media(max-width:1000px){
+  .hero-film{position:relative;top:auto;right:auto;width:100%;max-width:560px;margin:30px 0 0}
+}
+@media(max-width:480px){
+  .hero-film{border-radius:16px}
+  .hero-film-bar{padding:9px 12px}
+  .hero-film-foot{padding:8px 12px;font-size:10px}
+}
+
+/* 放大后的视频：给左侧文字让出更舒适的宽度 */
+.hero h1{font-size:clamp(34px,5vw,60px);max-width:600px;letter-spacing:-.022em}
+.hero .lead{max-width:min(520px,calc(50vw - 36px))}
+.hero-stats{max-width:min(580px,calc(50vw - 36px))}
+@media(max-width:1000px){
+  .hero .lead,.hero-stats{max-width:100%}
+}

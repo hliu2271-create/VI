@@ -1,0 +1,449 @@
+{
+  "version": "IV",
+  "kind": "local-contract-verification",
+  "status": "passed",
+  "createdAt": "2026-10-08T00:28:25.765Z",
+  "network": "in-process Hardhat",
+  "chainId": 31337,
+  "checks": [
+    "Authorities cannot be silently replaced",
+    "Pool core cannot be replaced after binding",
+    "Initial LP shares use twenty-seven decimal precision",
+    "Initial deposit preview matches minted shares",
+    "Zero deposits rejected",
+    "Minimum-share deposit prevents slippage",
+    "Failed slippage deposit leaves assets and shares unchanged",
+    "Protected deposit mints the quoted shares",
+    "Zero-share withdrawal rejected",
+    "Zero recipient withdrawal rejected",
+    "LP cannot burn more shares than owned",
+    "Premium and floor-rounding attack cannot steal victim principal",
+    "Policy duration must allow evidence above SLA before expiry",
+    "First policy reserves full coverage",
+    "Concurrent policy cannot reuse locked capital",
+    "Two policies reserve their aggregate coverage",
+    "Unsettled premiums excluded from withdrawable cash",
+    "LP cannot withdraw backing active policies",
+    "Backing remains after permitted withdrawal",
+    "Stranger cannot claim for another payer",
+    "Self-report alone does not trigger claim",
+    "Unverified request cannot pay",
+    "Unauthorized party cannot confirm evidence",
+    "Empty evidence digest rejected",
+    "Existing challenge deadline is immutable",
+    "Cannot settle inside challenge window",
+    "Settlement releases only its own reserve",
+    "No duplicate settlement",
+    "Both concurrent insured amounts paid",
+    "All settled reserves and premiums released",
+    "Actual balance matches pool accounting",
+    "Challenged incident requires separate arbitration",
+    "Reporter cannot self-arbitrate",
+    "Rejected state and reserve release",
+    "Expiration releases coverage",
+    "Timed out arbitration frees reserve",
+    "Unanswered arbitration refunds premium",
+    "Refund consumed once",
+    "Nested withdrawal blocked",
+    "All LP shares redeem with bounded rounding residual"
+  ],
+  "txs": [
+    {
+      "step": "deploy NodeRegistry",
+      "hash": "0x3add8f21212042f7b369ce8e6097cdba15409a68a7dc4390276aeb53452990d5",
+      "blockNumber": 1,
+      "status": "SUCCESS",
+      "gasUsed": "796861"
+    },
+    {
+      "step": "deploy RiskPool",
+      "hash": "0x77fc2c715c2c4e1e2f0078ec5469ac4f5ae1c8a3399ce7209e08da52f6d5b21e",
+      "blockNumber": 2,
+      "status": "SUCCESS",
+      "gasUsed": "1331310"
+    },
+    {
+      "step": "deploy AIReporterMock",
+      "hash": "0x4c298ef148a5d0159cd56dcc96e164a37b674cd9cfe6c93c17106fa0ac5c6722",
+      "blockNumber": 3,
+      "status": "SUCCESS",
+      "gasUsed": "360555"
+    },
+    {
+      "step": "deploy ComputeShieldCore",
+      "hash": "0x7f22954d62100bd4566b85e359ee6fe64528f59e1bd12090587097b3d1743404",
+      "blockNumber": 4,
+      "status": "SUCCESS",
+      "gasUsed": "2455358"
+    },
+    {
+      "step": "bind registry",
+      "hash": "0x2e80564806f8f03125e14d92cc3245995d7c31b4b7c569b951fb032d88af14f9",
+      "blockNumber": 5,
+      "status": "SUCCESS",
+      "gasUsed": "48885"
+    },
+    {
+      "step": "bind pool",
+      "hash": "0xdd663399f42ad12f887e9ce657087c2d07ba144322a1d6630c3695f6d8d1225f",
+      "blockNumber": 6,
+      "status": "SUCCESS",
+      "gasUsed": "48343"
+    },
+    {
+      "step": "set distinct evidence reporter and arbitrator",
+      "hash": "0x5fca2f6305091583238adb42f86c8197acbf27c2082c770e46a090fda1909c17",
+      "blockNumber": 7,
+      "status": "SUCCESS",
+      "gasUsed": "68415"
+    },
+    {
+      "step": "LP deposit",
+      "hash": "0x2e1f1ee85aa56b33fcae3fb2b0bcdcdd91ec81798045d83d215711722c10cd82",
+      "blockNumber": 8,
+      "status": "SUCCESS",
+      "gasUsed": "117631"
+    },
+    {
+      "step": "Protected deposit accepts exact share quote",
+      "hash": "0x2ec2d67a2a0ee7b28d39330c463e457752007ecd7a77e7fe6bbd32910c3e2acd",
+      "blockNumber": 9,
+      "status": "SUCCESS",
+      "gasUsed": "69198"
+    },
+    {
+      "step": "Protected depositor exits",
+      "hash": "0x5e8496343ac4f98704f60a934f3bfb25774f3f588125cac0fabeccedfea104a7",
+      "blockNumber": 10,
+      "status": "SUCCESS",
+      "gasUsed": "65557"
+    },
+    {
+      "step": "node collateral",
+      "hash": "0xaae36a3c8c7a77d05c7db93f39eb36a30b3a859139112bb8d1f83e20c285a8d8",
+      "blockNumber": 11,
+      "status": "SUCCESS",
+      "gasUsed": "111851"
+    },
+    {
+      "step": "deploy RiskPool",
+      "hash": "0x606c9f463e6d4a3d5aa35f4b13bf20288f27e7345ecf5a7669c71c5f01f4130c",
+      "blockNumber": 12,
+      "status": "SUCCESS",
+      "gasUsed": "1331310"
+    },
+    {
+      "step": "deploy ComputeShieldCore",
+      "hash": "0x091f88d16131e694f6c6ba17e17bb417e3ca14f7b04a87eca9c74eb9c600200d",
+      "blockNumber": 13,
+      "status": "SUCCESS",
+      "gasUsed": "2455358"
+    },
+    {
+      "step": "Bind rounding-regression pool",
+      "hash": "0x98cc2f4cf9ca5ef1381a4015f39fc86e952fa2366f4383a373a8079e0b1c8de6",
+      "blockNumber": 14,
+      "status": "SUCCESS",
+      "gasUsed": "48343"
+    },
+    {
+      "step": "Bind rounding-regression authorities",
+      "hash": "0x1340c75818ffaeca80c466eac5a81df264e0cd4b57436f5071aee1f2210c62f7",
+      "blockNumber": 15,
+      "status": "SUCCESS",
+      "gasUsed": "68415"
+    },
+    {
+      "step": "Attacker seeds twenty wei",
+      "hash": "0x41748fd595a9970c36dfff3f46db4db9f0dc731a113cf1d81cf8d61481cbf5b7",
+      "blockNumber": 16,
+      "status": "SUCCESS",
+      "gasUsed": "117631"
+    },
+    {
+      "step": "Tiny policy earns one wei premium",
+      "hash": "0x562aa0ed75539cb6c372c0584139becaa1c74b1b72531e2505a42add92a0025e",
+      "blockNumber": 17,
+      "status": "SUCCESS",
+      "gasUsed": "342819"
+    },
+    {
+      "step": "Tiny policy expires",
+      "hash": "0xec63aebbcb839a5f8767f9e2961d1beaf0b411d028b40e3dcc417746dfaa1446",
+      "blockNumber": 19,
+      "status": "SUCCESS",
+      "gasUsed": "63460"
+    },
+    {
+      "step": "Attacker withdraws nineteen twentieths",
+      "hash": "0xcd319c3e3787f8509723650b8a4325d0404cf5b34de964529cf0a359ee0f975f",
+      "blockNumber": 20,
+      "status": "SUCCESS",
+      "gasUsed": "61491"
+    },
+    {
+      "step": "Attacker deposits three wei",
+      "hash": "0xb6d360a1c0a853e952da84198f77a40a251133f6b570ead0876ba8d19cbb998c",
+      "blockNumber": 21,
+      "status": "SUCCESS",
+      "gasUsed": "51245"
+    },
+    {
+      "step": "Attacker redeems new shares",
+      "hash": "0x354856d00e68f64da292b095ea4a52580bd862704f54b9de049d37e595b420ff",
+      "blockNumber": 22,
+      "status": "SUCCESS",
+      "gasUsed": "61481"
+    },
+    {
+      "step": "Victim deposits five wei",
+      "hash": "0xcbe7b93fc2ed920d104315dc16776567018583f2aa37b7f750e28f86cada0432",
+      "blockNumber": 23,
+      "status": "SUCCESS",
+      "gasUsed": "68994"
+    },
+    {
+      "step": "Attacker exits before victim",
+      "hash": "0x89ff07e0742f05f52d75ffb11470c35f73879dcdfb85e4ef77c7c8deff02bfc5",
+      "blockNumber": 24,
+      "status": "SUCCESS",
+      "gasUsed": "65548"
+    },
+    {
+      "step": "Victim exits regression pool",
+      "hash": "0xb2e6832eb72f8e27b688a601029d62d85888d706f72d779c391c562941d62af5",
+      "blockNumber": 25,
+      "status": "SUCCESS",
+      "gasUsed": "65557"
+    },
+    {
+      "step": "Restore free capital for duration boundary",
+      "hash": "0x812e7bbb1177a37baaaeff61d06e1fb3a05cf072c34a833239d6ba4bab91577d",
+      "blockNumber": 26,
+      "status": "SUCCESS",
+      "gasUsed": "100531"
+    },
+    {
+      "step": "short local challenge window",
+      "hash": "0x8614f3e9348102a745e87d32749a810a29722b9121437db29e609bfc77b78207",
+      "blockNumber": 27,
+      "status": "SUCCESS",
+      "gasUsed": "27909"
+    },
+    {
+      "step": "buy 600",
+      "hash": "0xe1fdbc45b34880fd95780e23580a0abef053b62ca71fe06a160af1cf66818f6d",
+      "blockNumber": 28,
+      "status": "SUCCESS",
+      "gasUsed": "342903"
+    },
+    {
+      "step": "buy 300",
+      "hash": "0x754811c1f112e35aeeade2eb1c81c348a41cb13b9f3629cf51e88d308aa7d38b",
+      "blockNumber": 29,
+      "status": "SUCCESS",
+      "gasUsed": "291603"
+    },
+    {
+      "step": "Partial free-capital withdrawal",
+      "hash": "0x8cf975e2638e9f2fc31cb3f317b59014a2d49df8a19f7ce33b2026ee9f164926",
+      "blockNumber": 30,
+      "status": "SUCCESS",
+      "gasUsed": "61539"
+    },
+    {
+      "step": "Payer submits an unverified incident request",
+      "hash": "0x14c6cd08e3bb095ad64b7de15f9f5379528b39e2ffa3d1f38efa7340ca91659d",
+      "blockNumber": 31,
+      "status": "SUCCESS",
+      "gasUsed": "52778"
+    },
+    {
+      "step": "Authorized reporter confirms evidence",
+      "hash": "0xfc8a06899f017e789b79201b3889bfd4504bf866a50d5f8d11425c7563886e98",
+      "blockNumber": 33,
+      "status": "SUCCESS",
+      "gasUsed": "107970"
+    },
+    {
+      "step": "Change window for future incidents only",
+      "hash": "0xd500740d21500d367f77e69c78b4a8f0e1bd2a8282d8cfe655e05f059a4f1e77",
+      "blockNumber": 34,
+      "status": "SUCCESS",
+      "gasUsed": "27909"
+    },
+    {
+      "step": "First policy settlement",
+      "hash": "0x8f229a6dc5c6847b7e8e8b02be6e093337a1fc242580255f740e20ee332cc0d4",
+      "blockNumber": 36,
+      "status": "SUCCESS",
+      "gasUsed": "134504"
+    },
+    {
+      "step": "Second policy evidence",
+      "hash": "0xeccfff1017b922f2ec6dad142375a4cc40254ecf953da5691831d7afc5ced0ec",
+      "blockNumber": 37,
+      "status": "SUCCESS",
+      "gasUsed": "107970"
+    },
+    {
+      "step": "Second policy settlement",
+      "hash": "0xa00bbf68bd0565635e5635e0f45af696aff472ca0bb01247e56d410940fa2cef",
+      "blockNumber": 39,
+      "status": "SUCCESS",
+      "gasUsed": "120824"
+    },
+    {
+      "step": "Second LP enters at current net asset value",
+      "hash": "0x15065f5f3ffd98bb3158e192a637a034a78442a77963765f1fb5d68bbda35601",
+      "blockNumber": 40,
+      "status": "SUCCESS",
+      "gasUsed": "68994"
+    },
+    {
+      "step": "Reset future window for challenge scenarios",
+      "hash": "0x61037b9e882d027cd8737fb31d76f167ea32574efa018a68224c0efe3d4f1c77",
+      "blockNumber": 41,
+      "status": "SUCCESS",
+      "gasUsed": "27909"
+    },
+    {
+      "step": "buy 200",
+      "hash": "0xa78eae3fea89058385a6c25fd25cbc485806fa16d3ea264ede46f06f0c7adfac",
+      "blockNumber": 42,
+      "status": "SUCCESS",
+      "gasUsed": "325803"
+    },
+    {
+      "step": "Confirmed disputed incident",
+      "hash": "0x4a68fd811cfdc3e786876095cfecda2fd67b746216d8db0ae7a39adad74a6795",
+      "blockNumber": 44,
+      "status": "SUCCESS",
+      "gasUsed": "107970"
+    },
+    {
+      "step": "Node challenges",
+      "hash": "0x7a3327fcb556ae90eb9eeece360a52cfca8107a54cafc3c92f11c1e6feaf3e94",
+      "blockNumber": 45,
+      "status": "SUCCESS",
+      "gasUsed": "32460"
+    },
+    {
+      "step": "Arbitrator rejects disputed claim",
+      "hash": "0x881f7e2dda48d3aa6b298b35d565b0e925aefd1ba6d8a1978b3d056ebf2e494a",
+      "blockNumber": 47,
+      "status": "SUCCESS",
+      "gasUsed": "77338"
+    },
+    {
+      "step": "Rejected claim releases backing",
+      "hash": "0x596153c4cfbd4817c8ea25d2fd15c3c346ee44d738f28267329a9c6911085b95",
+      "blockNumber": 48,
+      "status": "SUCCESS",
+      "gasUsed": "71232"
+    },
+    {
+      "step": "buy 200",
+      "hash": "0x13298fd3e8368ed3ebd7512b61fef5bff7f45cdf5b43ddad4332ef4467470ea6",
+      "blockNumber": 49,
+      "status": "SUCCESS",
+      "gasUsed": "325791"
+    },
+    {
+      "step": "Untriggered policy expires",
+      "hash": "0x8fa29f52dc9422e3736c7e870f805d85534f8be04e476e738efadb89a608c882",
+      "blockNumber": 51,
+      "status": "SUCCESS",
+      "gasUsed": "63460"
+    },
+    {
+      "step": "buy 200",
+      "hash": "0xd9bccfa5c9ee4e077e406c705903c74ae3571c2fe28850f8e4c0aaceb4e7801e",
+      "blockNumber": 52,
+      "status": "SUCCESS",
+      "gasUsed": "325803"
+    },
+    {
+      "step": "Incident awaiting arbitration",
+      "hash": "0x03f8ebbba1c8347a93fa1541a3c7239e80c8933321be43c61b9e8037cdb49768",
+      "blockNumber": 54,
+      "status": "SUCCESS",
+      "gasUsed": "107970"
+    },
+    {
+      "step": "Challenge unresolved incident",
+      "hash": "0x3e6ba24501d31cdaba04c64cf7ccdef2abc604349ac7951ada8cbaa225a8138e",
+      "blockNumber": 55,
+      "status": "SUCCESS",
+      "gasUsed": "32256"
+    },
+    {
+      "step": "Close unanswered arbitration and credit premium refund",
+      "hash": "0x407ae4e010b3ce6e456353ba562b672762c9898f4eaa852da62e0a3c14138b71",
+      "blockNumber": 57,
+      "status": "SUCCESS",
+      "gasUsed": "105864"
+    },
+    {
+      "step": "Payer collects premium refund",
+      "hash": "0x24c3d64d005c52bdda76ccc1635912ba8cd7e6d43a38a7f88f16f3fd55a61c45",
+      "blockNumber": 58,
+      "status": "SUCCESS",
+      "gasUsed": "53324"
+    },
+    {
+      "step": "deploy TestReceiver",
+      "hash": "0xa8aac2fabb8c44de3fbebaa9a80966b5447d07a8cb24244eb3bd57ea8851d9ac",
+      "blockNumber": 59,
+      "status": "SUCCESS",
+      "gasUsed": "227528"
+    },
+    {
+      "step": "Reentrant receiver deposits",
+      "hash": "0xb71f817572c933c303e1b8c23337a283a6cd91377417cbd0d38531b6c7ee3248",
+      "blockNumber": 60,
+      "status": "SUCCESS",
+      "gasUsed": "78503"
+    },
+    {
+      "step": "Reentrant receiver withdraws",
+      "hash": "0xfd212d0a2458483f376c7ce8b24116e6db9df807a4bc7bf311619b2609860015",
+      "blockNumber": 61,
+      "status": "SUCCESS",
+      "gasUsed": "75508"
+    },
+    {
+      "step": "First LP exits remaining shares",
+      "hash": "0x9e003bdd602e6494e5319898abe0c9ab9c046a3d819d45408ec239a6ba73ab99",
+      "blockNumber": 62,
+      "status": "SUCCESS",
+      "gasUsed": "65615"
+    },
+    {
+      "step": "Second LP exits remaining shares",
+      "hash": "0x85afe867a35d1fd1011839dfe7cd9c7713c336e312f271a08ee254b5de2daf41",
+      "blockNumber": 63,
+      "status": "SUCCESS",
+      "gasUsed": "65644"
+    }
+  ],
+  "sourceHashes": {
+    "AIReporterMock.sol": "63d33c11da93b619e40a5e1e5f780f6751669201f51aea40a9303ef0b2d9b726",
+    "ComputeShieldCore.sol": "9cfe826009f781e4e7e8cf7c53721831b5811fe0fa226328a6671fd16aeb719d",
+    "NodeRegistry.sol": "7c3180554b908fc3183f67b1211a715392e95ebf54c22d30ca4498be38f39a69",
+    "RiskPool.sol": "ae89090d9586066094270e82ccf9ca19e787c4bbde4d906fb60768f4e6c9584f"
+  },
+  "compiler": "0.8.26+commit.8a97fa7a.Emscripten.clang",
+  "contracts": {
+    "NodeRegistry": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "RiskPool": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "AIReporter": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "ComputeShieldCore": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+  },
+  "roundingResidualWei": "0",
+  "summary": {
+    "passed": 40,
+    "failed": 0,
+    "total": 40
+  }
+}

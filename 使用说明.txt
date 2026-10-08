@@ -1,0 +1,25 @@
+Aegis / ComputeShield · VI
+
+公开 Demo：
+https://aegis-computeshield-demo-vi.jocund-tetra-6250.chatgpt.site
+
+无需登录或连接钱包。首页「观看演示」播放视频，向下滚动自动转为小窗。
+进入同页业务工作区可报价、出单、模拟节点宕机/恢复、做理赔实验、核查原始报告。
+浏览器会话彼此隔离，刷新重置；证据资料仅留在内存，公开版不调用模型、不提交真实资金交易。
+
+源码运行：安装 Node.js 24 LTS，在此目录打开终端：
+npm install
+npm run build:demo
+npm run preview:demo
+打开 http://127.0.0.1:34888/?demo=1
+
+需要 Node 本地模式时运行 npm start，访问 http://127.0.0.1:8788 。
+配置详见 README.md 和 .env.example。不要把自己的环境实值、钱包密钥或上传文件放入分享包。
+
+手机支持：响应式网页，Android Chrome / iPhone WebKit 已做模拟验证；尚未做物理设备测试。
+普通浏览器无钱包接口时会显示钱包 App 浏览器指引；演示不需要钱包。
+
+VI.zip 是独立源码包。没有 Git 历史、托管身份、依赖缓存或历史上传资料。
+本版沿用 IV 机制与 V 视觉，首页桌面结构保留，装饰卡片和渐变保留。
+
+公开部署已成功且权限为公开；当前验收连接被托管平台 Cloudflare 返回 403，外部可访问性尚未验证。详见 reports/public-demo-VI.json。

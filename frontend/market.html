@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+<title>算力保险行情终端 · Aegis 神盾交易所</title>
+<link rel="stylesheet" href="market.css">
+<link rel="stylesheet" href="motion.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Regular.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Medium.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Semibold.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Bold.min.css">
+<link rel="stylesheet" href="suite-theme.css">
+<script>if(window.parent!==window && new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('workbench-embedded');</script><link rel="stylesheet" href="embedded.css">
+<link rel="stylesheet" href="/mobile-VI.css"><script src="/mobile-VI.js" defer></script></head>
+<body data-suite="market">
+
+<header>
+  <div class="hd">
+    <div class="logo">
+      <div class="mk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2.5l7.5 3v6.2c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V5.5l7.5-3z" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg></div>
+      Aegis 神盾<em>算力保险交易所</em>
+    </div>
+    <nav>
+      <a class="on" href="market.html">行情</a>
+      <a href="insurer.html">核保理赔</a>
+      <a href="index.html">品牌首页</a>
+      <a href="lab.html">实验室</a>
+      <a href="plan.html">项目计划书</a>
+      <a href="javascript:void(0)" onclick="toast('演示环境：交易功能未开放')">交易</a>
+      <a href="javascript:void(0)" onclick="toast('演示环境：账户功能未开放')">账户</a>
+    </nav>
+    <div class="hd-right">
+      <span><span class="dot" id="srvDot"></span><span id="srvTxt">节点探测中</span></span>
+      <span id="clock">--:--:--</span>
+      <span>BOT Chain 测试网</span>
+    </div>
+  </div>
+</header>
+
+<div class="ticker"><div id="ticker"></div></div>
+
+<div class="idx-bar"><div class="idx-in" id="idxBar"></div></div>
+
+<div class="wrap">
+  <div class="grid">
+
+    <!-- 左：自选 -->
+    <div class="card">
+      <div class="card-hd">自选 · 保单与节点信用 <span class="sub" id="watchN">0</span></div>
+      <div class="watch" id="watch"></div>
+    </div>
+
+    <!-- 中：主图 + 成交 -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="card-hd">
+          <span id="symTitle">—</span>
+          <div class="chart-tabs">
+            <span class="tab on" data-t="ts" onclick="setTab('ts')">分时</span>
+            <span class="tab" data-t="k" onclick="setTab('k')">日K</span>
+          </div>
+        </div>
+        <div class="sym-hd">
+          <div>
+            <div><span class="nm" id="sName">—</span><span class="cd" id="sCode">—</span><span id="sEv"></span></div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin-top:4px">
+              <span class="px num" id="sPrice">—</span>
+              <span class="ch num" id="sChg">—</span>
+            </div>
+          </div>
+          <div class="kv">
+            <span>今开 <b id="sOpen">—</b></span>
+            <span>最高 <b id="sHigh">—</b></span>
+            <span>最低 <b id="sLow">—</b></span>
+            <span>昨结 <b id="sPrev">—</b></span>
+            <span>成交量 <b id="sVol">—</b></span>
+            <span>风险分 <b id="sRisk">—</b></span>
+          </div>
+        </div>
+        <canvas id="chart"></canvas>
+        <canvas id="volCv"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">逐笔成交 <span class="sub">实时</span></div>
+        <div class="trades" id="trades"></div>
+      </div>
+    </div>
+
+    <!-- 右：盘口 / 持仓 / 公告 / 攻击 -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div class="card-hd">五档盘口 · LP 承保报价</div>
+        <div class="book" id="book"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">我的保单持仓 <span class="sub" id="posSum">—</span></div>
+        <div class="pos" id="pos"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">真实算力节点 <span class="sub">HTTP 探测</span></div>
+        <div class="atk">
+          <input id="srvUrl" type="text" value="http://127.0.0.1:8787">
+          <div class="hint" id="srvMeta">延迟 — · 风险分 — · uptime —</div>
+          <div class="row">
+            <button class="btn sm" onclick="connectSrv()">接入探测</button>
+            <button class="btn sm danger" onclick="attack()">攻击打挂</button>
+          </div>
+          <div class="row">
+            <button class="btn sm" onclick="kill()">硬宕机</button>
+            <button class="btn sm" onclick="revive()">恢复</button>
+          </div>
+          <div class="hint">打挂节点 → 风险分飙升 → 保单费率跳涨 → 触发赔付公告</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">风控公告 / 链上事件 <span class="sub" id="nN">0</span></div>
+        <div class="notice" id="notice"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Aegis 神盾 · 算力保险交易所 — 标的为保单合约与节点信用，报价单位：年化保费率 %</span>
+  <span>行情由链下风控Agent驱动 · 演示数据</span>
+</footer>
+
+<div id="toast" style="position:fixed;right:20px;bottom:20px;z-index:120;display:flex;flex-direction:column;gap:8px"></div>
+
+<script src="conn-guard.js"></script>
+<script src="market.js"></script>
+<script src="suite-ui.js"></script>
+<script src="embedded.js"></script>
+</body>
+</html>

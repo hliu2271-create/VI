@@ -1,0 +1,49 @@
+{
+  "version": "VI",
+  "status": "PASS",
+  "scope": "Chromium Android and WebKit iPhone emulation; not physical-device testing",
+  "checks": [
+    "Android Chrome: UI quote/issuance, idempotency, isolated visitors, six tabs, retained input, report downloads with byte hashes, kill/revive/history, lab isolation, memory evidence download/hash, Request/URL fetch, model boundary, 16px fields, wallet guide, floating video, portrait/landscape fit and no private-host requests",
+    "iPhone WebKit: UI quote/issuance, idempotency, isolated visitors, six tabs, retained input, report downloads with byte hashes, kill/revive/history, lab isolation, memory evidence download/hash, Request/URL fetch, model boundary, 16px fields, wallet guide, floating video, portrait/landscape fit and no private-host requests"
+  ],
+  "devices": [
+    {
+      "engine": "Android Chrome",
+      "width": 412,
+      "height": 839,
+      "scrollWidth": 412
+    },
+    {
+      "engine": "Android Chrome",
+      "width": 320,
+      "height": 740,
+      "scrollWidth": 320
+    },
+    {
+      "engine": "Android Chrome",
+      "width": 844,
+      "height": 390,
+      "scrollWidth": 844
+    },
+    {
+      "engine": "iPhone WebKit",
+      "width": 390,
+      "height": 664,
+      "scrollWidth": 390
+    },
+    {
+      "engine": "iPhone WebKit",
+      "width": 320,
+      "height": 740,
+      "scrollWidth": 320
+    },
+    {
+      "engine": "iPhone WebKit",
+      "width": 844,
+      "height": 390,
+      "scrollWidth": 844
+    }
+  ],
+  "errors": [],
+  "createdAt": "2026-10-08T01:56:38.698Z"
+}

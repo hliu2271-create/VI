@@ -1,0 +1,13 @@
+node_modules/
+artifacts/
+cache/
+uploads/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+VI-预览/
+media/
+reports/privacy-VI.json

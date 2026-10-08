@@ -1,0 +1,22 @@
+/* Only applied when a page is hosted inside the homepage workbench. */
+html.workbench-embedded,html.workbench-embedded body{min-height:0!important;background:#f7f9fe!important}
+.workbench-embedded .suite-switch,.workbench-embedded .suite-breadcrumb{display:none!important}
+.workbench-embedded body[data-suite] header{position:sticky;top:0;backdrop-filter:none;background:#fff!important}
+.workbench-embedded body[data-suite] .hd-in{max-width:none;padding:11px 22px;min-height:0;gap:10px}
+.workbench-embedded .hd .lg,.workbench-embedded header .logo,.workbench-embedded .hd .nv>a[href],.workbench-embedded .hd .nv>.vsep{display:none!important}
+.workbench-embedded body[data-suite] .nv{order:0;flex-basis:auto;flex:1;overflow-x:auto}
+.workbench-embedded body[data-suite] .hd-r{font-size:10px;gap:9px;width:auto;margin-left:auto}
+.workbench-embedded .hd-r #clock,.workbench-embedded .hd-r #insuredChip{display:none!important}
+.workbench-embedded .hd-r .btn{padding:6px 10px;font-size:11px}
+.workbench-embedded body[data-suite] .nv a{padding:6px 9px;font-size:11px}
+.workbench-embedded body[data-suite] .pg,.workbench-embedded body[data-suite] .wrap{padding:22px;max-width:none}
+.workbench-embedded .vw-hd{margin-bottom:20px!important}.workbench-embedded .vw-hd .label{font-size:9px;letter-spacing:.1em}.workbench-embedded .vw-hd h1{font-size:27px}.workbench-embedded .vw-sub{font-size:11px}
+.workbench-embedded .stats{gap:11px!important}.workbench-embedded .stats .st{padding:15px!important}.workbench-embedded .stats .v{font-size:25px!important}
+.workbench-embedded .now{left:auto;right:16px;bottom:15px;max-width:calc(100vw - 32px)}
+.workbench-embedded body[data-suite=market] header{display:none}.workbench-embedded body[data-suite=market] .ticker{display:none}
+.workbench-embedded body[data-suite=lab] header .nv{display:none}.workbench-embedded body[data-suite=lab] .vw-hd{margin-top:0}
+.workbench-embedded body[data-suite=plan] header{display:none}.workbench-embedded .doc-wrap{padding:26px 24px 60px;gap:25px;grid-template-columns:200px minmax(0,1fr)}
+.workbench-embedded body[data-suite=plan] .doc h1{font-size:32px}.workbench-embedded .toc{top:20px}
+.workbench-embedded body.demo-on .hd{top:46px}
+@media(max-width:1000px){.workbench-embedded body[data-suite] .hd-in{flex-wrap:wrap}.workbench-embedded body[data-suite] .nv{flex-basis:100%;order:0}.workbench-embedded body[data-suite] .hd-r{margin-left:0}}
+@media(max-width:700px){.workbench-embedded body[data-suite] .pg,.workbench-embedded body[data-suite] .wrap{padding:18px 12px 65px}.workbench-embedded body[data-suite] .hd-in{padding:9px 12px}.workbench-embedded .stats .st{padding:12px!important}.workbench-embedded .stats .v{font-size:22px!important}.workbench-embedded .doc-wrap{display:block;padding:18px 16px}.workbench-embedded .toc{position:static;max-height:130px;overflow:auto;margin-bottom:25px;border-bottom:1px solid #e2e8f3;padding-bottom:12px}.workbench-embedded .hd-r #autoTxt{font-size:10px}.workbench-embedded .vw-hd h1{font-size:24px}.workbench-embedded .vw-sub{display:none}}

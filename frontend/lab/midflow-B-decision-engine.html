@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
+<title>中间流程 · 决策引擎型 · 攻击应对</title>
+<style>
+:root{
+  --bg:#F6F8FB; --surface:#FFFFFF; --surface-2:#FAFCFE;
+  --ink:#1B2733; --ink-2:#516274; --muted:#8296A8;
+  --line:#E8EEF5; --line-2:#D9E3ED;
+  --brand:#3A7CA5; --brand-ink:#2A6084; --brand-soft:#EBF3FA;
+  --agent:#6C63C9; --agent-soft:#F1F0FD;
+  --ok:#1F8A63; --ok-soft:#E9F6F0;
+  --warn:#B7791F; --warn-soft:#FCF5E7;
+  --bad:#C4553F; --bad-soft:#FCEEEA;
+  --r:8px; --r-sm:6px;
+  --sh-1:0 1px 2px rgba(27,39,51,.04);
+  --sh-2:0 1px 2px rgba(27,39,51,.04),0 12px 30px -16px rgba(27,39,51,.18);
+  --ease:cubic-bezier(.32,.72,0,1);
+  --mono:ui-monospace,SFMono-Regular,"JetBrains Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-size:14px;line-height:1.65;
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1360px;margin:0 auto;padding:24px 28px 56px}
+
+header.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header.top .inner{max-width:1360px;margin:0 auto;padding:15px 28px;display:flex;
+  flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{color:var(--agent);flex:none}
+h1{font-size:18px;margin:0;font-weight:650}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0}
+.role{display:flex;gap:20px;flex-wrap:wrap}
+.role div{font-size:12px;color:var(--muted)}
+.role b{display:block;color:var(--ink);font-size:12.5px;font-weight:600;margin-top:2px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  margin-bottom:18px;box-shadow:var(--sh-1);min-width:0}
+.panel>h2{margin:0;padding:13px 18px;border-bottom:1px solid var(--line);
+  font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px}
+.panel>h2 svg{color:var(--brand);flex:none}
+.panel>h2.agent svg{color:var(--agent)}
+.panel>h2 .hint{margin-left:auto;font-weight:400;color:var(--muted);font-size:12px}
+.panel .body{padding:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+
+textarea{width:100%;min-height:230px;padding:12px 14px;border:1px solid var(--line-2);
+  border-radius:var(--r-sm);font-family:var(--mono);font-size:11.5px;line-height:1.75;
+  color:var(--ink-2);background:var(--surface-2);resize:vertical;outline:none;
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
+textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:8px 13px;font-size:12.5px;cursor:pointer;display:flex;flex-direction:column;
+  gap:1px;line-height:1.4;box-shadow:var(--sh-1);
+  transition:border-color .2s var(--ease),box-shadow .25s var(--ease),transform .2s var(--ease),color .2s var(--ease)}
+.chip:hover{border-color:var(--brand);color:var(--brand-ink);transform:translateY(-1px);box-shadow:var(--sh-2)}
+.chip small{font-size:10.5px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip[aria-pressed="true"] small{color:rgba(255,255,255,.8)}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.btn{font-size:13px;font-weight:600;padding:10px 20px;border-radius:var(--r-sm);cursor:pointer;
+  border:1px solid transparent;background:var(--brand);color:#fff;
+  box-shadow:0 10px 22px -12px rgba(58,124,165,.95);
+  transition:background .2s var(--ease),transform .2s var(--ease),box-shadow .25s var(--ease),opacity .2s}
+.btn:hover:not(:disabled){background:var(--brand-ink);transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:var(--surface);border-color:var(--line-2);color:var(--ink-2);box-shadow:var(--sh-1)}
+.btn.ghost:hover:not(:disabled){border-color:var(--brand);color:var(--brand-ink);background:var(--surface)}
+.note{font-size:11.5px;color:var(--muted);line-height:1.7}
+
+.step{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);animation:stepIn .4s var(--ease) both}
+.step:last-child{border-bottom:none}
+@keyframes stepIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.sIdx{width:24px;height:24px;border-radius:50%;flex:none;margin-top:2px;display:flex;
+  align-items:center;justify-content:center;font-size:11px;font-weight:700;
+  background:var(--brand-soft);color:var(--brand-ink);font-variant-numeric:tabular-nums;
+  transition:background .3s var(--ease),color .3s var(--ease)}
+.sIdx.rule{background:var(--brand-soft);color:var(--brand-ink)}
+.sIdx.ai{background:var(--agent-soft);color:var(--agent)}
+.sIdx.ok{background:var(--ok-soft);color:var(--ok)}
+.sIdx.warn{background:var(--warn-soft);color:var(--warn)}
+.sIdx.run{background:#EEF1F4;color:var(--muted);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.sMain{flex:1;min-width:0}
+.sTop{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sName{font-size:13px;font-weight:600}
+.sMs{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.sBody{margin-top:5px;padding:9px 11px;border-radius:var(--r-sm);background:var(--surface-2);
+  border:1px solid var(--line);font-size:11.5px;color:var(--ink-2);font-family:var(--mono);
+  line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.sBody.ai{background:var(--agent-soft);border-color:#E3E1F6;color:#4B44A0}
+.sBody.warn{background:var(--warn-soft);border-color:#F0E0C4;color:#7A5410}
+.tag{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:2px 10px;
+  font-size:11.5px;font-weight:600;white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.tag.mute{background:#F1F4F7;color:var(--muted)}
+.tag.brand{background:var(--brand-soft);color:var(--brand-ink)}
+.tag.agent{background:var(--agent-soft);color:var(--agent)}
+.empty{color:var(--muted);font-size:12.5px;padding:18px 0;text-align:center}
+
+table.rules{width:100%;border-collapse:collapse}
+table.rules th{text-align:left;font-size:11px;color:var(--muted);font-weight:600;
+  padding:0 10px 8px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+table.rules td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:top}
+table.rules tr:last-child td{border-bottom:none}
+table.rules tr.hit{background:var(--brand-soft)}
+.rcode{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.score{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.totalRow td{border-top:2px solid var(--line);font-weight:700}
+
+.trace{list-style:none;margin:0;padding:0}
+.trace li{padding:10px 0;border-bottom:1px solid var(--line)}
+.trace li:last-child{border-bottom:none}
+.tTool{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--agent)}
+.tThink{font-size:12.5px;color:var(--ink-2);margin-top:3px}
+.tObs{margin-top:6px;padding:8px 10px;border-radius:var(--r-sm);background:var(--agent-soft);
+  border:1px solid #E3E1F6;font-family:var(--mono);font-size:11px;line-height:1.75;
+  color:#4B44A0;white-space:pre-wrap}
+
+.verdict{margin-top:0;padding:16px 18px;border-radius:var(--r);border:1px solid #DCE8F2;background:var(--brand-soft)}
+.verdict.ok{background:var(--ok-soft);border-color:#CFEADF}
+.verdict.warn{background:var(--warn-soft);border-color:#F2E2C6}
+.verdict.bad{background:var(--bad-soft);border-color:#F3D6CF}
+.vTitle{font-size:14.5px;font-weight:700}
+.vMeta{margin-top:7px;font-size:12.5px;color:var(--ink-2);line-height:2}
+.vMeta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.lv{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:2px 9px;
+  font-size:12px;font-weight:700;font-family:var(--mono)}
+.lv.p1{background:var(--bad-soft);color:var(--bad)}
+.lv.p2{background:var(--warn-soft);color:var(--warn)}
+.lv.p3{background:var(--brand-soft);color:var(--brand-ink)}
+.lv.p4{background:#F1F4F7;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+@media (max-width:1000px){
+  .wrap{padding:18px 16px 44px}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+<link rel="stylesheet" href="../assets/fonts/MiSans-Regular.min.css">
+<link rel="stylesheet" href="../assets/fonts/MiSans-Medium.min.css">
+<link rel="stylesheet" href="../assets/fonts/MiSans-Semibold.min.css">
+<link rel="stylesheet" href="../assets/fonts/MiSans-Bold.min.css">
+<link rel="stylesheet" href="../suite-theme.css">
+<script>if(window.parent!==window && new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('workbench-embedded');</script><link rel="stylesheet" href="../embedded.css">
+<link rel="stylesheet" href="/mobile-VI.css"><script src="/mobile-VI.js" defer></script></head><body data-suite="midflow-B-decision-engine"><div class="suite-breadcrumb"><a href="../index.html">Aegis 神盾</a><span>/</span><a href="../lab.html">理赔实验室</a><span>/</span><span>流程演练</span></div>
+<header class="top">
+  <div class="inner">
+    <div>
+      <div class="brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/><circle cx="12" cy="12" r="4"/></svg>
+        <h1>中间流程 · 决策引擎型</h1>
+      </div>
+      <p class="sub">规则引擎与模型推理都在本层：定级、选策、仲裁、赔付计算，一步不外包。</p>
+    </div>
+    <div class="role">
+      <div>本层职责<b>规则 · 推理 · 仲裁 · 计算</b></div>
+      <div>前端<b>事件注入与展示</b></div>
+      <div>后端<b>取证 / 处置执行 / 打款</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid2">
+    <section class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        事件注入
+        <span class="hint">手动注入一条攻击事件</span>
+      </h2>
+      <div class="body">
+        <div class="chips" id="presets"></div>
+        <textarea id="evt" spellcheck="false"></textarea>
+        <div class="actions">
+          <button class="btn" id="run">注入事件并执行决策链</button>
+        </div>
+        <div class="note" id="tip" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+        决策链路
+        <span class="hint" id="runHint"></span>
+      </h2>
+      <div class="body" id="steps"></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        规则引擎 · 威胁定级打分明细
+        <span class="hint" id="ruleHint"></span>
+      </h2>
+      <div class="body" id="rules"></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="agent">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8V4"/><path d="M8 4h8"/><path d="M9 14h.01"/><path d="M15 14h.01"/></svg>
+        AI 事件评估 Agent · 推理轨迹
+        <span class="hint" id="agentHint"></span>
+      </h2>
+      <div class="body"><ul class="trace" id="trace"></ul></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 16h14"/></svg>
+      仲裁与结论
+      <span class="hint">规则与模型不一致时的裁定规则</span>
+    </h2>
+    <div class="body" id="verdictBody">
+      <div class="empty">尚未注入事件</div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ============================================================
+   中间流程 · 决策引擎型
+   规则引擎与模型推理均在本层：
+   1) 规则引擎按多维指标给威胁定级（可解释、可追溯）
+   2) 决策表把等级映射为应对策略
+   3) AI Agent 查情报与资产，给出情景判断
+   4) 两者不一致时按仲裁规则裁定（保守优先 / 记录分歧）
+   5) 赔付金额由规则引擎计算，模型无权改动
+   ============================================================ */
+
+const BASE_EVT = {
+  eventId: "EVT-2026-1007-0201",
+  detectedAt: "2026-10-07 10:22:05",
+  detector: "边界流量探针",
+  attackType: "DDoS 分布式拒绝服务",
+  target: { node: "推理集群 A", addr: "0x7A2f…C41d" },
+  trafficRatio: 47,
+  synConnRatio: 12,
+  durationMin: 6,
+  assetCriticality: "high",
+  slaBreached: true,
+  nodeRiskScore: 13,
+  affected: ["推理 API", "训练任务调度"],
+  evidence: ["netflow-20261007-1022.json", "edr-alert-88401"],
+  downtimeHours: 26,
+  perHourLoss: 120000,
+  coverageLimit: 5000000,
+  intelProfile: "normal"
+};
+
+const PRESETS = [
+  { key:'agree',      chip:'标准事件',       sub:'规则与模型一致',
+    patch:{ intelProfile:'normal' } },
+  { key:'escalate',   chip:'模型升级',       sub:'AI 判定应升一级',
+    patch:{ eventId:"EVT-2026-1007-0202", trafficRatio:8, synConnRatio:6, durationMin:6,
+            intelProfile:'repeat_offender' } },
+  { key:'downgrade',  chip:'模型降级',       sub:'AI 认为是误报',
+    patch:{ eventId:"EVT-2026-1007-0203", intelProfile:'false_positive' } },
+  { key:'lowrisk',    chip:'低风险事件',     sub:'规则未命中高分段',
+    patch:{ eventId:"EVT-2026-1007-0204", trafficRatio:3, synConnRatio:2, durationMin:1,
+            assetCriticality:"low", slaBreached:false, intelProfile:'normal' } },
+];
+
+const RISK_RULES = [
+  { id:'R-01', desc:'流量倍率 ≥ 10 倍',       test: e => e.trafficRatio >= 10,       score:20 },
+  { id:'R-02', desc:'SYN 半连接倍率 ≥ 5 倍',   test: e => e.synConnRatio >= 5,        score:15 },
+  { id:'R-03', desc:'持续时长 ≥ 5 分钟',       test: e => e.durationMin >= 5,         score:10 },
+  { id:'R-04', desc:'资产重要性 = 高',         test: e => e.assetCriticality === 'high', score:20 },
+  { id:'R-05', desc:'SLA 已突破',              test: e => e.slaBreached === true,     score:25 },
+  { id:'R-06', desc:'被保节点风险分 ≥ 60',     test: e => e.nodeRiskScore >= 60,      score:10 },
+];
+
+const LEVELS = { P1:'严重', P2:'高', P3:'中', P4:'低' };
+function levelOf(score){
+  if (score >= 80) return 'P1';
+  if (score >= 60) return 'P2';
+  if (score >= 40) return 'P3';
+  return 'P4';
+}
+
+const DECISION_TABLE = [
+  { level:'P1', sla:true,  action:'立即切流 + 隔离异常源 + 启用备用节点 + 通知被保人与承保方' },
+  { level:'P2', sla:null,  action:'切流 + 观察 30 分钟 + 通知被保人' },
+  { level:'P3', sla:null,  action:'记录并持续观察，不触发处置动作' },
+  { level:'P4', sla:null,  action:'仅归档，不触发处置动作' },
+];
+
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const money = (n) => '¥' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const lvTag = (lv) => '<span class="lv ' + lv.toLowerCase() + '">' + lv + ' ' + LEVELS[lv] + '</span>';
+
+const state = { selected:'agree', running:false, rules:[], trace:[], steps:[] };
+const INTEL = {
+  normal: {
+    intel:'该源地址段近 30 天无攻击记录，本次为首次出现',
+    asset:'推理集群 A：高重要性资产，承载推理 API 与训练调度，备用节点容量充足',
+    history:'近 30 天该节点 0 起确认安全事件',
+    suggest:null,
+    reason:'证据与规则打分的风险面一致，无新增信号'
+  },
+  repeat_offender: {
+    intel:'该源地址段近 30 天发起攻击 7 次，其中 3 次针对金融行业',
+    asset:'推理集群 A：强依赖资产，备用节点容量仅 40%，切换会造成服务降级',
+    history:'近 30 天该节点 2 起同类事件，均突破 SLA 且未追偿成功',
+    suggest:'P1',
+    reason:'惯犯源段叠加备用容量不足，一旦突破 SLA 影响面大于规则基线判断'
+  },
+  false_positive: {
+    intel:'该源地址段为已备案的合规扫描器（监管测评用，白名单待同步）',
+    asset:'推理集群 A：高重要性资产',
+    history:'近 30 天该节点 0 起确认安全事件',
+    suggest:'P3',
+    reason:'流量特征为周期性扫描，无攻击载荷，无横向移动，判定为误报'
+  }
+};
+
+const rank = (lv) => ({ P1:1, P2:2, P3:3, P4:4 })[lv];
+
+/* ---------- 渲染 ---------- */
+function renderPresets(){
+  $('presets').innerHTML = PRESETS.map(p =>
+    '<button class="chip" data-preset="' + p.key + '" aria-pressed="' + (p.key === state.selected) + '">' +
+    p.chip + '<small>' + p.sub + '</small></button>').join('');
+}
+function loadPreset(key){
+  state.selected = key;
+  const p = PRESETS.find(x => x.key === key);
+  $('evt').value = JSON.stringify(Object.assign({}, BASE_EVT, p.patch), null, 2);
+  renderPresets();
+  $('tip').textContent = key === 'escalate' ? '规则给 P2，模型建议 P1，看仲裁怎么定。'
+    : key === 'downgrade' ? '规则给 P1，模型认为是误报，看仲裁会不会采纳。'
+    : key === 'lowrisk' ? '低风险事件，规则不进处置分支。'
+    : '常规事件，规则与模型结论一致。';
+}
+
+function renderSteps(){
+  if (!state.steps.length){ $('steps').innerHTML = '<div class="empty">尚未注入事件</div>'; return; }
+  $('steps').innerHTML = state.steps.map((r, i) => {
+    const cls = r.status === 'run' ? 'run' : (r.kind === 'ai' ? 'ai' : (r.status === 'warn' ? 'warn' : (r.status === 'ok' ? 'ok' : 'rule')));
+    return '<div class="step">' +
+      '<div class="sIdx ' + cls + '">' + String(i + 1).padStart(2,'0') + '</div>' +
+      '<div class="sMain"><div class="sTop"><span class="sName">' + r.name + '</span>' +
+        (r.kind === 'ai' ? '<span class="tag agent">模型推理</span>' : '<span class="tag brand">规则引擎</span>') +
+        (r.status === 'warn' ? '<span class="tag warn">需注意</span>' : '') +
+        '<span class="sMs">' + (r.ms ? r.ms + ' ms' : '') + '</span></div>' +
+      (r.body ? '<div class="sBody ' + (r.kind === 'ai' ? 'ai ' : '') + (r.status === 'warn' ? 'warn' : '') + '">' + r.body + '</div>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+function renderRules(evt){
+  if (!state.rules.length){
+    $('rules').innerHTML = '<div class="empty">尚未评估</div>';
+    $('ruleHint').textContent = '';
+    return;
+  }
+  const total = state.rules.reduce((s, r) => s + (r.hit ? r.score : 0), 0);
+  $('ruleHint').textContent = '总分 ' + total + ' → ' + levelOf(total) + ' ' + LEVELS[levelOf(total)];
+  $('rules').innerHTML = '<table class="rules"><thead><tr>' +
+    '<th style="width:12%">规则</th><th style="width:46%">条件</th>' +
+    '<th style="width:14%">命中</th><th class="score" style="width:14%">分值</th>' +
+    '</tr></thead><tbody>' +
+    state.rules.map(r => '<tr class="' + (r.hit ? 'hit' : '') + '">' +
+      '<td class="rcode">' + r.id + '</td><td>' + r.desc + '</td>' +
+      '<td>' + (r.hit ? '<span class="tag ok">命中</span>' : '<span class="tag mute">未命中</span>') + '</td>' +
+      '<td class="score">' + (r.hit ? '+' + r.score : '0') + '</td></tr>').join('') +
+    '<tr class="totalRow"><td colspan="3">合计</td><td class="score">' + total + '</td></tr>' +
+    '</tbody></table>';
+}
+
+function renderTrace(){
+  if (!state.trace.length){ $('trace').innerHTML = '<li class="empty" style="border:none">尚未调用</li>'; $('agentHint').textContent=''; return; }
+  $('trace').innerHTML = state.trace.map(t =>
+    '<li><div class="tTool">' + t.tool + '</div>' +
+    '<div class="tThink">' + t.think + '</div>' +
+    (t.obs ? '<div class="tObs">' + t.obs + '</div>' : '') + '</li>').join('');
+}
+
+function renderVerdict(v){
+  if (!v){ $('verdictBody').innerHTML = '<div class="empty">尚未注入事件</div>'; return; }
+  $('verdictBody').innerHTML = '<div class="verdict ' + v.kind + '">' +
+    '<div class="vTitle">' + v.title + '</div>' +
+    '<div class="vMeta">' + v.meta + '</div></div>';
+}
+
+/* ---------- 决策链执行 ---------- */
+async function run(){
+  if (state.running) return;
+  let evt;
+  try { evt = JSON.parse($('evt').value); }
+  catch (e){ renderVerdict({ kind:'bad', title:'事件解析失败', meta:'JSON 格式错误：' + e.message }); return; }
+
+  state.running = true; $('run').disabled = true;
+  $('runHint').textContent = '执行中';
+  state.steps = []; state.rules = []; state.trace = [];
+  renderSteps(); renderRules(); renderTrace(); renderVerdict(null);
+
+  const push = async (row) => { state.steps.push(row); renderSteps(); await sleep(360); };
+
+  // 1 接入校验（规则）
+  const need = ['eventId','detectedAt','attackType','target','trafficRatio','slaBreached'];
+  const missing = need.filter(k => !(k in evt));
+  if (missing.length){
+    await push({ name:'事件接入与完备性校验', kind:'rule', status:'warn',
+      body:'字段缺失：' + missing.join('、') + '\n事件不予受理，决策链未启动' });
+    renderVerdict({ kind:'bad', title:'事件字段不完整', meta:'缺少 <b>' + missing.join('、') + '</b>，决策链中止。' });
+    state.running = false; $('run').disabled = false; $('runHint').textContent = '已中止';
+    return;
+  }
+  await push({ name:'事件接入与完备性校验', kind:'rule', status:'ok',
+    body:'字段完整，事件 ' + evt.eventId + ' 已受理\n攻击类型 ' + evt.attackType + '　检测源 ' + evt.detector });
+
+  // 2 规则引擎定级
+  state.rules = RISK_RULES.map(r => ({ id:r.id, desc:r.desc, score:r.score, hit:r.test(evt) }));
+  const ruleScore = state.rules.reduce((s, r) => s + (r.hit ? r.score : 0), 0);
+  const ruleLevel = levelOf(ruleScore);
+  renderRules(evt);
+  await push({ name:'规则引擎 · 威胁定级', kind:'rule', status:'ok',
+    body:'命中 ' + state.rules.filter(r => r.hit).length + ' / ' + RISK_RULES.length + ' 条规则，总分 ' + ruleScore +
+      '\n定级结论 ' + ruleLevel + '（' + LEVELS[ruleLevel] + '）\n每条规则的命中与分值见左下明细' });
+
+  // 3 决策表
+  const row = DECISION_TABLE.find(d => d.level === ruleLevel);
+  await push({ name:'决策表 · 应对策略匹配', kind:'rule', status:'ok',
+    body:'匹配决策表：等级 ' + ruleLevel + (row.sla ? ' + SLA 已突破' : '') +
+      '\n应对策略：' + row.action });
+
+  // 4 AI Agent
+  const prof = INTEL[evt.intelProfile] || INTEL.normal;
+  const tools = [
+    { tool:'query_threat_intel', args:'srcSegment=203.0.113.0/24', think:'先查这个源地址段的历史画像。', obs:prof.intel },
+    { tool:'query_asset_inventory', args:'node=' + evt.target.node, think:'再看被打的资产有多重要、有没有冗余。', obs:prof.asset },
+    { tool:'query_incident_history', args:'node=' + evt.target.node + ', days=30', think:'最后看这个节点的历史事件，判断是不是老问题。', obs:prof.history },
+  ];
+  for (const t of tools){
+    state.trace.push({ tool:t.tool + '（' + t.args + '）', think:t.think, obs:t.obs });
+    renderTrace();
+    await sleep(620);
+  }
+  const aiLevel = prof.suggest || ruleLevel;
+  await push({ name:'AI 事件评估 Agent', kind:'ai', status:'ok',
+    body:'模型结论 ' + aiLevel + '（' + LEVELS[aiLevel] + '）\n判断依据：' + prof.reason });
+
+  // 5 仲裁
+  let finalLevel, arbKind, arbText;
+  if (aiLevel === ruleLevel){
+    finalLevel = ruleLevel; arbKind = 'ok';
+    arbText = '规则与模型结论一致（' + ruleLevel + '），直接采用。';
+  } else if (rank(aiLevel) < rank(ruleLevel)){
+    finalLevel = aiLevel; arbKind = 'warn';
+    arbText = '模型判定（' + aiLevel + '）重于规则基线（' + ruleLevel + '）。\n按保守优先原则，采用模型结论，并上调应对策略。';
+  } else {
+    finalLevel = ruleLevel; arbKind = 'warn';
+    arbText = '模型判定（' + aiLevel + '）轻于规则基线（' + ruleLevel + '）。\n模型无权下调规则基线，保持 ' + ruleLevel + '，分歧记入复盘队列。';
+  }
+  const finalRow = DECISION_TABLE.find(d => d.level === finalLevel);
+  await push({ name:'规则与模型仲裁', kind:'rule', status: arbKind === 'ok' ? 'ok' : 'warn',
+    body: arbText + '\n最终等级 ' + finalLevel + '\n最终策略：' + finalRow.action });
+
+  // 6 赔付计算（规则引擎，模型无权改）
+  let payout = 0, payBody;
+  if (!evt.slaBreached){
+    payBody = '本次未突破 SLA 容忍时长，不构成保险事故\n赔付金额 0';
+  } else {
+    const loss = evt.downtimeHours * evt.perHourLoss;
+    const after = Math.max(0, loss - 200000);
+    payout = Math.min(after * 0.9, evt.coverageLimit);
+    payBody = '核定损失 ' + money(loss) + '　免赔额 ' + money(200000) + '　赔付比例 90%\n' +
+      '事件限额 ' + money(evt.coverageLimit) + '\n核定赔付 ' + money(payout) +
+      '\n（由规则引擎计算，模型无权修改金额）';
+  }
+  await push({ name:'赔付计算', kind:'rule', status:'ok', body:payBody });
+
+  // 7 输出
+  await push({ name:'决策输出与后端下发', kind:'rule', status:'ok',
+    body:'已下发应对指令并回写事件单\n处置动作 ' + finalRow.action +
+      '\n赔付 ' + money(payout) + '　本次决策链结束' });
+
+  renderVerdict({
+    kind: arbKind,
+    title: '最终等级 ' + finalLevel + ' ' + LEVELS[finalLevel] + '　' +
+      (aiLevel === ruleLevel ? '规则与模型一致' : '规则与模型分歧，已裁定'),
+    meta: '规则得分 <b>' + ruleScore + '</b> → <b>' + ruleLevel + '</b>　' +
+      '模型结论 <b>' + aiLevel + '</b>　最终采用 <b>' + finalLevel + '</b><br>' +
+      '应对策略：' + finalRow.action + '<br>' +
+      '核定赔付 <b>' + money(payout) + '</b>' + (arbKind === 'warn' ? '　分歧已记入复盘队列' : '')
+  });
+  $('runHint').textContent = '完成';
+  state.running = false; $('run').disabled = false;
+}
+
+/* ---------- 绑定 ---------- */
+document.addEventListener('click', (e) => {
+  const chip = e.target.closest && e.target.closest('[data-preset]');
+  if (chip) loadPreset(chip.getAttribute('data-preset'));
+});
+$('run').addEventListener('click', run);
+
+renderPresets();
+loadPreset('agree');
+renderSteps(); renderRules(); renderTrace(); renderVerdict(null);
+</script>
+<script src="../suite-ui.js"></script>
+<script src="../embedded.js"></script>
+</body>
+</html>

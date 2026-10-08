@@ -1,0 +1,52 @@
+{
+  "name": "aegis-computeshield",
+  "version": "6.0.0",
+  "private": true,
+  "description": "Aegis ComputeShield · 可验证的算力保障原型",
+  "main": "server/start.js",
+  "scripts": {
+    "start": "node server/start.js",
+    "demo": "node server/start.js",
+    "insurer": "node server/insurer.js",
+    "node-server": "node server/node-server.js",
+    "compile": "node scripts/compile.js",
+    "evm-check": "node scripts/evm-compat-check.js",
+    "probe": "node scripts/botchain-probe.js",
+    "engine-demo": "node scripts/engine-demo.js",
+    "deploy:bohr": "npm run compile && hardhat run --no-compile scripts/deploy.js --network bohr",
+    "deploy:botchain": "npm run compile && hardhat run --no-compile scripts/deploy.js --network botchain",
+    "test": "npm run build:demo && npm run test:mobile && npm run test:privacy",
+    "test:actuarial": "node scripts/calibrate-severity.js 200 && node scripts/feasibility-mc.js && node scripts/random-feasibility.js 60",
+    "lab-test": "node scripts/lab-scenarios.js",
+    "plan": "node scripts/md2plan.js",
+    "finance": "node scripts/finance-projection.js",
+    "target": "node server/target-adapter.js",
+    "attack": "node scripts/real-attack.js",
+    "attack:dos": "node scripts/real-attack.js --dos-only 30",
+    "calibrate": "node scripts/calibrate-severity.js 200",
+    "feasibility": "node scripts/feasibility-mc.js",
+    "feasibility:e2e": "node scripts/random-feasibility.js 60",
+    "real-tx": "node scripts/verify-real-tx.js",
+    "test:integration": "npm run test:mobile",
+    "build:demo": "node tools/build-demo.cjs",
+    "preview:demo": "node tools/preview-demo.cjs",
+    "test:mobile": "node tools/test-mobile-keyboard.cjs && node tools/test-demo-mobile.cjs",
+    "test:privacy": "node tools/privacy-check.cjs",
+    "test:contracts": "node tools/test-contracts-IV.cjs",
+    "test:model": "node tools/test-model-IV.cjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@nomicfoundation/hardhat-verify": "^2.0.12",
+    "ethers": "^6.13.4",
+    "hardhat": "^2.22.15",
+    "jsdom": "^24.0.0",
+    "solc": "0.8.26",
+    "playwright": "1.63.0",
+    "@noble/hashes": "1.4.0"
+  },
+  "license": "MIT"
+}

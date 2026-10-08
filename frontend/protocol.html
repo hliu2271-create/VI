@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+<title>Aegis 神盾 · 算力保险协议 | ComputeShield · BOT Chain DePIN</title>
+<link rel="stylesheet" href="protocol.css">
+<link rel="stylesheet" href="motion.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Regular.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Medium.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Semibold.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Bold.min.css">
+<link rel="stylesheet" href="suite-theme.css">
+<script>if(window.parent!==window && new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('workbench-embedded');</script><link rel="stylesheet" href="embedded.css">
+<link rel="stylesheet" href="protocol-capital.css">
+<link rel="stylesheet" href="/mobile-VI.css"><script src="/mobile-VI.js" defer></script></head>
+<body data-suite="protocol">
+
+<header>
+  <div class="hd">
+    <div class="brand">
+      <div class="mk">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2.5l7.5 3v6.2c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V5.5l7.5-3z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <b>Aegis 神盾</b><span>ComputeShield Protocol</span>
+    </div>
+    <nav class="pnav">
+      <a href="insurer.html">保险核心</a>
+      <a class="on" href="index.html">品牌首页</a>
+      <a href="lab.html">实验室</a>
+      <a href="market.html">行情终端</a>
+      <a href="plan.html">项目计划书</a>
+    </nav>
+    <div class="hd-right">
+      <span class="pill" id="modePill">本地演示</span>
+      <button class="btn sm" id="walletBtn" onclick="connectWallet()">连接钱包</button>
+      <span><span class="dot"></span><span id="netName">钱包未连接</span></span>
+      <span hidden aria-hidden="true"><b id="block">—</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="intro">
+    <div>
+      <h1>算力保险协议 · 自动赔付闭环</h1>
+      <p>节点质押 → AI 动态定价投保 → 真实心跳监控 → 24h 乐观挑战窗口 → AI 裁决 → 自动 Slashing 赔付</p>
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="runFullDemo()">一键演示全流程</button>
+      <a class="btn" style="display:inline-flex;align-items:center;text-decoration:none" href="market.html">行情终端 →</a>
+      <a class="btn" style="display:inline-flex;align-items:center;text-decoration:none" href="insurer.html">核保理赔 →</a>
+      <a class="btn" style="display:inline-flex;align-items:center;text-decoration:none" href="lab.html">智能体实验室 →</a>
+      <button class="btn" onclick="lpDeposit(10000)">LP 存入资金</button>
+    </div>
+  </section>
+
+  <section class="card" id="chainBar">
+    <h3><span class="tag">链上</span>BOT Chain 接入 · 钱包与合约地址</h3>
+    <div class="grid2" style="margin-top:10px">
+      <div class="field"><label>网络</label>
+        <select id="cNet">
+          <option value="bohr">BOT Chain 测试网 · Bohr（ChainID 968）</option>
+          <option value="botchain">BOT Chain 主网（ChainID 677）</option>
+          <option value="localhost">Hardhat 本地链（31337）</option>
+        </select></div>
+      <div class="field"><label>ComputeShieldCore</label><input type="text" id="cCore" placeholder="0x…（部署后填入）"></div>
+      <div class="field"><label>RiskPool</label><input type="text" id="cPool" placeholder="0x…"></div>
+      <div class="field"><label>NodeRegistry</label><input type="text" id="cReg" placeholder="0x…"></div>
+      <div class="field"><label>AIReporter</label><input type="text" id="cAi" placeholder="0x…（可选，用于链上实时报价）"></div>
+      <div class="field"><label>操作</label>
+        <div class="row">
+          <button class="btn sm" onclick="saveChainCfg()">保存地址</button>
+          <button class="btn sm" onclick="readChainState()">读取链上状态</button>
+          <button class="btn sm danger" onclick="clearChainCfg()">清空</button>
+        </div></div>
+    </div>
+    <div class="hint" id="chainHint" style="margin-top:9px"></div>
+  </section>
+
+  <section class="kpis">
+    <div class="kpi c1"><div class="v" id="kPool">0</div><div class="l">风险池规模 (BOT)</div></div>
+    <div class="kpi c2"><div class="v" id="kNodes">0</div><div class="l">质押节点 · 被保方</div></div>
+    <div class="kpi c3"><div class="v" id="kPolicies">0</div><div class="l">有效保单</div></div>
+    <div class="kpi c4"><div class="v" id="kPaid">0</div><div class="l">累计自动赔付 (BOT)</div></div>
+    <div class="kpi c5"><div class="v" id="kSlash">0</div><div class="l">累计 Slashing (BOT)</div></div>
+  </section>
+
+  <section class="grid">
+    <!-- 被保方 -->
+    <div class="card">
+      <h3><span class="tag">被保方</span>DePIN 算力节点</h3>
+
+      <div class="srv">
+        <div class="srv-hd">
+          <span>真实算力节点服务</span>
+          <span class="pill off" id="srvPill">未连接</span>
+        </div>
+        <input id="srvUrl" type="text" value="http://127.0.0.1:8787">
+        <div class="srv-meta" id="srvMeta">延迟 — · 风险分 — · uptime —</div>
+        <div class="grid2">
+          <div class="field"><label>攻击并发</label>
+            <select id="atkN"><option>6</option><option selected>12</option><option>24</option></select></div>
+          <div class="field"><label>阻塞时长</label>
+            <select id="atkMs"><option value="4">4 秒</option><option value="6" selected>6 秒</option><option value="10">10 秒</option></select></div>
+        </div>
+        <div class="row">
+          <button class="btn sm" onclick="connectServer()">接入并开始探测</button>
+          <button class="btn sm danger" onclick="attackServer()">攻击打挂它</button>
+        </div>
+        <div class="row">
+          <button class="btn sm" onclick="killServer()">硬宕机</button>
+          <button class="btn sm" onclick="reviveServer()">恢复服务</button>
+        </div>
+        <div class="hint">每 3s 真实 HTTP 探测 /health（超时 2.5s），连续 2 次失败判定违约并触发赔付</div>
+      </div>
+
+      <button class="btn" onclick="registerNode()">注册模拟节点（1,000 BOT 起）</button>
+      <div id="nodeList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- 投保方 + 承保方 -->
+    <div class="card">
+      <h3><span class="tag v">投保方</span>保险台 · AI 动态定价</h3>
+      <div class="field">
+        <label>被保节点</label>
+        <select id="fNode" onchange="refreshQuote()"></select>
+      </div>
+      <div class="field">
+        <label>保额 <b id="fCovL">5,000 BOT</b></label>
+        <input type="range" id="fCov" min="1000" max="20000" step="500" value="5000" oninput="refreshQuote()">
+      </div>
+      <div class="grid2">
+        <div class="field"><label>保障时长</label>
+          <select id="fDur"><option value="86400">24 小时</option><option value="604800">7 天</option><option value="2592000">30 天</option></select></div>
+        <div class="field"><label>SLA 容忍宕机</label>
+          <select id="fSla"><option value="60">1 分钟</option><option value="300">5 分钟</option><option value="900">15 分钟</option></select></div>
+      </div>
+      <div class="quote" id="quoteBox">
+        <div class="qh">AI 定价 Agent 实时报价</div>
+        <div class="qv" id="qPremium">— BOT</div>
+        <div class="qd" id="qDetail"></div>
+      </div>
+      <button class="btn primary" onclick="buyPolicy()">购买保单（保费进入 RiskPool）</button>
+
+      <h3><span class="tag v">承保方</span>风险池 · RiskPool</h3>
+      <div class="row">
+        <button class="btn sm" onclick="lpDeposit(10000)">LP 存入 10,000 BOT</button>
+        <button class="btn sm" onclick="lpDeposit(50000)">LP 存入 50,000 BOT</button>
+      </div>
+      <div id="policyList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- AI 控制台 -->
+    <div class="card">
+      <h3><span class="tag a">AI Agent</span>风控 · 定价 · 理赔</h3>
+      <div class="agents">
+        <div class="agent" id="ag0"><div class="ai-ic">🩺</div><div>风控Agent</div></div>
+        <div class="agent" id="ag1"><div class="ai-ic">💰</div><div>定价Agent</div></div>
+        <div class="agent" id="ag2"><div class="ai-ic">⚖️</div><div>理赔Agent</div></div>
+      </div>
+      <div class="term ai" id="aiLog"></div>
+      <div class="sub-h">链上事件流</div>
+      <div class="term ev" id="evLog"></div>
+    </div>
+  </section>
+
+  <section class="pipe" id="pipe">
+    <div class="ps" data-s="0"><div class="pn">1</div><div class="pl">心跳模拟</div></div>
+    <div class="ps" data-s="1"><div class="pn">2</div><div class="pl">风控评估</div></div>
+    <div class="ps" data-s="2"><div class="pn">3</div><div class="pl">规则报价投保</div></div>
+    <div class="ps" data-s="3"><div class="pn">4</div><div class="pl">监控违约触发</div></div>
+    <div class="ps" data-s="4"><div class="pn">5</div><div class="pl">24h 挑战窗口</div></div>
+    <div class="ps" data-s="5"><div class="pn">6</div><div class="pl">证据确认与结算</div></div>
+    <div class="step-now" id="stepNow">待命</div>
+  </section>
+
+  <footer>
+    <span>Aegis 神盾 · ComputeShield — Core / NodeRegistry / RiskPool / AIReporter</span>
+    <span>本地演示挑战窗口为 24s · IV 合约默认 24h · 目标链未部署</span>
+  </footer>
+</div>
+
+<div id="flash" onclick="hideFlash()">
+  <div class="tx">
+    <div class="tk">⚡</div>
+    <h4 id="flTitle">演示赔付已完成</h4>
+    <div class="amt" id="flAmt">+0 BOT</div>
+    <div class="to" id="flTo">→ 投保方钱包</div>
+    <div class="steps" id="flSteps"></div>
+    <div class="hash" id="flHash"></div>
+    <div class="close">点击任意处关闭</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="conn-guard.js"></script>
+<script src="protocol-chain.js"></script>
+<script src="protocol-app.js"></script>
+<script src="protocol-capital.js"></script>
+<script src="suite-ui.js"></script>
+<script src="embedded.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "nickname": "VI",
+  "date": "2026-10-08",
+  "base": "V",
+  "protocolMechanismVersion": "IV",
+  "product": "Aegis / ComputeShield",
+  "destination": "D:/cyka/VI",
+  "archive": "D:/cyka/VI.zip",
+  "publicDemoUrl": "https://aegis-computeshield-demo-vi.jocund-tetra-6250.chatgpt.site",
+  "publicDemoMode": "isolated-browser-rules",
+  "firstDesktopHeroLayoutPreserved": true,
+  "decorativeCardsAndGradientsPreserved": true,
+  "targetChainDeployed": false,
+  "publicModelConnected": false,
+  "publicRealTransactions": false,
+  "browserUploads": "memory-only",
+  "mobileVerification": "Chromium Android and WebKit iPhone emulation; keyboard simulated viewport; no physical devices",
+  "oldProductsOverwritten": 0
+}

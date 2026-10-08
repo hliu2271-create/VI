@@ -1,0 +1,64 @@
+/* ══════════════════════════════════════════════
+   Aegis 神盾 · 共享动效层
+   语言：编排式入场 / 数据动效 / 微交互
+   原则：瑞士国际主义排版 —— 幅度克制、无圆角无阴影、
+        仅黑灰，红涨绿跌仅作语义色；尊重 prefers-reduced-motion。
+   ══════════════════════════════════════════════ */
+
+@keyframes mvRise   { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes mvFade   { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mvSweep  { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes mvPulse  { 0% { box-shadow: 0 0 0 0 rgba(26,26,26,.28); } 70% { box-shadow: 0 0 0 8px rgba(26,26,26,0); } 100% { box-shadow: 0 0 0 0 rgba(26,26,26,0); } }
+@keyframes mvBlink  { 50% { opacity: .35; } }
+@keyframes mvFlash  { from { background: #f0f0ef; box-shadow: inset 3px 0 0 #1a1a1a; } to { background: transparent; box-shadow: none; } }
+
+/* ── 编排式入场：页面骨架逐级浮现 ───────────── */
+.wrap > * { animation: mvRise .42s cubic-bezier(.2,.7,.3,1) both; }
+.wrap > *:nth-child(1) { animation-delay: 0s; }
+.wrap > *:nth-child(2) { animation-delay: .06s; }
+.wrap > *:nth-child(3) { animation-delay: .12s; }
+.wrap > *:nth-child(4) { animation-delay: .18s; }
+.wrap > *:nth-child(5) { animation-delay: .24s; }
+.wrap > *:nth-child(6) { animation-delay: .30s; }
+.wrap > *:nth-child(n+7) { animation-delay: .34s; }
+
+.grid > .card, .cols > .card, .mk-grid > .card { animation: mvRise .42s cubic-bezier(.2,.7,.3,1) both; }
+.grid > .card:nth-child(2) { animation-delay: .08s; }
+.grid > .card:nth-child(3) { animation-delay: .16s; }
+.grid > .card:nth-child(4) { animation-delay: .24s; }
+
+/* ── 数据动效 ───────────────────────────────── */
+.kpi .v, .cnt, .mono { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.kpi { transition: background .2s; }
+.kpi:hover { background: #fafaf9; }
+.bar > i, .prog > i, .pbar > i { transform-origin: left; animation: mvSweep .6s cubic-bezier(.2,.7,.3,1) both; }
+
+/* 新行入场（成交/公告流水等） */
+.row.new, tr.new, .it.new { animation: mvFlash 1.4s ease-out; }
+
+/* ── 微交互 ─────────────────────────────────── */
+.card { transition: border-color .2s, background .2s; }
+.card:hover { border-color: #d4d4d2; }
+.btn, button, .tab, .nav a, .nv a { transition: background .2s, color .2s, border-color .2s, transform .08s; }
+.btn:active, button:active { transform: translateY(1px); }
+.mk { transition: transform .2s; }
+.mk:hover { transform: translateY(-1px); }
+tr { transition: background .18s; }
+
+/* 流水线当前步：脉冲环 */
+.pipe .ps.lit .pn { animation: mvPulse 2s cubic-bezier(.2,.7,.3,1) infinite; }
+/* 状态点异常：呼吸 */
+.dot.bad, .st-bad .dot { animation: mvBlink 1.1s ease-in-out infinite; }
+
+/* 弹层淡入 */
+#flash.show, .modal.show { animation: mvFade .2s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap > *, .grid > .card, .cols > .card, .mk-grid > .card,
+  .bar > i, .prog > i, .pbar > i, .row.new, tr.new, .it.new,
+  .pipe .ps.lit .pn, .dot.bad, .st-bad .dot, #flash.show, .modal.show {
+    animation: none !important;
+  }
+  .btn:active, button:active { transform: none; }
+  .mk:hover { transform: none; }
+}

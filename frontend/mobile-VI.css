@@ -1,0 +1,30 @@
+/* Touch and safe-area adjustments; desktop hero layout remains unchanged. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#mobileWalletGuide{max-width:min(420px,calc(100vw - 32px));width:100%;padding:25px;border:1px solid #dbe4f3;border-radius:18px;background:linear-gradient(135deg,#fff,#f2f4fd);color:#344969;box-shadow:0 20px 70px #273d6330}
+#mobileWalletGuide::backdrop{background:#1a294d50;backdrop-filter:blur(4px)}
+#mobileWalletGuide h2{font-size:21px;font-weight:500;margin:0 0 12px}#mobileWalletGuide p{font-size:14px;line-height:1.9;color:#5a6c87}#mobileWalletGuide .wallet-guide-actions{display:flex;gap:10px;margin-top:20px}#mobileWalletGuide button{min-height:44px;flex:1;border:1px solid #d4deef;border-radius:9px;background:#fff;color:#456a9b;font:inherit;font-size:14px}#mobileWalletGuide [role=status]{font-size:12px;min-height:18px;margin-bottom:0}
+.mobile-keyboard-open .hero-film.is-floating{visibility:hidden!important;pointer-events:none!important}
+@media(pointer:coarse),(max-width:860px){
+ body{padding-bottom:env(safe-area-inset-bottom,0px)}
+ input:not([type=checkbox]):not([type=radio]),select,textarea,#terminal #chainBar input,#terminal #chainBar select,#terminal .capital-panel input,#terminal .capital-panel select{font-size:16px!important;min-height:44px}
+ button,.btn,#terminal .wb-tabs button,#terminal .wb-native .side-item,#terminal #chainBar .row .btn,#terminal .capital-panel button,.quiet-button,.flow-actions button{min-height:44px;touch-action:manipulation}
+ #terminal .wb-native .side-item{padding-top:10px;padding-bottom:10px}
+ .hero-film-tools button{width:44px;height:44px;min-height:44px}.hero-film.is-floating .hero-film-bar{padding:4px 7px;gap:4px}.hero-film.is-floating .hero-film-bar b{font-size:11px}
+ .hero-film-slot>.hero-film.is-floating{right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 24px)}
+ #terminal .workbench.is-expanded,.workbench.is-expanded{height:100dvh;max-height:100dvh;padding-bottom:env(safe-area-inset-bottom,0px)}
+ .wb-native,.wb-panel iframe,.tw-main{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+ #terminal .wb-native .tw-main{scroll-padding-bottom:65px}
+ #terminal .workbench-bar{padding-left:max(15px,env(safe-area-inset-left,0px));padding-right:max(15px,env(safe-area-inset-right,0px))}
+ .top{padding-top:env(safe-area-inset-top,0px)}
+ dialog{max-height:calc(100dvh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto}
+ .capital-status,.tx-note,.addr,.evidence-card code{overflow-wrap:anywhere}
+ .workbench-embedded body[data-suite] .nv a{min-height:44px;display:inline-flex;align-items:center}
+}
+@media(max-width:390px){#terminal .wb-native .tw-main{padding:22px 15px}#terminal #chainBar label{font-size:12px}#terminal #chainBar .row{flex-wrap:wrap}#terminal #chainBar .row .btn{flex:1 1 auto}.hero-film-slot>.hero-film.is-floating.is-minimized{width:244px}.hero-film.is-floating .hero-film-mark{display:none}}
+@media(max-width:650px){
+ .top{background:rgba(247,249,253,.97);backdrop-filter:blur(16px)}.top-in{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;padding:6px 14px}.top .brand{grid-column:1;grid-row:1;gap:7px;min-width:0}.top .brand .mk{width:25px;height:25px}.top .brand b{font-size:14px;white-space:nowrap}.top .brand>span{display:none}
+ .top-right{grid-column:2;grid-row:1;margin:0;gap:3px}.top-right .btn.primary,.top-right .net{display:none}.top-right .mode{font-size:10px;padding:4px 5px}.top-right .btn{font-size:11px;padding-left:7px;padding-right:7px}
+ .top .nav{grid-column:1/-1;grid-row:2;width:100%;justify-content:space-between;gap:0}.top .nav a{min-height:44px;display:flex;align-items:center;padding:0 12px;font-size:13px}
+ #group,#business,#data,#terminal,#workbench{scroll-margin-top:110px}
+}
+@media(max-height:450px) and (orientation:landscape){.hero-film-slot>.hero-film.is-floating{width:230px}#terminal .workbench.is-expanded{height:100dvh}.workbench.is-expanded .workbench-bar{padding-top:5px;padding-bottom:5px}.workbench.is-expanded .wb-tabs button{padding-top:8px;padding-bottom:8px}}

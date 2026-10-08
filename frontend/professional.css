@@ -1,0 +1,26 @@
+/* Original blue/purple gradients, shadows and hover effects are retained. */
+.data-note{max-width:720px;margin:16px auto 0;font-size:13px;line-height:1.85;color:#63728e;font-weight:400}
+.hero-film-bar b{font-size:12px}
+.term-head .live-tag{background:rgba(70,112,190,.07);color:#58749c;border-color:rgba(70,112,190,.15)}
+.term-head .live-tag .dot{background:#6687b7;box-shadow:none}
+.tw-right{color:#6c7d98;font-size:11px;white-space:nowrap}
+.top-right .net .dot{background:#6687b7;box-shadow:none}
+.term-sub{max-width:750px}
+.btn:focus-visible,.side-item:focus-visible{outline:2px solid #0071e3;outline-offset:3px}
+
+@media(hover:hover) and (pointer:fine){
+  .biz-card,.principle,.stat-card{transform-style:preserve-3d}
+  .biz-card.is-tilting,.principle.is-tilting,.stat-card.is-tilting{z-index:2;will-change:transform;filter:none;overflow:visible;transition:box-shadow .3s,border-color .3s}
+  .biz-card .biz-ic,.principle .pr-ic,.stat-card .stat-ic{transition:transform .25s ease;transform:translateZ(0)}
+  .biz-card.is-tilting .biz-ic,.principle.is-tilting .pr-ic,.stat-card.is-tilting .stat-ic{transform:translateZ(20px)}
+  .biz-card h3,.principle h3,.stat-card .stat-body{transition:transform .25s ease;transform:translateZ(0)}
+  .biz-card.is-tilting h3,.principle.is-tilting h3,.stat-card.is-tilting .stat-body{transform:translateZ(9px)}
+  .stat-card{position:relative}
+  .stat-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(10,132,255,.08),transparent 70%)}
+  .stat-card.is-tilting::before{opacity:1}
+}
+@media(prefers-reduced-motion:reduce){
+  .biz-card:hover,.principle:hover,.stat-card:hover{transform:none}
+  .biz-card .biz-ic,.principle .pr-ic,.stat-card .stat-ic,.biz-card h3,.principle h3,.stat-card .stat-body{transform:none!important;transition:none}
+}
+@media(max-width:760px){.data-note{font-size:12px;line-height:1.8}}

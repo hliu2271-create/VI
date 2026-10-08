@@ -1,0 +1,2745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
+<title>网络安全保险理赔核定智能体 · 单文件演示</title>
+<style>
+/* ---------- 设计令牌 · 浅色主题 ---------- */
+:root{
+  --bg:#F6F8FB; --surface:#FFFFFF; --surface-2:#FAFCFE;
+  --ink:#1B2733; --ink-2:#4A5A69; --muted:#8296A8;
+  --line:#E8EEF5; --line-2:#DBE4ED;
+  --brand:#3A7CA5; --brand-ink:#2A6084; --brand-soft:#EBF3FA;
+  --agent:#6C63C9; --agent-soft:#F1F0FD;
+  --ok:#1F8A63; --ok-soft:#E9F6F0;
+  --warn:#B7791F; --warn-soft:#FCF5E7;
+  --bad:#C4553F; --bad-soft:#FCEEEA;
+  --info:#4C6FD4; --info-soft:#EEF2FD;
+  --r:8px; --r-sm:6px;
+  --sh-1:0 1px 2px rgba(27,39,51,.04);
+  --sh-2:0 1px 2px rgba(27,39,51,.04),0 12px 30px -16px rgba(27,39,51,.18);
+  --ease:cubic-bezier(.32,.72,0,1);
+  --mono:ui-monospace,SFMono-Regular,"JetBrains Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:14px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1400px;margin:0 auto;padding:24px 28px 56px}
+
+/* ---------- 顶栏 ---------- */
+header.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header.top .inner{max-width:1400px;margin:0 auto;padding:15px 28px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+.brandline{display:flex;align-items:center;gap:10px}
+.brandline svg{color:var(--brand);flex:none}
+h1{font-size:19px;margin:0;font-weight:650;letter-spacing:0}
+.sub{color:var(--muted);font-size:12.5px;margin:3px 0 0}
+.caseMeta{display:flex;flex-wrap:wrap;gap:24px}
+.caseMeta div{font-size:12px;color:var(--muted)}
+.caseMeta b{display:block;color:var(--ink);font-size:13px;font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* ---------- 场景切换 ---------- */
+.strip{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 18px}
+.chip{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:9px 14px;font-size:13px;cursor:pointer;color:var(--ink);
+  display:flex;flex-direction:column;align-items:flex-start;gap:1px;line-height:1.4;
+  box-shadow:var(--sh-1);
+  transition:border-color .2s var(--ease),box-shadow .25s var(--ease),transform .2s var(--ease),
+    color .2s var(--ease),background .2s var(--ease);
+}
+.chip:hover{border-color:var(--brand);color:var(--brand-ink);transform:translateY(-1px);box-shadow:var(--sh-2)}
+.chip:active{transform:translateY(0)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff;
+  box-shadow:0 10px 22px -12px rgba(58,124,165,.85)}
+.chip small{display:block;font-size:11px;opacity:.65;font-weight:400;transition:opacity .2s var(--ease)}
+
+/* ---------- 面板 ---------- */
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-bottom:18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  min-width:0;margin-bottom:18px;box-shadow:var(--sh-1)}
+.panel>h2{
+  margin:0;padding:14px 18px;border-bottom:1px solid var(--line);
+  font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px;
+}
+.panel>h2 svg{color:var(--brand);flex:none}
+.panel>h2 .hint{margin-left:auto;font-weight:400;color:var(--muted);font-size:12px}
+.panel .body{padding:18px}
+
+/* ---------- 智能体控制台 ---------- */
+.console{border-color:#E5E3F8}
+.console>h2{background:#FAFAFE;border-bottom-color:#EAE8F8}
+.console>h2 svg{color:var(--agent)}
+.runBar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.btnPrimary{
+  font-size:13px;font-weight:600;padding:9px 20px;border-radius:var(--r-sm);cursor:pointer;
+  border:1px solid transparent;background:var(--agent);color:#fff;display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 10px 22px -12px rgba(108,99,201,.95);
+  transition:background .2s var(--ease),box-shadow .25s var(--ease),transform .2s var(--ease),opacity .2s;
+}
+.btnPrimary:hover:not(:disabled){background:#5D54BE;transform:translateY(-1px);
+  box-shadow:0 14px 28px -12px rgba(108,99,201,1)}
+.btnPrimary:active:not(:disabled){transform:translateY(0)}
+.btnPrimary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btnGhost{
+  font-size:12.5px;padding:8px 15px;border-radius:var(--r-sm);cursor:pointer;
+  border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);
+  transition:border-color .2s var(--ease),color .2s var(--ease),transform .2s var(--ease),box-shadow .25s var(--ease);
+}
+.btnGhost:hover:not(:disabled){border-color:var(--agent);color:var(--agent);transform:translateY(-1px);box-shadow:var(--sh-1)}
+.btnGhost:disabled{opacity:.4;cursor:not-allowed}
+.runStat{font-size:12.5px;color:var(--muted);margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;min-width:0}
+.runStat b{color:var(--ink-2);font-weight:600}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line-2);display:inline-block;transition:background .3s var(--ease)}
+.dot.live{background:var(--agent);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+
+.progress{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:14px}
+.progress i{display:block;height:100%;width:0;background:var(--agent);border-radius:2px;
+  transition:width .5s var(--ease)}
+
+/* ---------- 推理轨迹 ---------- */
+.steps{position:relative;margin-top:8px}
+.steps::before{content:"";position:absolute;left:11px;top:28px;bottom:28px;width:1px;background:var(--line-2)}
+.steps.plain::before{display:none}
+.step{position:relative;display:flex;gap:14px;padding:13px 0}
+.step.new{animation:stepIn .44s var(--ease) both}
+@keyframes stepIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.sIdx{
+  width:24px;height:24px;border-radius:50%;flex:none;margin-top:1px;
+  background:var(--agent-soft);color:var(--agent);
+  font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 4px var(--surface);
+  transition:background .3s var(--ease),color .3s var(--ease);
+}
+.sIdx.ok{background:var(--ok-soft);color:var(--ok)}
+.sIdx.bad{background:var(--bad-soft);color:var(--bad)}
+.sMain{flex:1;min-width:0}
+.sTop{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sTool{font-family:var(--mono);font-size:11.5px;font-weight:600;background:#F2F5F8;color:var(--ink-2);
+  border-radius:var(--r-sm);padding:2px 8px}
+.sThought{font-size:12.5px;color:var(--ink-2);margin-top:5px}
+.sObs{
+  margin-top:8px;padding:11px 13px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);
+  font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;
+  color:var(--ink-2);max-height:210px;overflow:auto;
+  transition:background .3s var(--ease),border-color .3s var(--ease);
+}
+.sObs.bad{background:var(--bad-soft);border-color:#F3D6CF;color:#8E3A29}
+.sArgs{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px}
+.empty{color:var(--muted);font-size:12.5px;padding:22px 0;text-align:center}
+.verdict{margin-top:16px;padding:16px 18px;border-radius:var(--r);border:1px solid #DCE8F2;
+  background:var(--brand-soft)}
+.verdict.new{animation:stepIn .5s var(--ease) both}
+.verdict.ok{background:var(--ok-soft);border-color:#CFEADF}
+.verdict.warn{background:var(--warn-soft);border-color:#F2E2C6}
+.verdictRow{display:flex;flex-wrap:wrap;gap:12px;align-items:baseline}
+.verdictNum{font-size:30px;font-weight:700;line-height:1.15;color:var(--ok);font-variant-numeric:tabular-nums}
+.verdictNum.zero{color:var(--bad)}
+.verdictMeta{font-size:12.5px;color:var(--ink-2);line-height:1.95}
+.verdictMeta b{color:var(--ink);font-weight:600}
+
+/* ---------- 标签 ---------- */
+.tag{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:2px 10px;
+  font-size:11.5px;font-weight:600;white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.tag.chain{background:var(--agent-soft);color:var(--agent)}
+.tag.mute{background:#F1F4F7;color:var(--muted)}
+
+/* ---------- 保单参数 ---------- */
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.field input{
+  width:100%;padding:8px 10px;border:1px solid var(--line-2);border-radius:var(--r-sm);
+  font-size:13px;color:var(--ink);background:var(--surface);font-variant-numeric:tabular-nums;
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease);
+}
+.field input:hover{border-color:#C7D5E1}
+.field input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);background:#fff}
+.sublabel{margin:18px 0 10px;font-size:12px;font-weight:600;border-top:1px solid var(--line);padding-top:14px;color:var(--ink-2)}
+.checks{display:flex;flex-wrap:wrap;gap:8px 18px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer;transition:color .2s var(--ease)}
+.checks label:hover{color:var(--brand-ink)}
+.checks input{accent-color:var(--brand)}
+
+/* ---------- 查勘 ---------- */
+.aiCard{background:var(--brand-soft);border:1px solid #DAE8F3;border-radius:var(--r);padding:14px 15px;margin-bottom:16px}
+.aiCard .head{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--brand-ink)}
+.conf{margin-left:auto;font-size:13px;color:var(--brand-ink);font-variant-numeric:tabular-nums}
+.aiCard ul{margin:9px 0 0;padding-left:18px;color:var(--ink-2);font-size:12.5px}
+.aiCard li{margin:3px 0}
+.meter{height:4px;background:#D9E7F2;border-radius:3px;margin-top:10px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--brand);border-radius:3px;
+  transition:width .6s var(--ease)}
+
+.evTable{width:100%;border-collapse:collapse}
+.evTable th{text-align:left;font-size:11px;color:var(--muted);font-weight:600;padding:0 10px 8px 0;
+  border-bottom:1px solid var(--line);text-transform:none}
+.evTable td{padding:12px 10px 12px 0;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:top}
+.evTable tbody tr{transition:background .2s var(--ease)}
+.evTable tbody tr:hover{background:#FBFDFE}
+.evTable tr:last-child td{border-bottom:none}
+.evName{font-weight:600}
+.evSrc{color:var(--muted);font-size:11.5px;margin-top:1px}
+.evHash{font-family:var(--mono);font-size:11px;color:var(--agent);word-break:break-all}
+.evBody{margin-top:5px;color:var(--ink-2)}
+.miniBtn{
+  font-size:11.5px;padding:4px 10px;border-radius:var(--r-sm);cursor:pointer;
+  border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);white-space:nowrap;
+  transition:border-color .2s var(--ease),color .2s var(--ease),background .2s var(--ease),transform .18s var(--ease);
+}
+.miniBtn:hover{border-color:var(--brand);color:var(--brand-ink);transform:translateY(-1px)}
+.miniBtn.danger:hover{border-color:var(--bad);color:var(--bad)}
+.miniBtn.on{background:var(--bad);border-color:var(--bad);color:#fff}
+.miniBtn.on:hover{background:#B34A36;color:#fff}
+
+/* ---------- 表格 ---------- */
+.scrollX{overflow-x:auto}
+.scrollX>.table{min-width:1080px}
+.scrollX>.evTable{min-width:600px}
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:left;font-size:11px;color:var(--muted);font-weight:600;padding:0 12px 9px 0;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+.table td{padding:13px 12px 13px 0;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}
+.table tbody tr{transition:background .2s var(--ease)}
+.table tbody tr:hover{background:#FBFDFE}
+.table tr:last-child td{border-bottom:none}
+.r{text-align:right}
+.cat{font-weight:600}
+.itemNote{color:var(--muted);font-size:11.5px;margin-top:3px;line-height:1.6}
+.strike{text-decoration:line-through;color:var(--muted)}
+
+/* ---------- 计算过程 ---------- */
+.trace{list-style:none;margin:0;padding:0;counter-reset:s}
+.trace li{position:relative;padding:13px 0 13px 34px;border-bottom:1px solid var(--line)}
+.trace li:last-child{border-bottom:none}
+.trace li::before{
+  counter-increment:s;content:counter(s);position:absolute;left:0;top:13px;width:21px;height:21px;border-radius:50%;
+  background:var(--brand-soft);color:var(--brand-ink);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.tLabel{font-size:12.5px;color:var(--muted)}
+.tVal{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:1px}
+.tFormula{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px;word-break:break-word}
+.tNote{font-size:11.5px;color:var(--warn);margin-top:3px}
+
+/* ---------- 核定结论 ---------- */
+.resultHead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.bigNum{font-size:34px;font-weight:700;line-height:1.1;color:var(--ok);font-variant-numeric:tabular-nums;
+  transition:color .3s var(--ease)}
+.bigNum.zero{color:var(--bad)}
+.bigCap{font-size:12px;color:var(--muted)}
+.rateBox{margin-left:auto;text-align:right}
+.rateBox b{font-size:16px;font-weight:650;display:block;font-variant-numeric:tabular-nums;margin-top:2px}
+.bars{margin-top:16px}
+.bar{margin-bottom:11px}
+.barTop{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin-bottom:4px}
+.barTrack{height:8px;background:#F0F4F8;border-radius:4px;overflow:hidden}
+.barTrack i{display:block;height:100%;background:var(--brand);border-radius:4px;
+  transition:width .65s var(--ease)}
+.barTrack i.denied{background:var(--bad);opacity:.3}
+.bars.anim .barTrack i{animation:grow .65s var(--ease) both}
+@keyframes grow{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
+
+.fraud{margin-top:18px;border-top:1px solid var(--line);padding-top:15px}
+.fraudTop{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.fraudScore{margin-left:auto;font-size:16px;font-weight:650;font-variant-numeric:tabular-nums}
+.fraudList{margin:10px 0 0;padding:0;list-style:none;font-size:12.5px}
+.fraudList li{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.fraudList li:last-child{border-bottom:none}
+.fraudList .fName{flex:1;color:var(--muted)}
+.fraudList .fVal{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink-2)}
+
+/* ---------- 风险画像 ---------- */
+.dimRow{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:12.5px}
+.dimName{width:80px;flex:none;font-weight:600}
+.dimTrack{flex:1;height:7px;background:#F0F4F8;border-radius:4px;overflow:hidden;min-width:40px}
+.dimTrack i{display:block;height:100%;border-radius:4px;transition:width .65s var(--ease)}
+.dims.anim .dimTrack i{animation:grow .7s var(--ease) both}
+.dimTrack i.low{background:var(--ok)}
+.dimTrack i.mid{background:#D6A038}
+.dimTrack i.high{background:var(--bad)}
+.dimScore{width:34px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.dimDetail{color:var(--muted);font-size:11.5px;padding:0 0 9px 91px;line-height:1.6}
+.rcTable{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
+.rcTable th{text-align:left;font-size:11px;color:var(--muted);font-weight:600;padding:0 10px 6px 0;border-bottom:1px solid var(--line)}
+.rcTable td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.rcTable tbody tr{transition:background .2s var(--ease)}
+.rcTable tbody tr:hover{background:#FBFDFE}
+.rcCode{font-family:var(--mono);font-weight:600;color:var(--agent);white-space:nowrap}
+.exposure{margin-top:13px;padding:12px 14px;border-radius:var(--r-sm);background:var(--surface-2);
+  border:1px solid var(--line);font-size:12.5px;line-height:1.8;color:var(--ink-2)}
+.exposure b{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}
+
+/* ---------- 页脚 ---------- */
+footer.foot{max-width:1400px;margin:0 auto;padding:0 28px 44px;color:var(--muted);font-size:11.5px}
+.footRow{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:7px}
+.toolBtn{font-size:12.5px;padding:8px 14px;border-radius:var(--r-sm);cursor:pointer;
+  border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);
+  transition:border-color .2s var(--ease),color .2s var(--ease),transform .2s var(--ease),box-shadow .25s var(--ease)}
+.toolBtn:hover{border-color:var(--brand);color:var(--brand-ink);transform:translateY(-1px);box-shadow:var(--sh-1)}
+
+@media (max-width:1000px){
+  .wrap{padding:18px 16px 44px}
+  header.top .inner{padding:14px 16px}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .fields{grid-template-columns:minmax(0,1fr)}
+  .runStat{margin-left:0;width:100%}
+  .panel .body{padding:15px}
+}
+/* 除外责任条款库 */
+.clauseLib{display:flex;flex-direction:column;gap:7px}
+.clauseRow{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;line-height:1.55}
+.clCode{font-family:var(--mono);font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;
+  background:var(--brand-soft);color:var(--brand-ink);flex:none;margin-top:1px}
+.clBody{display:flex;flex-direction:column;gap:1px;min-width:0}
+.clBody b{font-weight:600}
+.clReq{font-size:10.5px;color:var(--muted)}
+
+/* Agent 身份栏：四个 Agent 分属不同主体，独立签名 */
+.agentBar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 12px}
+.agCard{padding:10px 12px;border-radius:var(--r-sm);background:var(--surface-2);
+  border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.agRole{font-size:11px;font-weight:700}
+.agName{font-size:12px;font-weight:600}
+.agOp{font-family:var(--mono);font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.agCard.p-insured .agRole{color:var(--brand-ink)}
+.agCard.p-insurer .agRole{color:var(--warn)}
+.agCard.p-third .agRole{color:var(--agent)}
+.agCard.p-third{border-color:#E3E1F6;background:#FBFAFF}
+
+/* 赔付上限核验 */
+.capBox{margin-top:14px;padding:13px 15px;border-radius:var(--r-sm);background:var(--surface-2);
+  border:1px solid var(--line)}
+.capTop{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:600}
+.capVal{margin-left:auto;font-size:16px;font-weight:650;font-variant-numeric:tabular-nums}
+.capTrack{height:8px;border-radius:4px;background:#F0F4F8;overflow:hidden;margin:10px 0 9px}
+.capTrack i{display:block;height:100%;border-radius:4px;transition:width .65s var(--ease)}
+.capTrack i.low{background:var(--ok)}
+.capTrack i.mid{background:#D6A038}
+.capMeta{font-size:11.5px;color:var(--muted);line-height:1.95}
+.capMeta b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+}
+@media print{
+  body{background:#fff}
+  header.top{position:static;backdrop-filter:none}
+  .strip,.miniBtn,.toolBtn,.runBar,.progress{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .panel{break-inside:avoid;box-shadow:none}
+}
+</style>
+<link rel="stylesheet" href="../assets/fonts/MiSans-Regular.min.css">
+<link rel="stylesheet" href="../assets/fonts/MiSans-Medium.min.css">
+<link rel="stylesheet" href="../assets/fonts/MiSans-Semibold.min.css">
+<link rel="stylesheet" href="../assets/fonts/MiSans-Bold.min.css">
+<link rel="stylesheet" href="../suite-theme.css">
+<script>if(window.parent!==window && new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('workbench-embedded');</script><link rel="stylesheet" href="../embedded.css">
+<link rel="stylesheet" href="/mobile-VI.css"><script src="/mobile-VI.js" defer></script></head>
+<body data-suite="cyber-claims-demo"><div class="suite-breadcrumb"><a href="../index.html">Aegis 神盾</a><span>/</span><a href="../lab.html">理赔实验室</a><span>/</span><span>流程演练</span></div>
+
+<header class="top">
+  <div class="inner">
+    <div>
+      <div class="brandline">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+        <h1>网络安全保险理赔核定智能体</h1>
+      </div>
+      <p class="sub">智能体查勘定责 · 保单规则引擎计算赔付 · 存证核验 · 单文件演示</p>
+    </div>
+    <div class="caseMeta" id="caseMeta"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="strip" id="strip"></div>
+
+  <section class="panel console">
+    <h2>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+      智能体控制台
+      <span class="hint" id="consoleHint"></span>
+    </h2>
+    <div class="body">
+      <div class="runBar">
+        <button class="btnPrimary" id="btnRun">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>
+          运行智能体
+        </button>
+        <button class="btnGhost" id="btnStep">单步执行</button>
+        <button class="btnGhost" id="btnClear">重置轨迹</button>
+        <span class="runStat" id="runStat"></span>
+      </div>
+      <div class="progress"><i id="runProgress"></i></div>
+      <div class="steps" id="agentTrace"></div>
+    </div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        保单条款参数
+        <span class="hint">修改后重新运行智能体</span>
+      </h2>
+      <div class="body" id="policyBody"></div>
+    </section>
+
+    <section class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+        事件查勘与存证核验
+        <span class="hint">存证核验 · 预留链上锚定</span>
+      </h2>
+      <div class="body" id="eventBody"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m19 8-7-5-7 5"/><path d="M5 16h14"/></svg>
+      分项核定明细
+      <span class="hint" id="itemsHint"></span>
+    </h2>
+    <div class="body" id="itemsBody"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        赔付计算过程
+        <span class="hint">规则引擎</span>
+      </h2>
+      <div class="body"><ol class="trace" id="traceBody"></ol></div>
+    </section>
+
+    <section class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        核定结论
+        <span class="hint" id="conclusionHint"></span>
+      </h2>
+      <div class="body" id="resultBody"></div>
+    </section>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="toolBtn" id="btnPrint">导出核定书</button>
+    <button class="toolBtn" id="btnReset">重置本场景</button>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="footRow">
+    <span>演示原型</span>
+    <span>·</span>
+    <span>智能体循环、工具层与保单规则引擎均在本页离线运行，不联网、无需安装</span>
+    <span>·</span>
+    <span>存证哈希为本地 SHA-256 重算并与存证登记值比对；本演示未接入区块链网络，链上锚定为预留接口</span>
+  </div>
+  <div class="footRow">赔付金额由规则引擎计算，智能体无权直接决定金额；工具层会拒绝任何越过条款的调用。</div>
+  <div class="footRow">另有 Python 版实现（含 28 项测试），位于同目录 cyber-claims-agent/。</div>
+</footer>
+
+<script>
+// ===ENGINE_START===
+
+function rotr(x, n){ return (x >>> n) | (x << (32 - n)); }
+
+function utf8Bytes(str){
+  const out = [];
+  for (let i = 0; i < str.length; i++){
+    let c = str.charCodeAt(i);
+    if (c < 0x80){ out.push(c); }
+    else if (c < 0x800){ out.push(0xc0 | (c >> 6), 0x80 | (c & 63)); }
+    else if (c >= 0xd800 && c <= 0xdbff && i + 1 < str.length){
+      const c2 = str.charCodeAt(i + 1);
+      if (c2 >= 0xdc00 && c2 <= 0xdfff){
+        const cp = 0x10000 + ((c - 0xd800) << 10) + (c2 - 0xdc00);
+        out.push(0xf0 | (cp >> 18), 0x80 | ((cp >> 12) & 63), 0x80 | ((cp >> 6) & 63), 0x80 | (cp & 63));
+        i++;
+      } else { out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63)); }
+    }
+    else { out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63)); }
+  }
+  return out;
+}
+
+function sha256Hex(input){
+  const K = new Uint32Array([
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+  ]);
+  const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+  const msg = utf8Bytes(input);
+  const len = msg.length;
+  const bitLen = len * 8;
+  const total = (((len + 9) + 63) >> 6) << 6;
+  const buf = new Uint8Array(total);
+  buf.set(msg);
+  buf[len] = 0x80;
+  const dv = new DataView(buf.buffer);
+  dv.setUint32(total - 8, Math.floor(bitLen / 4294967296));
+  dv.setUint32(total - 4, bitLen >>> 0);
+  const w = new Uint32Array(64);
+  for (let off = 0; off < total; off += 64){
+    for (let t = 0; t < 16; t++) w[t] = dv.getUint32(off + t * 4);
+    for (let t = 16; t < 64; t++){
+      const x = w[t - 15], y = w[t - 2];
+      const s0 = rotr(x, 7) ^ rotr(x, 18) ^ (x >>> 3);
+      const s1 = rotr(y, 17) ^ rotr(y, 19) ^ (y >>> 10);
+      w[t] = (w[t - 16] + s0 + w[t - 7] + s1) >>> 0;
+    }
+    let a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    for (let t = 0; t < 64; t++){
+      const S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[t] + w[t]) >>> 0;
+      const S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + maj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0;
+      d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+    H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+  }
+  let out = '';
+  for (let i = 0; i < 8; i++) out += H[i].toString(16).padStart(8, '0');
+  return out;
+}
+
+function canonical(ev){ return ev.id + '|' + ev.name + '|' + ev.source + '|' + ev.time + '|' + ev.content; }
+
+const CATEGORY_META = {
+  recovery:  { name:'恢复与取证',  basis:'amount' },
+  business:  { name:'营业中断',    basis:'duration' },
+  liability: { name:'第三方责任',  basis:'amount' },
+  digital:   { name:'数字资产',    basis:'amount' },
+  ransom:    { name:'赎金支出',    basis:'amount' },
+  response:  { name:'应急响应',    basis:'amount' },
+  fine:      { name:'监管罚款',    basis:'amount' }
+};
+
+const BASELINE = {
+  recovery: 700000, business: 2600000, liability: 1800000,
+  digital: 900000, ransom: 1500000, response: 450000, fine: 300000
+};
+
+/* 外部工商登记数据源（模拟）。理赔时用来穿透服务商与被保人的关联关系。
+   虚开发票的绝大多数发生在被保人自己找的"恢复与取证服务商"身上。 */
+const REGISTRY = {
+  'ENT-INSURED': {
+    name:'某互联网人工智能科技有限公司', legalRep:'陈某某',
+    shareholders:['陈某某','某创业投资基金'], address:'深圳市南山区科技园 A 座 1801',
+    phone:'0755-8888 6621', founded:'2019-03-12'
+  },
+  'ENT-CLOUD': {
+    name:'某云计算服务有限公司', legalRep:'刘某某',
+    shareholders:['某云控股集团'], address:'杭州市余杭区文一西路 969 号',
+    phone:'0571-8502 1180', founded:'2015-07-20'
+  },
+  'ENT-EDR': {
+    name:'某终端安全技术有限公司', legalRep:'黄某某',
+    shareholders:['某安全科技集团'], address:'北京市海淀区中关村南大街 6 号',
+    phone:'010-6234 7788', founded:'2016-05-09'
+  },
+  'ENT-V1': {
+    name:'某云安全技术有限公司', legalRep:'李某某',
+    shareholders:['李某某','某安全产业基金'], address:'广州市天河区华夏路 30 号',
+    phone:'020-3899 2100', founded:'2018-06-01'
+  },
+  'ENT-V2': {
+    name:'某数字取证技术有限公司', legalRep:'陈某某',
+    shareholders:['陈某某','海口某管理咨询合伙企业'], address:'深圳市南山区科技园 A 座 1801',
+    phone:'0755-8888 6621', founded:'2026-08-15'
+  },
+  'ENT-APPRAISAL': {
+    name:'某资产评估有限公司', legalRep:'周某某',
+    shareholders:['周某某','某评估集团'], address:'上海市浦东新区世纪大道 1200 号',
+    phone:'021-5888 3300', founded:'2012-09-18'
+  }
+};
+
+function daysBetween(fromDate, toDate){
+  const a = Date.parse(String(fromDate).slice(0, 10) + 'T00:00:00Z');
+  const b = Date.parse(String(toDate).slice(0, 10) + 'T00:00:00Z');
+  if (isNaN(a) || isNaN(b)) return null;
+  return Math.round((b - a) / 86400000);
+}
+
+function checkAffiliation(insuredId, vendorId, incidentAt){
+  const insured = REGISTRY[insuredId];
+  const vendor = REGISTRY[vendorId];
+  if (!insured || !vendor || insuredId === vendorId) return { related:false, findings:[] };
+
+  const findings = [];
+  if (insured.legalRep && insured.legalRep === vendor.legalRep){
+    findings.push({ type:'法定代表人', detail:'与被保人同为 ' + vendor.legalRep });
+  }
+  const shared = (insured.shareholders || []).filter(function(s){
+    return (vendor.shareholders || []).indexOf(s) >= 0;
+  });
+  if (shared.length){
+    findings.push({ type:'共同股东', detail:'共同股东：' + shared.join('、') });
+  }
+  if (insured.address && insured.address === vendor.address){
+    findings.push({ type:'注册地址', detail:'与被保人同一注册地址：' + vendor.address });
+  }
+  if (insured.phone && insured.phone === vendor.phone){
+    findings.push({ type:'联系电话', detail:'与被保人同一联系电话：' + vendor.phone });
+  }
+  const age = daysBetween(vendor.founded, incidentAt);
+  if (age !== null && age >= 0 && age < 90){
+    findings.push({ type:'新设主体', detail:'成立至今仅 ' + age + ' 天' });
+  }
+  return { related: findings.length > 0, findings:findings };
+}
+
+function defaultPolicy(){
+  return {
+    eventLimit: 5000000,
+    annualLimit: 20000000,
+    annualUsed: 3200000,
+    deductible: 200000,
+    coinsurance: 0.9,
+    waitingHours: 4,
+    causationThreshold: 0.5,
+    exclusions: ['ransom', 'fine'],
+    sublimits: {
+      recovery: 1500000, business: 3000000, liability: 2000000,
+      digital: 1000000, ransom: 0, response: 500000, fine: 0
+    }
+  };
+}
+
+const EVIDENCE_STD = [
+  { id:'EV-01', issuerId:'ENT-CLOUD', name:'云平台账单与用量快照', source:'某云计算服务有限公司', time:'2026-09-18 09:12',
+    content:'攻击期间弹性带宽与算力用量增长 340%，账单金额 486200 元' },
+  { id:'EV-02', issuerId:'ENT-EDR', name:'EDR 终端告警日志', source:'某终端安全技术有限公司', time:'2026-09-18 08:41',
+    content:'检测到 SYN Flood 与 UDP 反射放大攻击，峰值 780Gbps，持续 26 小时' },
+  { id:'EV-03', issuerId:'ENT-V1', name:'第三方安全响应报告', source:'某云安全技术有限公司', time:'2026-09-19 17:30',
+    content:'认定推理集群中断 26 小时，恢复与取证工时费用 680000 元' },
+  { id:'EV-04', issuerId:'ENT-INSURED', name:'内部工单与运维记录', source:'被保人内部系统', time:'2026-09-19 20:05',
+    content:'故障处置流水与值班日志，含数据库集群配置变更单一份' }
+];
+
+function stdItems(){
+  return [
+    { id:'IT-01', category:'business',  hours:26, refs:['EV-02','EV-04'], causation:0.94,
+      note:'推理服务全面不可用，收入中断' },
+    { id:'IT-02', category:'response',  amount:420000, refs:['EV-02'], causation:0.91,
+      note:'应急响应与流量清洗' },
+    { id:'IT-03', category:'recovery',  amount:680000, refs:['EV-01','EV-03'], causation:0.88,
+      note:'系统恢复与数字取证' },
+    { id:'IT-04', category:'recovery',  amount:960000, refs:['EV-04'], causation:0.31,
+      note:'数据库集群重建' }
+  ];
+}
+
+/* 关联服务商案件：出具响应报告的"第三方"实为被保人关联方 */
+function affiliateEvidence(){
+  return EVIDENCE_STD.map(function(e){
+    if (e.id !== 'EV-03') return e;
+    return Object.assign({}, e, {
+      issuerId:'ENT-V2',
+      name:'第三方安全响应报告',
+      source:'某数字取证技术有限公司',
+      content:'认定推理集群中断 26 小时，恢复与取证工时费用 680000 元'
+    });
+  });
+}
+
+function affiliateItems(){
+  return stdItems().map(function(it){
+    return it.id === 'IT-03' ? Object.assign({}, it, { marketQuote:420000 }) : it;
+  });
+}
+
+const AI_DDOS = {
+  label:'DDoS 分布式拒绝服务', confidence:0.96,
+  signals:[
+    '流量特征匹配 SYN Flood 与 UDP 反射放大',
+    '峰值带宽 780Gbps，超出历史基线 40 倍',
+    '告警时间线与服务中断时段完全重合'
+  ]
+};
+
+const PRESETS = [
+  {
+    id:'base', chip:'基准赔付', chipSub:'DDoS 正常核定',
+    caseNo:'CY-2026-0918-001', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-09-18 08:20',
+    attackType:'ddos', reportedHours:6, downtimeHours:26, perHourLoss:120000,
+    aiClassification:AI_DDOS, concentrationFactor:null,
+    evidence:EVIDENCE_STD, items:stdItems(), tamperedOnLoad:[]
+  },
+  {
+    id:'affiliate', chip:'关联服务商', chipSub:'虚开恢复费用',
+    caseNo:'CY-2026-0918-002', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-09-18 08:20',
+    attackType:'ddos', reportedHours:6, downtimeHours:26, perHourLoss:120000,
+    aiClassification:AI_DDOS, concentrationFactor:null,
+    evidence:affiliateEvidence(), items:affiliateItems(), tamperedOnLoad:[]
+  },
+  {
+    id:'tamper', chip:'存证被篡改', chipSub:'恢复费用举证不实',
+    caseNo:'CY-2026-0918-001', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-09-18 08:20',
+    attackType:'ddos', reportedHours:6, downtimeHours:26, perHourLoss:120000,
+    aiClassification:{
+      label:'DDoS 分布式拒绝服务', confidence:0.96,
+      signals:[
+        '流量特征匹配 SYN Flood 与 UDP 反射放大',
+        '峰值带宽 780Gbps，超出历史基线 40 倍',
+        '第三方响应报告的重算哈希与存证登记值不一致'
+      ]
+    },
+    concentrationFactor:null,
+    evidence:EVIDENCE_STD, items:stdItems(), tamperedOnLoad:['EV-03']
+  },
+  {
+    id:'ransom', chip:'勒索软件', chipSub:'赎金列为除外责任',
+    caseNo:'CY-2026-0921-014', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-09-21 02:05',
+    attackType:'ransomware', reportedHours:4, downtimeHours:40, perHourLoss:90000,
+    concentrationFactor:null,
+    aiClassification:{
+      label:'勒索软件加密', confidence:0.98,
+      signals:[
+        '加密行为特征与 LockBit 变种家族匹配',
+        '横向移动路径与失陷主机还原结果一致',
+        '勒索信样本与已知家族同源'
+      ]
+    },
+    evidence:[
+      { id:'EV-01', issuerId:'ENT-V1', name:'勒索软件样本分析报告', source:'某云安全技术有限公司', time:'2026-09-21 11:40',
+        content:'样本家族为 LockBit 变种，42 台 GPU 节点数据被加密' },
+      { id:'EV-02', issuerId:'ENT-EDR', name:'EDR 终端告警日志', source:'某终端安全技术有限公司', time:'2026-09-21 02:11',
+        content:'异常进程批量加密文件，中断持续 40 小时' },
+      { id:'EV-03', issuerId:'ENT-V1', name:'恢复与取证费用清单', source:'某云安全技术有限公司', time:'2026-09-23 16:20',
+        content:'数据恢复、系统重建与取证费用合计 2100000 元' },
+      { id:'EV-04', issuerId:'ENT-INSURED', name:'赎金谈判记录与支付凭证', source:'被保人内部系统', time:'2026-09-22 23:50',
+        content:'谈判记录与加密资产支付回执，金额折合 1800000 元' },
+      { id:'EV-05', issuerId:'ENT-APPRAISAL', name:'模型资产损失评估报告', source:'某资产评估有限公司', time:'2026-09-24 10:05',
+        content:'已训练模型权重损毁，按训练算力成本法评估 1200000 元' }
+    ],
+    items:[
+      { id:'IT-01', category:'business',  hours:40, refs:['EV-02'], causation:0.93,
+        note:'推理与训练服务中断' },
+      { id:'IT-02', category:'ransom',    amount:1800000, refs:['EV-04'], causation:0.96,
+        note:'向攻击方支付的赎金' },
+      { id:'IT-03', category:'recovery',  amount:2100000, refs:['EV-03'], causation:0.90,
+        note:'数据恢复与系统重建' },
+      { id:'IT-04', category:'response',  amount:650000, refs:['EV-03'], causation:0.89,
+        note:'应急处置与外部专家费用' },
+      { id:'IT-05', category:'digital',   amount:1200000, refs:['EV-05'], causation:0.86,
+        note:'模型权重资产损失' }
+    ],
+    tamperedOnLoad:[]
+  },
+  {
+    id:'systemic', chip:'零日关联攻击', chipSub:'系统性风险与集中度',
+    caseNo:'CY-2026-0926-031', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-09-26 14:30',
+    attackType:'zero-day', reportedHours:9, downtimeHours:60, perHourLoss:150000,
+    concentrationFactor:0.6,
+    concentrationNote:'同一上游组件漏洞同时影响多个被保人，事件限额按风险集中度系数 0.6 折算',
+    aiClassification:{
+      label:'供应链零日漏洞利用', confidence:0.91,
+      signals:[
+        '漏洞利用特征与厂商公告的利用方式匹配',
+        '多家同业客户在同一时段出现同源告警',
+        '受影响资产集中于同一上游组件版本'
+      ]
+    },
+    evidence:[
+      { id:'EV-01', issuerId:'ENT-CLOUD', name:'上游厂商漏洞公告', source:'组件供应商', time:'2026-09-26 15:00',
+        content:'披露零日漏洞，确认影响本公司及多家同业客户' },
+      { id:'EV-02', issuerId:'ENT-CLOUD', name:'云平台账单与用量快照', source:'某云计算服务有限公司', time:'2026-09-27 09:30',
+        content:'攻击期间跨区流量异常增长，服务中断持续 60 小时' },
+      { id:'EV-03', issuerId:'ENT-INSURED', name:'受影响客户索赔清单', source:'被保人内部系统', time:'2026-09-29 18:10',
+        content:'37 家下游客户提出连带责任索赔，累计申报 4200000 元' },
+      { id:'EV-04', issuerId:'ENT-V1', name:'恢复与取证费用清单', source:'某云安全技术有限公司', time:'2026-09-29 20:40',
+        content:'恢复与取证费用合计 1500000 元' }
+    ],
+    items:[
+      { id:'IT-01', category:'business',  hours:60, refs:['EV-01','EV-02'], causation:0.92,
+        note:'全量服务中断' },
+      { id:'IT-02', category:'liability', amount:4200000, refs:['EV-03'], causation:0.88,
+        note:'下游客户连带责任索赔' },
+      { id:'IT-03', category:'recovery',  amount:1500000, refs:['EV-04'], causation:0.90,
+        note:'漏洞修复与取证' },
+      { id:'IT-04', category:'response',  amount:380000, refs:['EV-04'], causation:0.87,
+        note:'应急处置' },
+      { id:'IT-05', category:'liability', amount:2600000, refs:['EV-03'], causation:0.44,
+        note:'客户主张的数据泄露赔偿' }
+    ],
+    tamperedOnLoad:[]
+  },
+  {
+    id:'waiting', chip:'等待期未满', chipSub:'短时中断不予给付',
+    caseNo:'CY-2026-0930-008', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-09-30 21:00',
+    attackType:'ddos', reportedHours:20, downtimeHours:3, perHourLoss:200000,
+    concentrationFactor:null,
+    aiClassification:{
+      label:'DDoS 分布式拒绝服务', confidence:0.88,
+      signals:['短时流量突增特征匹配', '中断持续 3 小时，低于同类事件均值']
+    },
+    evidence:[
+      { id:'EV-01', issuerId:'ENT-EDR', name:'EDR 终端告警日志', source:'某终端安全技术有限公司', time:'2026-09-30 21:05',
+        content:'检测到短时 DDoS 攻击，持续 3 小时' },
+      { id:'EV-02', issuerId:'ENT-V1', name:'恢复与取证费用清单', source:'某云安全技术有限公司', time:'2026-10-01 12:00',
+        content:'应急恢复与取证费用合计 230000 元' }
+    ],
+    items:[
+      { id:'IT-01', category:'business', hours:3, refs:['EV-01'], causation:0.90,
+        note:'推理服务短时不可用' },
+      { id:'IT-02', category:'recovery', amount:150000, refs:['EV-02'], causation:0.90,
+        note:'系统恢复' },
+      { id:'IT-03', category:'response', amount:80000, refs:['EV-02'], causation:0.88,
+        note:'应急处置' }
+    ],
+    tamperedOnLoad:[]
+  },
+  {
+    id:'exclusion', chip:'除外责任争议', chipSub:'举证不足仍须赔付',
+    caseNo:'CY-2026-1004-022', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-10-04 07:40',
+    attackType:'ddos', reportedHours:5, downtimeHours:26, perHourLoss:120000,
+    aiClassification:AI_DDOS, concentrationFactor:null,
+    evidence:EVIDENCE_STD,
+    items:[
+      { id:'IT-01', category:'business', hours:26, refs:['EV-02','EV-04'], causation:0.94,
+        note:'推理服务全面不可用，收入中断' },
+      { id:'IT-02', category:'recovery', amount:680000, refs:['EV-01','EV-03'], causation:0.88,
+        note:'系统恢复与数字取证',
+        exclusionClaim:{ clause:'EX-02', evidence:['投保前披露记录','未修复工单记录'],
+          note:'保险人主张该漏洞投保前已披露且未修复，两项举证材料齐备' } },
+      { id:'IT-03', category:'recovery', amount:960000, refs:['EV-04'], causation:0.87,
+        note:'数据库集群重建',
+        exclusionClaim:{ clause:'EX-02', evidence:['投保前披露记录'],
+          note:'保险人同样援引 EX-02，但只提交披露记录，缺未修复工单' } }
+    ],
+    tamperedOnLoad:[]
+  },
+  {
+    id:'adjuster', chip:'第三方定损', chipSub:'核赔无权改定损额',
+    caseNo:'CY-2026-1004-031', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-10-04 07:40',
+    attackType:'ddos', reportedHours:5, downtimeHours:26, perHourLoss:120000,
+    aiClassification:AI_DDOS, concentrationFactor:null,
+    evidence:EVIDENCE_STD,
+    items:[
+      { id:'IT-01', category:'business', hours:26, refs:['EV-02','EV-04'], causation:0.94,
+        note:'推理服务全面不可用，收入中断' },
+      { id:'IT-02', category:'recovery', amount:1200000, refs:['EV-01','EV-03'], causation:0.88,
+        note:'系统恢复与数字取证' },
+      { id:'IT-03', category:'response', amount:600000, refs:['EV-02'], causation:0.90,
+        note:'应急响应与外部专家费用' }
+    ],
+    lossAdjustment:{
+      adjusterId:'ADJ-01', reportNo:'LA-2026-1004-018', issuedAt:'2026-10-04 16:20',
+      basis:'现场取证 + 云账单与 EDR 日志交叉核验 + 同类恢复服务市场价比对',
+      items:{
+        'IT-01':{ hours:26, rate:120000,
+          note:'云账单与 EDR 告警时间线交叉验证，停机 26 小时属实' },
+        'IT-02':{ amount:780000,
+          note:'申报 1200000 元，比对同类恢复服务市场均价后核定为 780000 元' },
+        'IT-03':{ amount:600000,
+          note:'应急响应工时与费用凭证一致，全额认可' }
+      }
+    },
+    adjusterDispute:{ itemId:'IT-02', requested:500000,
+      reason:'核赔方认为恢复服务市场价可再压至 500000 元' },
+    tamperedOnLoad:[]
+  },
+  {
+    id:'aggregate', chip:'年度上限触顶', chipSub:'保险期间累计赔付上限',
+    caseNo:'CY-2026-1004-044', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-10-04 07:40',
+    attackType:'ddos', reportedHours:6, downtimeHours:26, perHourLoss:120000,
+    aiClassification:AI_DDOS, concentrationFactor:null,
+    evidence:EVIDENCE_STD,
+    items:[
+      { id:'IT-01', category:'business', hours:26, refs:['EV-02','EV-04'], causation:0.94,
+        note:'推理服务全面不可用，收入中断' },
+      { id:'IT-02', category:'recovery', amount:680000, refs:['EV-01','EV-03'], causation:0.88,
+        note:'系统恢复与数字取证' },
+      { id:'IT-03', category:'response', amount:420000, refs:['EV-02'], causation:0.91,
+        note:'应急响应与流量清洗' }
+    ],
+    policyOverrides:{ annualUsed:17000000 },
+    tamperedOnLoad:[]
+  },
+  {
+    id:'subrogation', chip:'代位求偿', chipSub:'赔付后向责任方追偿',
+    caseNo:'CY-2026-1004-052', insured:'某互联网人工智能科技有限公司',
+    policyNo:'CYB-AI-2026-0231', incidentAt:'2026-10-04 07:40',
+    attackType:'ddos', reportedHours:6, downtimeHours:26, perHourLoss:120000,
+    aiClassification:AI_DDOS, concentrationFactor:null,
+    evidence:EVIDENCE_STD,
+    items:[
+      { id:'IT-01', category:'business', hours:26, refs:['EV-02','EV-04'], causation:0.94,
+        note:'推理服务全面不可用，收入中断' },
+      { id:'IT-02', category:'response', amount:420000, refs:['EV-02'], causation:0.91,
+        note:'应急响应与流量清洗' },
+      { id:'IT-03', category:'recovery', amount:680000, refs:['EV-01','EV-03'], causation:0.88,
+        note:'系统恢复与数字取证' }
+    ],
+    subrogation:{
+      traceReport:'TR-2026-1004-009',
+      liable:'某云计算服务有限公司',
+      basis:'被保人购买该云厂商 DDoS 防护服务，合同承诺 30 分钟内完成流量清洗；实际 6 小时后方生效，显著延长停机时长，构成服务违约',
+      share:0.4,
+      evidence:['云厂商 DDoS 防护服务 SLA 合同','清洗生效时间日志（存证登记）','EDR 告警时间线与云厂商处置记录比对报告'],
+      outcome:'full'
+    },
+    tamperedOnLoad:[]
+  }
+];
+
+function tamperText(ev){ return ev.content + '｜记录修订：损失金额已上调'; }
+
+function verifyEvidence(scenario, tamperedMap){
+  return scenario.evidence.map(function(ev){
+    const isTampered = !!(tamperedMap && tamperedMap[ev.id]);
+    const current = isTampered ? tamperText(ev) : ev.content;
+    const localHash = sha256Hex(canonical({ id:ev.id, name:ev.name, source:ev.source, time:ev.time, content:current }));
+    return {
+      id:ev.id, name:ev.name, source:ev.source, time:ev.time,
+      issuerId:ev.issuerId || null,
+      content:current, tampered:isTampered,
+      onchainHash:ev.onchainHash, localHash:localHash,
+      verified: localHash === ev.onchainHash
+    };
+  });
+}
+
+function round2(n){ return Math.round(n * 100) / 100; }
+
+/* 案件事实补充：承保时点与同类案件的营业中断单价基准。
+   用于评估逆选择风险与损失计量风险，不影响赔付金额计算。 */
+const CASE_FACTS = {
+  base:      { perHourBenchmark:100000, policyInception:'2025-11-01' },
+  affiliate: { perHourBenchmark:100000, policyInception:'2026-07-01' },
+  tamper:    { perHourBenchmark:100000, policyInception:'2025-11-01' },
+  ransom:    { perHourBenchmark:85000,  policyInception:'2025-11-01' },
+  systemic:  { perHourBenchmark:120000, policyInception:'2025-11-01' },
+  waiting:   { perHourBenchmark:140000, policyInception:'2025-11-01' },
+  exclusion: { perHourBenchmark:100000, policyInception:'2025-11-01' },
+  adjuster:  { perHourBenchmark:100000, policyInception:'2025-11-01' },
+  aggregate: { perHourBenchmark:100000, policyInception:'2025-11-01' },
+  subrogation:{ perHourBenchmark:100000, policyInception:'2025-11-01' }
+};
+
+/* 风险维度：每个维度独立评分，不使用单一混合分数做处置决定 */
+const RISK_DIMENSIONS = [
+  { key:'evidence',     name:'证据可信度', weight:0.28 },
+  { key:'counterparty', name:'交易对手',   weight:0.20 },
+  { key:'causation',    name:'因果关联',   weight:0.18 },
+  { key:'quantum',      name:'损失计量',   weight:0.16 },
+  { key:'authenticity', name:'事件真实性', weight:0.10 },
+  { key:'behavior',     name:'索赔行为',   weight:0.08 }
+];
+
+/* 风险因子编码。kind 区分"风险类"与"合同约定类"：合同类核减是条款正常作用，
+   风险类核减才是需要追查的敞口。 */
+const REASON_CODES = {
+  'RC-01': { name:'存证核验不通过',            dim:'evidence',     kind:'risk',     amount:'claimed' },
+  'RC-02': { name:'服务商与被保人存在关联关系', dim:'counterparty', kind:'risk',     amount:'affiliate' },
+  'RC-03': { name:'服务商为临近出险新设主体',   dim:'counterparty', kind:'risk',     amount:'none' },
+  'RC-04': { name:'因果置信度低于阈值',         dim:'causation',    kind:'risk',     amount:'claimed' },
+  'RC-05': { name:'未达营业中断等待期',         dim:'quantum',      kind:'contract', amount:'claimed' },
+  'RC-06': { name:'属于除外责任科目',           dim:'quantum',      kind:'contract', amount:'claimed' },
+  'RC-07': { name:'超出分项子限额',             dim:'quantum',      kind:'contract', amount:'sublimit' },
+  'RC-08': { name:'营业中断单价高于同类基准',   dim:'quantum',      kind:'risk',     amount:'none' },
+  'RC-09': { name:'申报总额接近或超过事件限额', dim:'quantum',      kind:'risk',     amount:'none' },
+  'RC-10': { name:'完全由被保人自述材料支撑',   dim:'evidence',     kind:'risk',     amount:'none' },
+  'RC-11': { name:'报案时效偏离常规',           dim:'behavior',     kind:'risk',     amount:'none' },
+  'RC-12': { name:'投保后短期内出险',           dim:'behavior',     kind:'risk',     amount:'none' },
+  'RC-13': { name:'除外主张举证不足',           dim:'evidence',     kind:'compliance', amount:'none' },
+  'RC-14': { name:'定损核减（申报高于核定损失）', dim:'quantum',      kind:'risk',       amount:'none' }
+};
+
+/* 第三方定损机构登记表。
+   依据 GB/T 45576—2025 4.2.1 d)：服务方中宜包含「作为独立第三方角色的检测或仲裁机构」；
+   8.2.2：损失影响分析宜由具有相关资质或能力的第三方专业机构实施。
+   损失金额只能由定损 Agent 出具，核赔 Agent 无权修改，争议须提请独立复核。 */
+const ADJUSTERS = {
+  'ADJ-01': {
+    name:'某第三方网络安全损失评估有限公司',
+    license:'网络安全服务能力资质（参考 GB/T 32914—2023）',
+    role:'定损',
+    operator:'0x7A2f9C4E6b18D205e7B3c8A1f04D6E92A15C41d',
+    signKey:'0xA19c3E7B52d840f16C9e02B7a3D85F6410C88e0'
+  },
+  'ADJ-02': {
+    name:'某独立保险公估有限公司',
+    license:'保险公估机构备案',
+    role:'复核',
+    operator:'0x4E8812B7a90C35f6D4e1A8b27C096E53F219b7',
+    signKey:'0x6D0235A9c17E48b0F92Dc6A4e83B1705D9f3a1'
+  }
+};
+
+/* 除外责任条款库。
+   保险法原则：保险人主张除外，举证责任在保险人；举证不足的，除外不成立，仍须赔付。 */
+const EXCLUSION_CLAUSES = {
+  'EX-01': { name:'战争、敌对行动与政府行为',       requires:['事件性质认定文件'] },
+  'EX-02': { name:'投保前已披露且未修复的已知漏洞', requires:['投保前披露记录','未修复工单记录'] },
+  'EX-03': { name:'被保人故意行为或重大过失',       requires:['调查报告或生效裁判文书'] },
+  'EX-04': { name:'上游基础设施整体故障',           requires:['上游服务商故障公告','责任认定说明'] }
+};
+
+function levelOf(score){
+  return score < 0.3 ? 'low' : (score < 0.6 ? 'mid' : 'high');
+}
+
+const LEVEL_TEXT = { low:'低', mid:'中', high:'高' };
+
+function money(n){ return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function buildRiskProfile(policy, scenario, items, evidence){
+  const totalClaimed = items.reduce(function(s, i){ return s + i.claimed; }, 0);
+  const failed = evidence.filter(function(e){ return !e.verified; });
+
+  const selfSupported = items.reduce(function(s, i){ return s + (i.selfOnly ? i.claimed : 0); }, 0);
+  const selfRatio = totalClaimed ? selfSupported / totalClaimed : 0;
+  const evidenceScore = Math.min(1,
+    (failed.length === 0 ? 0.05 : Math.min(1, 0.35 + 0.3 * failed.length)) + selfRatio * 0.30);
+
+  const independent = evidence.filter(function(e){
+    return e.issuerId === 'ENT-CLOUD' || e.issuerId === 'ENT-EDR';
+  }).length;
+  const corroboration = Math.max(0.5, 1 - 0.25 * independent);
+  const authenticityScore = Math.min(1, (1 - scenario.aiClassification.confidence) * corroboration);
+
+  const causFailed = items.reduce(function(s, i){ return s + (i.causationFailed ? i.claimed : 0); }, 0);
+  const causationScore = Math.min(1, (totalClaimed ? causFailed / totalClaimed : 0) * 1.5);
+
+  const bench = scenario.perHourBenchmark || scenario.perHourLoss;
+  const unitDev = bench ? Math.abs(scenario.perHourLoss - bench) / bench : 0;
+  const effLimit = policy.eventLimit * (scenario.concentrationFactor || 1);
+  const limitRatio = effLimit > 0 ? totalClaimed / effLimit : 0;
+  const quantumScore = Math.min(1, unitDev * 0.8 + Math.min(0.5, Math.max(0, limitRatio - 1) * 0.6));
+
+  const related = {};
+  items.forEach(function(i){ if (i.affiliate) related[i.affiliate.issuerId] = i.affiliate; });
+  const hitCount = Object.keys(related).length;
+  const newEntityHits = Object.keys(related).filter(function(k){
+    return related[k].findings.some(function(f){ return f.type === '新设主体'; });
+  }).length;
+  const counterpartyScore = Math.min(1, hitCount * 0.5 + newEntityHits * 0.3);
+
+  const timeliness = scenario.reportedHours <= 24 ? 0.05
+    : Math.min(1, 0.25 + (scenario.reportedHours - 24) / 96);
+  const tenureDays = scenario.policyInception ? daysBetween(scenario.policyInception, scenario.incidentAt) : null;
+  const tenureRisk = tenureDays === null ? 0 : (tenureDays < 90 ? 0.45 : (tenureDays < 180 ? 0.25 : 0.05));
+  const behaviorScore = Math.max(timeliness, tenureRisk);
+
+  const scores = {
+    evidence:evidenceScore, counterparty:counterpartyScore, causation:causationScore,
+    quantum:quantumScore, authenticity:authenticityScore, behavior:behaviorScore
+  };
+  const details = {
+    evidence: failed.length
+      ? failed.length + ' 条存证哈希不一致；自述材料支撑申报占 ' + Math.round(selfRatio * 100) + '%'
+      : '全部存证通过哈希比对；自述材料支撑申报占 ' + Math.round(selfRatio * 100) + '%',
+    counterparty: hitCount
+      ? '命中 ' + hitCount + ' 家关联服务商' + (newEntityHits ? '，其中 ' + newEntityHits + ' 家为临近出险新设' : '')
+      : '第三方服务商未见股权、人员或地址重叠',
+    causation: causFailed
+      ? '因果未闭合金额 ' + money(causFailed) + ' 元，占申报 ' + Math.round(causFailed / totalClaimed * 100) + '%'
+      : '全部申报项因果链闭合',
+    quantum: '单价偏离基准 ' + Math.round(unitDev * 100) + '%；申报额为限额的 ' + limitRatio.toFixed(2) + ' 倍',
+    authenticity: '攻击类型判定置信度 ' + Math.round(scenario.aiClassification.confidence * 100) +
+      '%，' + independent + ' 条基础设施侧独立证据佐证',
+    behavior: '事发后 ' + scenario.reportedHours + ' 小时报案' +
+      (tenureDays === null ? '' : '；投保后 ' + tenureDays + ' 天出险')
+  };
+
+  const dimensions = RISK_DIMENSIONS.map(function(d){
+    const score = scores[d.key];
+    return { key:d.key, name:d.name, weight:d.weight, score:round2(score),
+      level:levelOf(score), detail:details[d.key] };
+  });
+
+  const composite = Math.min(1, dimensions.reduce(function(s, d){ return s + d.weight * d.score; }, 0));
+  let level = 'low';
+  dimensions.forEach(function(d){
+    if (d.level === 'high') level = 'high';
+    else if (d.level === 'mid' && level !== 'high') level = 'mid';
+  });
+  const action = level === 'high' ? '专项调查' : (level === 'mid' ? '人工抽查' : '自动核定');
+  let driver = dimensions[0];
+  dimensions.forEach(function(d){ if (d.score > driver.score) driver = d; });
+
+  const codeMap = {};
+  function addCode(code, item, amount){
+    if (!codeMap[code]) codeMap[code] = { code:code, name:REASON_CODES[code].name,
+      dim:REASON_CODES[code].dim, kind:REASON_CODES[code].kind, items:[], amount:0 };
+    if (item && codeMap[code].items.indexOf(item.id) < 0) codeMap[code].items.push(item.id);
+    codeMap[code].amount += amount || 0;
+  }
+  items.forEach(function(i){
+    if (i.failedRefs.length) addCode('RC-01', i, i.claimed);
+    if (i.affiliate){
+      addCode('RC-02', i, i.affiliateAdjustment);
+      if (i.affiliate.findings.some(function(f){ return f.type === '新设主体'; })) addCode('RC-03', i, 0);
+    }
+    if (i.causationFailed) addCode('RC-04', i, i.claimed);
+    if (i.status === 'excluded' && i.reason.indexOf('未达等待期') >= 0) addCode('RC-05', i, i.claimed);
+    if (i.status === 'excluded' && i.reason.indexOf('除外责任') >= 0) addCode('RC-06', i, i.claimed);
+    if (i.status === 'partial' && i.reason.indexOf('子限额') >= 0) addCode('RC-07', i, i.eligible - i.capped);
+    if (i.selfOnly && selfRatio > 0.25) addCode('RC-10', i, 0);
+    if (i.exclusionReview && !i.exclusionReview.upheld) addCode('RC-13', i, 0);
+    if (i.assessmentCut > 0) addCode('RC-14', i, 0);
+  });
+  if (unitDev > 0.20) addCode('RC-08', null, 0);
+  if (limitRatio > 1.2) addCode('RC-09', null, 0);
+  if (timeliness > 0.2) addCode('RC-11', null, 0);
+  if (tenureRisk >= 0.25) addCode('RC-12', null, 0);
+
+  const codes = Object.keys(codeMap).sort().map(function(k){ return codeMap[k]; });
+  const riskExposure = codes.reduce(function(s, c){
+    return s + (c.kind === 'risk' && REASON_CODES[c.code].amount !== 'none' ? c.amount : 0);
+  }, 0);
+  const contractDeduction = codes.reduce(function(s, c){
+    return s + (c.kind === 'contract' ? c.amount : 0);
+  }, 0);
+
+  return {
+    dimensions:dimensions, composite:round2(composite), level:level, action:action,
+    driver:{ key:driver.key, name:driver.name, level:driver.level },
+    codes:codes,
+    exposure:{
+      risk:round2(riskExposure),
+      contract:round2(contractDeduction),
+      rate: totalClaimed ? riskExposure / totalClaimed : 0,
+      totalClaimed:round2(totalClaimed)
+    }
+  };
+}
+
+function adjudicate(policy, scenario, tamperedMap, affiliation){
+  const evidence = verifyEvidence(scenario, tamperedMap);
+  const evById = {};
+  evidence.forEach(function(e){ evById[e.id] = e; });
+
+  const items = scenario.items.map(function(it){
+    const meta = CATEGORY_META[it.category];
+    const excluded = policy.exclusions.indexOf(it.category) >= 0;
+    const failedRefs = (it.refs || []).filter(function(id){ return evById[id] && !evById[id].verified; });
+    const sublimit = policy.sublimits[it.category] || 0;
+
+    // 保险人的除外主张：援引的条款 + 已提交的举证材料
+    let exclusionReview = null;
+    if (it.exclusionClaim){
+      const clause = EXCLUSION_CLAUSES[it.exclusionClaim.clause] || { name:'未知条款', requires:[] };
+      const submitted = it.exclusionClaim.evidence || [];
+      const missing = clause.requires.filter(function(r){ return submitted.indexOf(r) < 0; });
+      exclusionReview = {
+        clause: it.exclusionClaim.clause,
+        name: clause.name,
+        required: clause.requires.slice(),
+        submitted: submitted.slice(),
+        missing: missing,
+        upheld: missing.length === 0,
+        note: it.exclusionClaim.note || ''
+      };
+    }
+
+    // 第三方定损结论：本案委托了定损机构时，损失金额以定损报告为准
+    const adjItem = (scenario.lossAdjustment && scenario.lossAdjustment.items)
+      ? scenario.lossAdjustment.items[it.id] : null;
+
+    let claimed = 0, assessed = 0, billableHours = null, billable = 0;
+    if (meta.basis === 'duration'){
+      const vHours = (adjItem && adjItem.hours != null) ? adjItem.hours : it.hours;
+      const vRate = (adjItem && adjItem.rate != null) ? adjItem.rate : scenario.perHourLoss;
+      claimed = it.hours * scenario.perHourLoss;
+      assessed = vHours * vRate;
+      billableHours = Math.max(0, vHours - policy.waitingHours);
+      billable = billableHours * vRate;
+    } else {
+      claimed = it.amount;
+      assessed = (adjItem && adjItem.amount != null) ? adjItem.amount : it.amount;
+      billable = assessed;
+    }
+    // 定损核减 = 申报高于第三方核定损失的部分
+    const assessmentCut = Math.max(0, claimed - assessed);
+
+    let status = 'approved', reason = '', causationFailed = false;
+    if (exclusionReview && exclusionReview.upheld){
+      status = 'excluded';
+      reason = '除外责任 ' + exclusionReview.clause + '（' + exclusionReview.name + '）：举证齐备，条款适用，不予赔付';
+    } else if (excluded){
+      status = 'excluded'; reason = '除外责任：' + meta.name + '不在本保单承保范围';
+    } else if (failedRefs.length){
+      status = 'disputed'; reason = '证据链存疑：' + failedRefs.join('、') + ' 的存证哈希与存证登记值不一致';
+    } else if (it.causation < policy.causationThreshold){
+      status = 'disputed';
+      causationFailed = true;
+      reason = '因果链未闭合：置信度 ' + Math.round(it.causation * 100) + '%，低于阈值 ' + Math.round(policy.causationThreshold * 100) + '%';
+    } else if (meta.basis === 'duration' && billableHours === 0){
+      status = 'excluded';
+      reason = '未达等待期：中断 ' + it.hours + ' 小时，短于约定的 ' + policy.waitingHours + ' 小时';
+    }
+
+    // 除外主张举证不足：除外不成立，本项仍须赔付
+    if (exclusionReview && !exclusionReview.upheld){
+      const miss = '除外主张 ' + exclusionReview.clause + '（' + exclusionReview.name +
+        '）举证不足，缺 ' + exclusionReview.missing.join('、') + '，除外不成立，本项仍须赔付';
+      reason = miss + (reason ? '；' + reason : '');
+    }
+
+    const eligible = (status === 'approved') ? billable : 0;
+    let capped = Math.min(eligible, sublimit);
+    if (status === 'approved' && capped < eligible - 0.001){
+      status = 'partial';
+      reason = '分项子限额封顶：申报 ' + eligible + ' 元，子限额 ' + sublimit + ' 元';
+    }
+
+    // 关联方穿透：该项若依赖第三方服务商出具的材料，检查该服务商与被保人的关联关系
+    let affiliate = null;
+    const vendors = [];
+    (it.refs || []).forEach(function(id){
+      const ev = evById[id];
+      if (!ev || !ev.issuerId || ev.issuerId === 'ENT-INSURED') return;
+      if (vendors.indexOf(ev.issuerId) < 0) vendors.push(ev.issuerId);
+      const hit = affiliation && affiliation.byEntity ? affiliation.byEntity[ev.issuerId] : null;
+      if (hit && hit.related){
+        affiliate = {
+          issuerId:ev.issuerId,
+          issuerName:(REGISTRY[ev.issuerId] || {}).name || ev.source,
+          findings:hit.findings
+        };
+      }
+    });
+
+    let payMode = 'cash';
+    let affiliateAdjustment = 0;
+    if (affiliate){
+      payMode = 'vendor_direct';
+      if (it.marketQuote && it.marketQuote < capped - 0.001){
+        affiliateAdjustment = capped - it.marketQuote;
+        capped = it.marketQuote;
+        status = 'partial';
+        reason = '关联交易核减：服务商与被保人存在关联关系（' +
+          affiliate.findings.map(function(f){ return f.type; }).join('、') +
+          '），按独立第三方报价 ' + it.marketQuote + ' 元核定，核减 ' + affiliateAdjustment + ' 元';
+      } else if (!reason){
+        reason = '服务商与被保人存在关联关系，支付方式改为直付服务商';
+      }
+    }
+
+    return {
+      id:it.id, category:it.category, catName:meta.name, basis:meta.basis,
+      note:it.note, causation:it.causation, refs:it.refs || [], failedRefs:failedRefs,
+      selfOnly: (it.refs || []).every(function(id){
+        const ev = evById[id];
+        return !ev || !ev.issuerId || ev.issuerId === 'ENT-INSURED';
+      }),
+      causationFailed: causationFailed,
+      exclusionReview: exclusionReview,
+      vendors:vendors, affiliate:affiliate, payMode:payMode,
+      marketQuote:it.marketQuote || null, affiliateAdjustment:round2(affiliateAdjustment),
+      hours:it.hours || null, billableHours:billableHours,
+      claimed:round2(claimed), assessed:round2(assessed),
+      assessmentCut:round2(assessmentCut), adjusterNote:(adjItem && adjItem.note) || '',
+      billable:round2(billable), sublimit:sublimit,
+      eligible:round2(eligible), capped:round2(capped),
+      status:status, reason:reason
+    };
+  });
+
+  const totalClaimed = items.reduce(function(s, i){ return s + i.claimed; }, 0);
+  const deniedAmount = items.reduce(function(s, i){ return s + (i.capped === 0 ? i.claimed : 0); }, 0);
+  const disputedAmount = items.reduce(function(s, i){ return s + (i.status === 'disputed' ? i.claimed : 0); }, 0);
+  const grossEligible = items.reduce(function(s, i){ return s + i.capped; }, 0);
+  const affiliateAdjustment = items.reduce(function(s, i){ return s + i.affiliateAdjustment; }, 0);
+
+  const affiliateHits = [];
+  items.forEach(function(i){
+    if (!i.affiliate) return;
+    let hit = null;
+    for (let k = 0; k < affiliateHits.length; k++){
+      if (affiliateHits[k].issuerId === i.affiliate.issuerId) hit = affiliateHits[k];
+    }
+    if (hit){ hit.items.push(i.id); }
+    else {
+      affiliateHits.push({
+        issuerId:i.affiliate.issuerId, issuerName:i.affiliate.issuerName,
+        findings:i.affiliate.findings, items:[i.id]
+      });
+    }
+  });
+
+  // 除外责任核验汇总：举证齐备的条款适用，举证不足的条款不成立、仍须赔付
+  const exclusionAssertions = [];
+  items.forEach(function(i){
+    if (!i.exclusionReview) return;
+    exclusionAssertions.push({
+      itemId:i.id, catName:i.catName, claimed:i.claimed,
+      clause:i.exclusionReview.clause, name:i.exclusionReview.name,
+      required:i.exclusionReview.required, submitted:i.exclusionReview.submitted,
+      missing:i.exclusionReview.missing, upheld:i.exclusionReview.upheld,
+      note:i.exclusionReview.note
+    });
+  });
+  const exclusionSummary = {
+    assertions: exclusionAssertions,
+    upheld: exclusionAssertions.filter(function(a){ return a.upheld; }).length,
+    denied: exclusionAssertions.filter(function(a){ return !a.upheld; }).length,
+    upheldAmount: exclusionAssertions.reduce(function(s, a){ return s + (a.upheld ? a.claimed : 0); }, 0),
+    deniedAmount: exclusionAssertions.reduce(function(s, a){ return s + (a.upheld ? 0 : a.claimed); }, 0),
+    checked: exclusionAssertions.length > 0
+  };
+
+  // 定损汇总：第三方定损机构出具的核定损失
+  const assessmentCutTotal = items.reduce(function(s, i){ return s + i.assessmentCut; }, 0);
+  const assessmentAssessed = items.reduce(function(s, i){ return s + i.assessed; }, 0);
+  const adjuster = (scenario.lossAdjustment ? ADJUSTERS[scenario.lossAdjustment.adjusterId] : null) || null;
+  const assessment = {
+    checked: !!scenario.lossAdjustment,
+    adjuster: adjuster,
+    reportNo: scenario.lossAdjustment ? scenario.lossAdjustment.reportNo : null,
+    issuedAt: scenario.lossAdjustment ? scenario.lossAdjustment.issuedAt : null,
+    basis: scenario.lossAdjustment ? scenario.lossAdjustment.basis : null,
+    assessedTotal: round2(assessmentAssessed),
+    cut: round2(assessmentCutTotal)
+  };
+
+  const deductibleApplied = Math.min(policy.deductible, grossEligible);
+  const afterDeductible = grossEligible - deductibleApplied;
+  const afterCoinsurance = afterDeductible * policy.coinsurance;
+
+  const concentration = scenario.concentrationFactor || 1;
+  const effectiveEventLimit = policy.eventLimit * concentration;
+  const annualRemaining = Math.max(0, policy.annualLimit - policy.annualUsed);
+  // 本次适用赔付上限 = min(保险金额折算后的单次上限, 保险期间累计剩余额度)
+  const applicableCap = Math.max(0, Math.min(effectiveEventLimit, annualRemaining));
+  const afterEventLimit = Math.min(afterCoinsurance, effectiveEventLimit);
+  const finalPayout = Math.max(0, Math.min(afterCoinsurance, applicableCap));
+  // 赔付上限硬校验：赔付金额不得突破任何一层上限
+  const capBinding = (afterCoinsurance <= applicableCap + 0.01) ? 'none'
+    : (annualRemaining < effectiveEventLimit ? 'annual' : 'event');
+  const cap = {
+    sumInsured:round2(policy.eventLimit),
+    concentration:concentration,
+    effectiveLimit:round2(effectiveEventLimit),
+    annualLimit:round2(policy.annualLimit),
+    annualUsed:round2(policy.annualUsed),
+    annualRemaining:round2(annualRemaining),
+    applicable:round2(applicableCap),
+    beforeCap:round2(afterCoinsurance),
+    binding:capBinding,
+    utilization: applicableCap > 0 ? round2(finalPayout / applicableCap) : 0,
+    shortfall:round2(Math.max(0, afterCoinsurance - applicableCap)),
+    breached:false
+  };
+  cap.breached = finalPayout > applicableCap + 0.01;
+
+  // 代位求偿：保险人赔付后取得追偿权（GB/T 45576—2025 8.2.2）
+  const sub = scenario.subrogation || null;
+  const subrogation = sub ? {
+    checked:true,
+    liable:sub.liable,
+    basis:sub.basis,
+    traceReport:sub.traceReport,
+    evidence:sub.evidence || [],
+    share:sub.share,
+    limit:round2(finalPayout),
+    recoverable:round2(finalPayout * sub.share),
+    assessedLoss:round2(grossEligible),
+    outcome:sub.outcome || 'pending'
+  } : { checked:false };
+
+  const risk = buildRiskProfile(policy, scenario, items, evidence);
+
+  let conclusion, conclusionKind;
+  if (finalPayout <= 0){ conclusion = '不予赔付'; conclusionKind = 'bad'; }
+  else if (finalPayout < totalClaimed * 0.5){ conclusion = '部分核定'; conclusionKind = 'warn'; }
+  else { conclusion = '正常核定'; conclusionKind = 'ok'; }
+
+  if (risk.action === '专项调查'){
+    conclusionKind = 'warn';
+    if (risk.driver.key === 'counterparty') conclusion += '，转人工调查关联交易';
+    else if (risk.driver.key === 'evidence') conclusion += '，转人工调查证据链';
+    else conclusion += '，转人工专项调查';
+  } else if (risk.action === '人工抽查'){
+    conclusionKind = 'warn';
+    conclusion += '，转人工抽查';
+  }
+
+  // 保险人主张除外但举证不足：赔付结果已体现，结论中一并记录
+  if (exclusionSummary.denied > 0){
+    conclusion += '，除外主张举证不足';
+    conclusionKind = 'warn';
+  }
+
+  // 赔付上限触顶：本起事故有部分核定损失因额度上限未获赔付
+  if (cap.binding !== 'none'){
+    conclusion += (cap.binding === 'annual' ? '，保险期间累计上限触顶' : '，单次事故上限封顶');
+    conclusionKind = 'warn';
+  }
+
+  const trace = [
+    { label:'分项核定合计（已应用各分项子限额）', value:grossEligible,
+      formula:'Σ 各项计入金额 = ' + items.map(function(i){ return i.capped; }).join(' + '), note:'' },
+    { label:'扣除单次事故免赔额', value:afterDeductible,
+      formula:grossEligible + ' − ' + deductibleApplied, note:'' },
+    { label:'乘以赔付比例 ' + Math.round(policy.coinsurance * 100) + '%', value:afterCoinsurance,
+      formula:afterDeductible + ' × ' + policy.coinsurance, note:'' },
+    { label:'单次事故赔付上限（保险金额）封顶', value:afterEventLimit,
+      formula:'保险金额 ' + policy.eventLimit +
+        (concentration < 1 ? ' × 风险集中度 ' + concentration : '') +
+        ' = 适用上限 ' + effectiveEventLimit,
+      note: concentration < 1 ? (scenario.concentrationNote || '') : '' },
+    { label:'保险期间累计赔付上限封顶', value:finalPayout,
+      formula:'年度限额 ' + policy.annualLimit + ' − 已用 ' + policy.annualUsed + ' = 剩余 ' + annualRemaining, note:'' }
+  ];
+
+  return {
+    evidence:evidence, items:items, trace:trace,
+    ai: scenario.aiClassification,
+    totals:{
+      totalClaimed:round2(totalClaimed), deniedAmount:round2(deniedAmount),
+      affiliateAdjustment:round2(affiliateAdjustment),
+      grossEligible:round2(grossEligible), deductibleApplied:round2(deductibleApplied),
+      afterDeductible:round2(afterDeductible), afterCoinsurance:round2(afterCoinsurance),
+      effectiveEventLimit:round2(effectiveEventLimit), annualRemaining:round2(annualRemaining),
+      finalPayout:round2(finalPayout),
+      payoutRate: totalClaimed > 0 ? finalPayout / totalClaimed : 0
+    },
+    risk:risk,
+    affiliate:{
+      hits:affiliateHits,
+      adjustment:round2(affiliateAdjustment),
+      checked: !!(affiliation && affiliation.byEntity),
+      checkedCount: (affiliation && affiliation.entities) ? affiliation.entities.length : 0
+    },
+    exclusions:exclusionSummary,
+    assessment:assessment,
+    cap:cap,
+    subrogation:subrogation,
+    conclusion:conclusion, conclusionKind:conclusionKind,
+    concentration:concentration
+  };
+}
+
+// ===ENGINE_END===
+
+/* ============ 案件材料 ============ */
+
+function evidenceBody(caseData, evId){
+  const tampered = (caseData.tamperedOnLoad || []).indexOf(evId) >= 0;
+  for (let i = 0; i < caseData.evidence.length; i++){
+    const ev = caseData.evidence[i];
+    if (ev.id === evId) return tampered ? tamperText(ev) : ev.content;
+  }
+  return '';
+}
+
+function claimDocuments(caseData){
+  const docs = [{
+    docId:'DOC-00', title:'报案申请书',
+    text:'案件编号 ' + caseData.caseNo + '；被保人 ' + caseData.insured + '；保单号 ' + caseData.policyNo +
+      '；事故时间 ' + caseData.incidentAt + '；中断 ' + caseData.downtimeHours + ' 小时；单位小时收入损失 ' +
+      money(caseData.perHourLoss) + ' 元；事发后 ' + caseData.reportedHours + ' 小时报案。'
+  }];
+  caseData.items.forEach(function(it){
+    const meta = CATEGORY_META[it.category];
+    const detail = meta.basis === 'duration'
+      ? it.hours + ' 小时 x ' + money(caseData.perHourLoss) + ' 元'
+      : money(it.amount) + ' 元';
+    docs.push({ docId:'CLAIM-' + it.id, title:'损失申报项 ' + it.id + '：' + meta.name,
+      text:'申报内容：' + detail + '；说明：' + it.note + '；引用的证明材料：' + (it.refs || []).join('、') });
+  });
+  caseData.evidence.forEach(function(ev){
+    docs.push({ docId:ev.id, title:ev.name,
+      text:'来源：' + ev.source + '；出具时间：' + ev.time + '；正文：' + evidenceBody(caseData, ev.id) });
+  });
+  return docs;
+}
+
+function reportText(caseData){
+  const lines = ['报案材料包　案件编号：' + caseData.caseNo,
+    '被保人：' + caseData.insured + '　保单号：' + caseData.policyNo, ''];
+  claimDocuments(caseData).forEach(function(d){
+    lines.push('--- [' + d.docId + '] ' + d.title + ' ---');
+    lines.push(d.text);
+    lines.push('');
+  });
+  lines.push('请核定。');
+  return lines.join('\n');
+}
+
+/* ============ 工具层：智能体与赔付之间的硬边界 ============ */
+
+function newContext(caseData, policy, tampered){
+  return {
+    caseData:caseData, policy:policy, tampered:tampered || {},
+    evidence:null, incident:null, affiliation:null, exclusionReview:null,
+    adjusterReport:null, reviewResult:null,
+    liability:null, subrogationClaim:null, subrogationSettled:null,
+    payout:null, risk:null,
+    escalations:[], closed:null
+  };
+}
+
+function evidenceVerified(ctx, evId){
+  if (!ctx.evidence) return false;
+  for (let i = 0; i < ctx.evidence.length; i++){
+    if (ctx.evidence[i].id === evId) return !!ctx.evidence[i].verified;
+  }
+  return false;
+}
+
+function fail(error){ return { ok:false, error:error, data:null, summary:'' }; }
+function done(data, summary){ return { ok:true, error:'', data:data, summary:summary }; }
+
+const TOOLS = {
+  read_claim_file: function(ctx){
+    const docs = claimDocuments(ctx.caseData);
+    const claimItems = ctx.caseData.items.map(function(it){
+      return { id:it.id, category:it.category, categoryName:CATEGORY_META[it.category].name,
+        refs:(it.refs || []).slice(), note:it.note };
+    });
+    const summary = '共 ' + docs.length + ' 份材料：' +
+      docs.map(function(d){ return '[' + d.docId + '] ' + d.title; }).join('、') +
+      '\n\n材料全文：\n' + reportText(ctx.caseData);
+    return done({ documents:docs, claimItems:claimItems }, summary);
+  },
+
+  verify_evidence: function(ctx){
+    ctx.evidence = verifyEvidence(ctx.caseData, ctx.tampered);
+    const failed = ctx.evidence.filter(function(e){ return !e.verified; });
+    let head = '共 ' + ctx.evidence.length + ' 条存证，' + failed.length + ' 条与存证登记值不一致。';
+    if (failed.length) head += '　异常存证：' + failed.map(function(e){ return e.id; }).join('、');
+    const body = ctx.evidence.map(function(e){
+      return e.id + '　' + e.name + '：' + (e.verified ? '通过' : '不一致');
+    }).join('\n');
+    return done({ evidence:ctx.evidence }, head + '\n' + body);
+  },
+
+  assess_incident: function(ctx){
+    const ai = ctx.caseData.aiClassification;
+    const causation = {};
+    ctx.caseData.items.forEach(function(it){ causation[it.id] = it.causation; });
+    ctx.incident = { label:ai.label, confidence:ai.confidence, signals:ai.signals, causation:causation };
+    const lines = ['攻击类型：' + ai.label + '（置信度 ' + Math.round(ai.confidence * 100) + '%）'];
+    ai.signals.forEach(function(s){ lines.push('　依据：' + s); });
+    lines.push('逐项因果置信度：');
+    ctx.caseData.items.forEach(function(it){
+      lines.push('　' + it.id + '（' + CATEGORY_META[it.category].name + '）：' + it.causation);
+    });
+    return done(ctx.incident, lines.join('\n'));
+  },
+
+  check_vendor_affiliation: function(ctx){
+    const insuredId = 'ENT-INSURED';
+    const byEntity = {};
+    const entities = [];
+    const seen = {};
+    ctx.caseData.evidence.forEach(function(ev){
+      if (!ev.issuerId || ev.issuerId === insuredId || seen[ev.issuerId]) return;
+      seen[ev.issuerId] = true;
+      const res = checkAffiliation(insuredId, ev.issuerId, ctx.caseData.incidentAt);
+      byEntity[ev.issuerId] = res;
+      const entity = REGISTRY[ev.issuerId] || {};
+      entities.push({
+        issuerId:ev.issuerId, name:entity.name || ev.source,
+        legalRep:entity.legalRep || '', founded:entity.founded || '',
+        related:res.related, findings:res.findings
+      });
+    });
+    ctx.affiliation = { byEntity:byEntity, entities:entities };
+    const related = entities.filter(function(e){ return e.related; });
+    const lines = ['已穿透核查 ' + entities.length + ' 家第三方主体，命中关联关系 ' +
+      related.length + ' 家。'];
+    entities.forEach(function(e){
+      lines.push('　' + e.name + '（法定代表人 ' + e.legalRep + '，成立于 ' + e.founded + '）：' +
+        (e.related ? '关联' : '未发现关联'));
+      e.findings.forEach(function(f){ lines.push('　　命中 ' + f.type + ' · ' + f.detail); });
+    });
+    return done(ctx.affiliation, lines.join('\n'));
+  },
+
+  trace_liability: function(ctx){
+    const sub = ctx.caseData.subrogation;
+    if (!sub){
+      ctx.liability = { checked:true, found:false };
+      return done(ctx.liability,
+        '事件溯源未锁定可追偿的第三方责任主体，本案不产生代位求偿权。');
+    }
+    const t = ctx.payout ? ctx.payout.totals : { finalPayout:0, grossEligible:0 };
+    ctx.liability = {
+      checked:true, found:true,
+      traceReport:sub.traceReport, liable:sub.liable, basis:sub.basis, share:sub.share,
+      paidLimit:round2(t.finalPayout),
+      recoverable:round2(t.finalPayout * sub.share),
+      assessedLoss:round2(t.grossEligible),
+      evidence:sub.evidence || []
+    };
+    const lines = [
+      '事件溯源报告 ' + sub.traceReport,
+      '责任主体：' + sub.liable,
+      '定责依据：' + sub.basis,
+      '责任比例：' + Math.round(sub.share * 100) + '%',
+      '已赔付金额 ' + money(t.finalPayout) + ' 元 → 按比例可追偿 ' +
+        money(t.finalPayout * sub.share) + ' 元',
+      '证据材料：'
+    ];
+    (sub.evidence || []).forEach(function(e){ lines.push('　· ' + e); });
+    lines.push('原则：保险人赔付后取得代位求偿权，追偿金额以已赔付金额为限。');
+    return done(ctx.liability, lines.join('\n'));
+  },
+
+  file_subrogation_claim: function(ctx, args){
+    if (!ctx.payout) return fail('尚未完成赔付，代位求偿权尚未产生');
+    if (!ctx.liability || !ctx.liability.found || !ctx.liability.checked)
+      return fail('尚未锁定责任主体，请先调用 trace_liability');
+    const amount = (args && args.amount) || 0;
+    const paid = ctx.payout.totals.finalPayout;
+    if (amount <= 0) return fail('追偿金额必须大于 0');
+    if (amount > paid + 0.01){
+      return fail('拒绝执行：追偿金额 ' + money(amount) + ' 元超过已赔付金额 ' + money(paid) +
+        ' 元。代位求偿以保险人实际赔付金额为限，超出部分应由被保险人自行向责任方主张。');
+    }
+    if (amount > ctx.liability.recoverable + 0.01){
+      return fail('拒绝执行：追偿金额超过责任主体应承担的比例（' +
+        Math.round(ctx.liability.share * 100) + '%），可追偿上限 ' +
+        money(ctx.liability.recoverable) + ' 元。');
+    }
+    ctx.subrogationClaim = {
+      amount:round2(amount), liable:ctx.liability.liable,
+      traceReport:ctx.liability.traceReport, status:'confirmed'
+    };
+    return done(ctx.subrogationClaim,
+      '已向 ' + ctx.liability.liable + ' 发起追偿 ' + money(amount) +
+      ' 元，追偿请求与证据材料已上链存证，对方确认责任并同意支付。');
+  },
+
+  settle_subrogation: function(ctx){
+    if (!ctx.subrogationClaim) return fail('尚未发起追偿');
+    const amt = ctx.subrogationClaim.amount;
+    ctx.subrogationSettled = { amount:amt, replenished:amt, status:'recovered' };
+    return done(ctx.subrogationSettled,
+      '追偿回款 ' + money(amt) + ' 元已到账，全额回补风险池，承保能力恢复 ' + money(amt) + ' 元。');
+  },
+
+  fetch_adjuster_report: function(ctx){
+    const la = ctx.caseData.lossAdjustment;
+    if (!la){
+      ctx.adjusterReport = { checked:false };
+      return done({ checked:false },
+        '本案件未委托第三方定损机构，损失金额以被保人申报及条款核验结果为准。');
+    }
+    const adj = ADJUSTERS[la.adjusterId] || {};
+    const lines = [
+      '第三方定损报告 ' + la.reportNo + '　出具时间 ' + la.issuedAt,
+      '定损机构：' + adj.name,
+      '资质：' + adj.license,
+      '运营主体：' + adj.operator,
+      '签名密钥：' + adj.signKey,
+      '定损依据：' + la.basis,
+      '逐项定损结论：'
+    ];
+    Object.keys(la.items).forEach(function(id){
+      const x = la.items[id];
+      if (x.hours != null){
+        lines.push('　' + id + '：核定停机 ' + x.hours + ' 小时 × ' + money(x.rate) +
+          ' 元/小时 = ' + money(x.hours * x.rate) + ' 元 · ' + x.note);
+      } else {
+        lines.push('　' + id + '：核定损失 ' + money(x.amount) + ' 元 · ' + x.note);
+      }
+    });
+    lines.push('约束：本报告由独立第三方出具，损失金额以本报告为唯一来源，核赔方不得自行修改；');
+    lines.push('　　　如有异议须提请独立复核（request_adjustment_review）。');
+    ctx.adjusterReport = {
+      checked:true, adjusterId:la.adjusterId, adjuster:adj, report:la,
+      dispute: ctx.caseData.adjusterDispute || null
+    };
+    return done(ctx.adjusterReport, lines.join('\n'));
+  },
+
+  request_loss_amendment: function(ctx, args){
+    const rpt = (ctx.adjusterReport && ctx.adjusterReport.report) ? ctx.adjusterReport.report : null;
+    return fail('拒绝执行：定损金额由独立第三方定损 Agent 出具（' +
+      (rpt ? rpt.reportNo : '定损报告') + '），核赔方无权修改。' +
+      '如对定损结论有异议，请调用 request_adjustment_review 提请独立复核。');
+  },
+
+  request_adjustment_review: function(ctx, args){
+    if (!ctx.adjusterReport || !ctx.adjusterReport.checked)
+      return fail('本案件未委托第三方定损，无复核事项');
+    const d = ctx.adjusterReport.dispute;
+    if (!d) return fail('本案件无定损争议事项');
+    const reviewer = ADJUSTERS['ADJ-02'];
+    const conclusion = '复核意见：核赔方主张将 ' + d.itemId + ' 下调至 ' + money(d.requested) +
+      ' 元缺乏市场价证据支撑。原定损结论有同类服务报价与工时凭证佐证，维持原定损金额。';
+    ctx.reviewResult = {
+      reviewerId:'ADJ-02', reviewer:reviewer, itemId:d.itemId,
+      requested:d.requested, upheld:true, conclusion:conclusion
+    };
+    return done(ctx.reviewResult,
+      conclusion + '\n复核机构：' + reviewer.name + '（' + reviewer.operator + '）');
+  },
+
+  review_exclusion_claims: function(ctx){
+    const asserted = ctx.caseData.items.filter(function(it){ return it.exclusionClaim; });
+    if (!asserted.length){
+      ctx.exclusionReview = { assertions:[], checked:true };
+      return done(ctx.exclusionReview, '本案件保险人未提出除外责任主张，全部申报项按承保范围直接核验。');
+    }
+    const review = asserted.map(function(it){
+      const clause = EXCLUSION_CLAUSES[it.exclusionClaim.clause] || { name:'未知条款', requires:[] };
+      const submitted = it.exclusionClaim.evidence || [];
+      const missing = clause.requires.filter(function(r){ return submitted.indexOf(r) < 0; });
+      return {
+        itemId:it.id, catName:CATEGORY_META[it.category].name,
+        clause:it.exclusionClaim.clause, name:clause.name,
+        required:clause.requires.slice(), submitted:submitted.slice(), missing:missing,
+        upheld: missing.length === 0, note:it.exclusionClaim.note || ''
+      };
+    });
+    const lines = ['保险人对 ' + review.length + ' 项申报主张除外责任，按「谁主张除外，谁举证」核验：'];
+    review.forEach(function(r){
+      lines.push('　' + r.itemId + ' ' + r.catName + ' ← ' + r.clause + ' ' + r.name);
+      lines.push('　　举证要求：' + (r.required.length ? r.required.join('、') : '无'));
+      lines.push('　　已提交：' + (r.submitted.length ? r.submitted.join('、') : '无'));
+      lines.push('　　核验结论：' + (r.upheld
+        ? '举证齐备，条款适用，该项不予赔付'
+        : '举证不足（缺 ' + r.missing.join('、') + '），条款不成立，该项仍须赔付'));
+    });
+    const denied = review.filter(function(r){ return !r.upheld; });
+    if (denied.length){
+      lines.push('提示：' + denied.length + ' 项除外主张举证不足。依保险法举证责任分配，' +
+        '保险人对其主张的除外事实负举证责任，举证不能的不得据此拒赔。');
+    }
+    ctx.exclusionReview = { assertions:review, checked:true };
+    return done(ctx.exclusionReview, lines.join('\n'));
+  },
+
+  compute_payout: function(ctx, args){
+    if (!ctx.evidence) return fail('尚未完成存证核验，请先调用 verify_evidence');
+    if (!ctx.incident) return fail('尚未完成攻击与因果判定，请先调用 assess_incident');
+
+    const include = (args && args.include_items) || [];
+    if (!Array.isArray(include) || include.length === 0){
+      return fail('include_items 必须是非空的损失项编号数组');
+    }
+    const validIds = ctx.caseData.items.map(function(it){ return it.id; });
+    const unknown = include.filter(function(i){ return validIds.indexOf(i) < 0; });
+    if (unknown.length) return fail('以下损失项不存在：' + unknown.join('、'));
+
+    if (!ctx.affiliation){
+      const evById = {};
+      ctx.caseData.evidence.forEach(function(e){ evById[e.id] = e; });
+      let needsCheck = false;
+      ctx.caseData.items.forEach(function(it){
+        if (include.indexOf(it.id) < 0) return;
+        (it.refs || []).forEach(function(r){
+          const ev = evById[r];
+          if (ev && ev.issuerId && ev.issuerId !== 'ENT-INSURED') needsCheck = true;
+        });
+      });
+      if (needsCheck){
+        return fail('申报中包含第三方服务商出具的材料，尚未做关联方穿透核验，' +
+          '请先调用 check_vendor_affiliation');
+      }
+    }
+
+    if (!ctx.exclusionReview){
+      const hasAssertions = ctx.caseData.items.some(function(it){ return it.exclusionClaim; });
+      if (hasAssertions){
+        return fail('本案件保险人提出了除外责任主张，尚未核验其举证情况，' +
+          '请先调用 review_exclusion_claims');
+      }
+    }
+
+    if (ctx.adjusterReport === null && ctx.caseData.lossAdjustment){
+      return fail('本案件已委托第三方定损机构，尚未获取定损报告，' +
+        '请先调用 fetch_adjuster_report');
+    }
+
+    const blocked = [];
+    ctx.caseData.items.forEach(function(it){
+      if (include.indexOf(it.id) < 0) return;
+      const bad = (it.refs || []).filter(function(r){ return !evidenceVerified(ctx, r); });
+      if (bad.length) blocked.push(it.id + '（依赖 ' + bad.join('、') + '）');
+    });
+    if (blocked.length){
+      return fail('拒绝计算：以下损失项依赖未通过存证核验的材料，不得计入赔付：' +
+        blocked.join('；') + '。请剔除这些损失项后重新调用。');
+    }
+
+    const result = adjudicate(ctx.policy, ctx.caseData, ctx.tampered, ctx.affiliation);
+    ctx.payout = result;
+    const t = result.totals;
+    const lines = [
+      '核定赔付金额：' + money(t.finalPayout) + ' 元',
+      '本次适用赔付上限 ' + money(result.cap.applicable) + ' 元（保险金额 ' + money(result.cap.sumInsured) +
+        (result.cap.concentration < 1 ? ' × 风险集中度 ' + result.cap.concentration : '') +
+        '，保险期间累计剩余 ' + money(result.cap.annualRemaining) + '），赔付占上限 ' +
+        Math.round(result.cap.utilization * 100) + '%' +
+        (result.cap.binding === 'annual' ? '（触顶层：保险期间累计上限）'
+          : (result.cap.binding === 'event' ? '（触顶层：单次事故上限）' : '')),
+      '申报合计 ' + money(t.totalClaimed) + ' 元，赔付率 ' + Math.round(t.payoutRate * 100) + '%',
+      '结论：' + result.conclusion,
+      '分项：'
+    ];
+    result.items.forEach(function(i){
+      lines.push('　' + i.id + ' ' + i.catName + '：计入 ' + money(i.capped) + ' 元（' + i.status +
+        (i.payMode === 'vendor_direct' ? '，直付服务商' : '') + '）' + i.reason);
+    });
+    if (result.affiliate.hits.length){
+      lines.push('关联交易核减合计 ' + money(result.affiliate.adjustment) + ' 元，' +
+        '涉及 ' + result.affiliate.hits.map(function(h){ return h.issuerName; }).join('、') +
+        '，相关费用改为直付服务商并转人工核查。');
+    }
+    return done(result, lines.join('\n'));
+  },
+
+  assess_risk_profile: function(ctx){
+    if (!ctx.payout) return fail('尚未完成赔付计算，请先调用 compute_payout');
+    const risk = ctx.payout.risk;
+    ctx.risk = risk;
+    const lines = ['综合风险分 ' + risk.composite.toFixed(2) +
+      '　风险等级 ' + LEVEL_TEXT[risk.level] + '　建议处置 ' + risk.action];
+    lines.push('维度明细：');
+    risk.dimensions.forEach(function(d){
+      lines.push('　' + d.name + '：' + LEVEL_TEXT[d.level] + '（' + d.score.toFixed(2) + '）· ' + d.detail);
+    });
+    if (risk.codes.length){
+      lines.push('风险因子：');
+      risk.codes.forEach(function(c){
+        lines.push('　' + c.code + ' ' + c.name +
+          (c.items.length ? '（涉及 ' + c.items.join('、') + '）' : '') +
+          (c.amount > 0 ? '　金额 ' + money(c.amount) + ' 元' : '') +
+          '　[' + (c.kind === 'risk' ? '风险类' : '合同约定类') + ']');
+      });
+    }
+    lines.push('风险敞口 ' + money(risk.exposure.risk) + ' 元，占申报 ' +
+      Math.round(risk.exposure.rate * 100) + '%；合同约定类核减 ' +
+      money(risk.exposure.contract) + ' 元。');
+    return done(risk, lines.join('\n'));
+  },
+
+  escalate_to_human: function(ctx, args){
+    const reason = ((args && args.reason) || '').trim();
+    if (!reason) return fail('reason 不能为空');
+    ctx.escalations.push(reason);
+    return done(
+      { ticket:'HR-' + ctx.caseData.id.toUpperCase() + '-' + String(ctx.escalations.length).padStart(2, '0'), reason:reason },
+      '已开具人工复核工单，原因：' + reason
+    );
+  },
+
+  close_case: function(ctx, args){
+    if (!ctx.payout) return fail('尚未计算赔付，不得结案');
+    const failed = (ctx.evidence || []).filter(function(e){ return !e.verified; }).map(function(e){ return e.id; });
+    if (failed.length && !ctx.escalations.length){
+      return fail('存在存证异常（' + failed.join('、') + '）但未开具人工复核工单，不得结案');
+    }
+    const risk = ctx.payout.risk;
+    if (risk && risk.action !== '自动核定' && !ctx.escalations.length){
+      const dims = risk.dimensions.filter(function(d){ return d.level !== 'low'; })
+        .map(function(d){ return d.name + LEVEL_TEXT[d.level]; }).join('、');
+      return fail('风险等级为' + LEVEL_TEXT[risk.level] + '（' + dims +
+        '），建议' + risk.action + '，未开具人工复核工单，不得结案');
+    }
+    const conclusion = ((args && args.conclusion) || ctx.payout.conclusion).trim();
+    ctx.closed = conclusion;
+    return done({ conclusion:conclusion, payout:ctx.payout.totals.finalPayout },
+      '结案：' + conclusion + '，赔付 ' + money(ctx.payout.totals.finalPayout) + ' 元');
+  }
+};
+
+function callTool(ctx, name, args){
+  const handler = TOOLS[name];
+  if (!handler) return fail('未知工具 ' + name + '；可用工具：' + Object.keys(TOOLS).join('、'));
+  return handler(ctx, args || {});
+}
+
+const TOOL_DOC = [
+  { name:'read_claim_file', desc:'读取被保人提交的整份报案材料' },
+  { name:'verify_evidence', desc:'重算存证哈希并与存证登记值比对' },
+  { name:'assess_incident', desc:'判定攻击类型与逐项因果置信度' },
+  { name:'check_vendor_affiliation', desc:'穿透核查第三方服务商与被保人的关联关系' },
+  { name:'review_exclusion_claims', desc:'核验保险人除外责任主张的举证是否齐备' },
+  { name:'fetch_adjuster_report', desc:'获取第三方定损 Agent 出具的定损报告' },
+  { name:'request_loss_amendment', desc:'申请修改定损金额（核赔方无权，必被拒绝）' },
+  { name:'request_adjustment_review', desc:'对定损结论提请独立复核' },
+  { name:'trace_liability', desc:'事件溯源定责，锁定可代位求偿的责任主体' },
+  { name:'file_subrogation_claim', desc:'向责任主体发起追偿（以已赔付金额为限）' },
+  { name:'settle_subrogation', desc:'登记追偿回款并回补风险池' },
+  { name:'compute_payout', desc:'调用保单规则引擎计算赔付金额' },
+  { name:'assess_risk_profile', desc:'输出多维风险画像、风险因子编码与风险敞口金额' },
+  { name:'escalate_to_human', desc:'开具人工复核工单' },
+  { name:'close_case', desc:'结案' }
+];
+
+/* ============ 规划器：决定下一步做什么 ============ */
+
+function dataOf(called, tool, key){
+  const list = called[tool] || [];
+  for (let i = 0; i < list.length; i++){
+    const h = list[i];
+    if (!h.ok) continue;
+    if (key === null || key === undefined) return h.data;
+    if (h.data && typeof h.data === 'object' && key in h.data) return h.data[key];
+  }
+  return null;
+}
+
+function planNextAction(history, threshold){
+  const called = {};
+  history.forEach(function(h){ (called[h.tool] = called[h.tool] || []).push(h); });
+
+  if (!called.read_claim_file){
+    return { thought:'先读被保人提交的报案材料，确认申报了哪些损失项。', tool:'read_claim_file', args:{} };
+  }
+  if (!called.verify_evidence){
+    return { thought:'材料上的数字不能直接采信，先做存证核验，看有没有被事后修改。', tool:'verify_evidence', args:{} };
+  }
+  if (!called.assess_incident){
+    return { thought:'确认攻击类型，并对每一项申报做因果判断。', tool:'assess_incident', args:{} };
+  }
+  if (!called.check_vendor_affiliation){
+    return {
+      thought:'申报里的恢复与取证费用由第三方服务商出具，先穿透核查这家服务商与被保人有没有关联关系。',
+      tool:'check_vendor_affiliation', args:{}
+    };
+  }
+  if (!called.review_exclusion_claims){
+    return {
+      thought:'再核验保险人提出的除外责任主张：条款援引是否成立，举证是否齐备。',
+      tool:'review_exclusion_claims', args:{}
+    };
+  }
+  if (!called.fetch_adjuster_report){
+    return {
+      thought:'损失金额不能采信被保人申报，先取第三方定损 Agent 出具的定损报告。',
+      tool:'fetch_adjuster_report', args:{}
+    };
+  }
+
+  const adjData = dataOf(called, 'fetch_adjuster_report', null);
+  const dispute = adjData && adjData.dispute;
+  if (dispute && !(called.request_loss_amendment || []).length){
+    return {
+      thought:'定损核减后的恢复费用仍然偏高，尝试按核赔口径再下调。',
+      tool:'request_loss_amendment',
+      args:{ item_id:dispute.itemId, amount:dispute.requested }
+    };
+  }
+  if (dispute && !(called.request_adjustment_review || []).length){
+    return {
+      thought:'下调被工具拒绝——定损额不是核赔方能改的。按规程提请独立复核。',
+      tool:'request_adjustment_review', args:{ item_id:dispute.itemId }
+    };
+  }
+
+  const payouts = called.compute_payout || [];
+  if (!payouts.some(function(h){ return h.ok; })){
+    const claimItems = dataOf(called, 'read_claim_file', 'claimItems') || [];
+    const causation = dataOf(called, 'assess_incident', 'causation') || {};
+    const verified = {};
+    (dataOf(called, 'verify_evidence', 'evidence') || []).forEach(function(e){ verified[e.id] = e.verified; });
+
+    let include, thought;
+    if (!payouts.length){
+      include = claimItems.map(function(i){ return i.id; });
+      thought = '按被保人申报的损失项提交规则引擎计算赔付。';
+    } else {
+      include = claimItems.filter(function(i){
+        return (causation[i.id] || 0) >= threshold &&
+          (i.refs || []).every(function(r){ return verified[r]; });
+      }).map(function(i){ return i.id; });
+      thought = '上一次被规则引擎拒绝，剔除存证未通过的损失项，并只保留因果置信度达到阈值的部分后重算。';
+    }
+    return { thought:thought, tool:'compute_payout', args:{ include_items:include } };
+  }
+
+  if (!called.assess_risk_profile){
+    return {
+      thought:'赔付基数已经确定，输出多维风险画像，看看风险集中在哪个维度。',
+      tool:'assess_risk_profile', args:{}
+    };
+  }
+
+  const risk = dataOf(called, 'assess_risk_profile', null) || {};
+  const escalated = (called.escalate_to_human || []).length > 0;
+
+  if (risk.action && risk.action !== '自动核定' && !escalated){
+    const reasons = [];
+    (risk.dimensions || []).forEach(function(d){
+      if (d.level !== 'low') reasons.push(d.name + '风险' + LEVEL_TEXT[d.level] + '：' + d.detail);
+    });
+    (risk.codes || []).forEach(function(c){
+      if (c.kind === 'risk'){
+        reasons.push(c.code + ' ' + c.name + (c.amount > 0 ? '（' + money(c.amount) + ' 元）' : ''));
+      }
+    });
+    if (risk.exposure && risk.exposure.risk > 0){
+      reasons.push('风险敞口 ' + money(risk.exposure.risk) + ' 元');
+    }
+    return {
+      thought:'风险等级为' + LEVEL_TEXT[risk.level] + '，建议' + risk.action + '，先开具复核工单。',
+      tool:'escalate_to_human', args:{ reason:reasons.join('；') }
+    };
+  }
+
+  if (!called.trace_liability){
+    return {
+      thought:'赔付已完成，按代位求偿原则做事件溯源，确认有无可追偿的责任主体。',
+      tool:'trace_liability', args:{}
+    };
+  }
+  const liab = dataOf(called, 'trace_liability', null);
+  if (liab && liab.found){
+    const subClaims = called.file_subrogation_claim || [];
+    if (!subClaims.some(function(h){ return h.ok; })){
+      if (!subClaims.length){
+        return { thought:'已锁定责任主体，向其发起追偿。',
+          tool:'file_subrogation_claim', args:{ amount:liab.assessedLoss } };
+      }
+      return { thought:'追偿金额被拒——代位求偿以已赔付金额为限，改按责任比例重算。',
+        tool:'file_subrogation_claim', args:{ amount:liab.recoverable } };
+    }
+    if (!called.settle_subrogation){
+      return { thought:'责任主体已确认，登记追偿回款并回补风险池。',
+        tool:'settle_subrogation', args:{} };
+    }
+  }
+
+  if (!called.close_case){
+    return { thought:'核定要素齐备，可以结案。', tool:'close_case', args:{} };
+  }
+
+  return { thought:'案件已结案。', final:'核定完成' };
+}
+
+/* ============ 界面层 ============ */
+
+const state = {
+  policy:null, scenario:null, tampered:{},
+  agent:{ history:[], ctx:null, steps:[], revealed:0, running:false, finished:false, stale:false },
+  timer:null, prevPayout:null, barsSig:''
+};
+const $ = function(id){ return document.getElementById(id); };
+const yuan = function(n){ return '¥' + money(n); };
+const pct = function(n){ return Math.round(n * 100) + '%'; };
+const num = function(v){
+  const n = parseFloat(String(v).replace(/[,，\s¥]/g, ''));
+  return isNaN(n) ? 0 : n;
+};
+
+/* 四个 Agent 分属不同主体：被保险人 / 保险人 / 两家独立服务方 */
+const AGENT_ROSTER = [
+  { role:'报案 Agent', name:'被保人运营方',   operator:'0x1C4d…7A93', party:'insured' },
+  { role:'定损 Agent', name:'第三方定损机构', operator:'0x7A2f…C41d', party:'third' },
+  { role:'核赔 Agent', name:'保险公司核赔岗', operator:'0xB30e…5F27', party:'insurer' },
+  { role:'复核 Agent', name:'独立保险公估',   operator:'0x4E88…19b7', party:'third' }
+];
+
+const ICON = {
+  ok:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  bad:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  chain:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/></svg>'
+};
+
+function escapeHtml(s){
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/* 数字滚动：让金额变化看得见，而不是硬切 */
+function reducedMotion(){
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+function animateNumber(el, from, to, dur){
+  if (!el) return;
+  if (reducedMotion() || from === to || !isFinite(from)){
+    el.textContent = yuan(to);
+    return;
+  }
+  const t0 = performance.now();
+  function tick(now){
+    const p = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = yuan(from + (to - from) * eased);
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = yuan(to);
+  }
+  requestAnimationFrame(tick);
+}
+
+function scrollIntoViewSoft(el, block){
+  if (!el || !el.scrollIntoView) return;
+  el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: block || 'nearest' });
+}
+
+function badge(text, kind){
+  return '<span class="tag ' + (kind || 'mute') + '">' + text + '</span>';
+}
+
+function buildScenario(id){
+  const base = PRESETS.filter(function(p){ return p.id === id; })[0];
+  return Object.assign({}, base, CASE_FACTS[id] || {}, {
+    evidence: base.evidence.map(function(e){
+      return Object.assign({}, e, { onchainHash: sha256Hex(canonical(e)) });
+    })
+  });
+}
+
+function defaultTamperMap(id){
+  const base = PRESETS.filter(function(p){ return p.id === id; })[0];
+  const t = {};
+  (base.tamperedOnLoad || []).forEach(function(eid){ t[eid] = true; });
+  return t;
+}
+
+function resetAgentTrace(){
+  if (state.timer){ clearTimeout(state.timer); state.timer = null; }
+  state.agent = { history:[], ctx:null, steps:[], revealed:0, running:false, finished:false, stale:false };
+  state.prevPayout = null; state.prevVerdict = null; state.barsSig = '';
+  renderEvent();
+  renderAgent();
+}
+
+function loadScenario(id){
+  stopPlayback();
+  state.policy = defaultPolicy();
+  state.scenario = buildScenario(id);
+  if (state.scenario.policyOverrides){
+    Object.keys(state.scenario.policyOverrides).forEach(function(k){
+      state.policy[k] = state.scenario.policyOverrides[k];
+    });
+  }
+  state.tampered = defaultTamperMap(id);
+  state.agent = { history:[], ctx:null, steps:[], revealed:0, running:false, finished:false, stale:false };
+  state.prevPayout = null; state.prevVerdict = null; state.barsSig = '';
+  renderStrip();
+  renderCaseMeta();
+  renderPolicy();
+  renderEvent();
+  renderAgent();
+  recompute();
+}
+
+function markStale(){
+  if (state.agent.finished){ state.agent.stale = true; renderAgent(); }
+}
+
+function renderStrip(){
+  $('strip').innerHTML = PRESETS.map(function(p){
+    return '<button class="chip" data-scenario="' + p.id + '" aria-pressed="' +
+      (p.id === state.scenario.id) + '">' + p.chip + '<small>' + p.chipSub + '</small></button>';
+  }).join('');
+}
+
+function renderCaseMeta(){
+  const s = state.scenario;
+  $('caseMeta').innerHTML =
+    '<div>案件编号<b>' + s.caseNo + '</b></div>' +
+    '<div>被保人<b>' + s.insured + '</b></div>' +
+    '<div>保单号<b>' + s.policyNo + '</b></div>' +
+    '<div>事故时间<b>' + s.incidentAt + '</b></div>';
+}
+
+function field(label, id, value){
+  return '<div class="field"><label for="' + id + '">' + label + '</label>' +
+    '<input id="' + id + '" class="num" inputmode="numeric" value="' + value + '"></div>';
+}
+
+function renderPolicy(){
+  const p = state.policy;
+  let html = '<div class="fields">' +
+    field('事件限额','pEventLimit', p.eventLimit) +
+    field('年度累计限额','pAnnualLimit', p.annualLimit) +
+    field('年度已用额度','pAnnualUsed', p.annualUsed) +
+    field('单次事故免赔额','pDeductible', p.deductible) +
+    field('赔付比例 %','pCoinsurance', Math.round(p.coinsurance * 100)) +
+    field('营业中断等待期（小时）','pWaiting', p.waitingHours) +
+    field('因果链置信度阈值 %','pCausation', Math.round(p.causationThreshold * 100)) +
+    '<div></div></div>';
+  html += '<div class="sublabel">分项子限额</div><div class="fields">';
+  ['recovery','business','liability','digital','response','ransom','fine'].forEach(function(k){
+    html += field(CATEGORY_META[k].name, 'sl_' + k, p.sublimits[k]);
+  });
+  html += '</div><div class="sublabel">条款除外 · 确定适用，无需举证</div><div class="checks">';
+  Object.keys(CATEGORY_META).forEach(function(k){
+    html += '<label><input type="checkbox" data-exclusion="' + k + '"' +
+      (p.exclusions.indexOf(k) >= 0 ? ' checked' : '') + '> ' + CATEGORY_META[k].name + '</label>';
+  });
+  html += '</div>';
+  html += '<div class="sublabel">除外责任条款库 · 保险人主张须举证</div><div class="clauseLib">';
+  Object.keys(EXCLUSION_CLAUSES).forEach(function(code){
+    const c = EXCLUSION_CLAUSES[code];
+    html += '<div class="clauseRow"><span class="clCode">' + code + '</span>' +
+      '<span class="clBody"><b>' + c.name + '</b>' +
+      '<span class="clReq">举证要求：' + c.requires.join('、') + '</span></span></div>';
+  });
+  html += '</div>';
+  $('policyBody').innerHTML = html;
+}
+
+function readPolicy(){
+  const p = state.policy;
+  p.eventLimit = num($('pEventLimit').value);
+  p.annualLimit = num($('pAnnualLimit').value);
+  p.annualUsed = num($('pAnnualUsed').value);
+  p.deductible = num($('pDeductible').value);
+  p.coinsurance = num($('pCoinsurance').value) / 100;
+  p.waitingHours = num($('pWaiting').value);
+  p.causationThreshold = num($('pCausation').value) / 100;
+  Object.keys(p.sublimits).forEach(function(k){
+    const el = $('sl_' + k);
+    if (el) p.sublimits[k] = num(el.value);
+  });
+  p.exclusions = Array.prototype.slice.call(document.querySelectorAll('[data-exclusion]'))
+    .filter(function(b){ return b.checked; })
+    .map(function(b){ return b.getAttribute('data-exclusion'); });
+}
+
+function renderEvent(){
+  const s = state.scenario;
+  const evidence = verifyEvidence(s, state.tampered);
+  let html = '';
+  html += '<div class="aiCard">' +
+    '<div class="head">' + ICON.chain + ' 攻击类型判定 · 安全分析模型' +
+    '<span class="conf">' + pct(s.aiClassification.confidence) + '</span></div>' +
+    '<div style="font-size:14px;font-weight:600;margin-top:6px">' + s.aiClassification.label + '</div>' +
+    '<div class="meter"><i style="width:' + pct(s.aiClassification.confidence) + '"></i></div>' +
+    '<ul>' + s.aiClassification.signals.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' +
+    '</div>';
+
+  html += '<div class="scrollX"><table class="evTable"><thead><tr>' +
+    '<th style="width:36%">存证记录</th><th style="width:26%">存证哈希</th><th></th></tr></thead><tbody>';
+  const aff = (state.agent.ctx && state.agent.ctx.affiliation) || null;
+  evidence.forEach(function(e){
+    const entity = REGISTRY[e.issuerId] || null;
+    const hit = (aff && aff.byEntity) ? aff.byEntity[e.issuerId] : null;
+    const isSelf = !e.issuerId || e.issuerId === 'ENT-INSURED';
+    const issuerLine = '<div class="evSrc">出具主体：' +
+      (isSelf ? '被保人自行提供' : (entity ? entity.name : e.source)) + ' · ' + e.time + '</div>';
+    let affTag = '';
+    if (hit && hit.related){
+      affTag = '<div style="margin-top:5px">' + badge('关联方', 'bad') +
+        '<span class="itemNote" style="margin-left:6px">' +
+        hit.findings.map(function(f){ return f.type; }).join('、') + '</span></div>';
+    } else if (aff && !isSelf && hit){
+      affTag = '<div style="margin-top:5px">' + badge('未发现关联', 'ok') + '</div>';
+    }
+    html += '<tr><td>' +
+      '<div class="evName">' + e.name + '</div>' +
+      issuerLine +
+      '<div class="evBody">' + e.content + '</div>' + affTag + '</td><td>' +
+      '<div class="evHash">' + e.onchainHash.slice(0, 22) + '…</div>' +
+      (e.verified ? '<span class="tag chain">' + ICON.chain + ' 比对通过</span>'
+                  : '<span class="tag bad">' + ICON.bad + ' 哈希不一致</span>') +
+      '</td><td style="text-align:right">' +
+      '<button class="miniBtn danger' + (e.tampered ? ' on' : '') + '" data-tamper="' + e.id + '">' +
+      (e.tampered ? '已篡改' : '模拟篡改') + '</button></td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  html += '<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:12.5px;color:var(--muted)">' +
+    '停机时长 <b class="num">' + s.downtimeHours + '</b> 小时 · 单位小时损失 <b class="num">' + yuan(s.perHourLoss) + '</b>' +
+    ' · 报案时效 <b class="num">' + s.reportedHours + '</b> 小时' +
+    (s.concentrationFactor ? ' · 风险集中度系数 <b class="num">' + s.concentrationFactor + '</b>' : '') +
+    '</div>';
+  $('eventBody').innerHTML = html;
+}
+
+function renderItems(r){
+  $('itemsHint').textContent = state.scenario.aiClassification.label + ' · 共 ' + r.items.length + ' 项';
+  const codeByItem = {};
+  ((r.risk && r.risk.codes) || []).forEach(function(c){
+    c.items.forEach(function(id){
+      if (!codeByItem[id]) codeByItem[id] = [];
+      codeByItem[id].push(c.code);
+    });
+  });
+  let html = '<div class="scrollX"><table class="table"><thead><tr>' +
+    '<th style="width:13%">分项</th><th style="width:15%">申报金额</th>' +
+    '<th style="width:15%">第三方定损</th>' +
+    '<th style="width:10%">因果置信度</th><th style="width:11%">子限额</th>' +
+    '<th class="r" style="width:12%">计入金额</th><th style="width:24%">核定意见</th>' +
+    '</tr></thead><tbody>';
+  r.items.forEach(function(i){
+    const claimedText = i.basis === 'duration'
+      ? i.hours + ' 小时 × ' + yuan(state.scenario.perHourLoss) + ' = <span class="num">' + yuan(i.claimed) + '</span>'
+      : '<span class="num">' + yuan(i.claimed) + '</span>';
+    const billableText = (i.basis === 'duration' && i.billableHours !== null)
+      ? '<div class="itemNote">可赔时长 ' + i.billableHours + ' 小时</div>' : '';
+    const tag = i.status === 'approved' ? '<span class="tag ok">全额计入</span>'
+      : i.status === 'partial' ? '<span class="tag warn">限额封顶</span>'
+      : '<span class="tag bad">不予计入</span>';
+    const payTag = i.payMode === 'vendor_direct'
+      ? ' ' + badge('直付服务商', 'chain') : '';
+    const assessedText = '<span class="num">' + yuan(i.assessed) + '</span>' +
+      (i.assessmentCut > 0
+        ? '<div class="itemNote" style="color:var(--warn)">定损核减 ' + yuan(i.assessmentCut) + '</div>'
+        : '');
+    html += '<tr><td><div class="cat">' + i.catName + '</div><div class="itemNote">' + i.note + '</div></td>' +
+      '<td>' + claimedText + billableText + '</td>' +
+      '<td>' + assessedText + '</td>' +
+      '<td><span class="num">' + pct(i.causation) + '</span>' +
+        ((i.failedRefs && i.failedRefs.length) ? '<div class="itemNote" style="color:var(--bad)">' + i.failedRefs.join('、') + ' 未通过</div>' : '') +
+      '</td><td><span class="num">' + yuan(i.sublimit) + '</span></td>' +
+      '<td class="r"><span class="num ' + (i.capped === 0 ? 'strike' : '') + '" style="font-weight:600">' + yuan(i.capped) + '</span></td>' +
+      '<td>' + tag + payTag +
+      (i.exclusionReview ? ' ' + (i.exclusionReview.upheld
+        ? '<span class="tag bad" style="font-family:var(--mono)">' + i.exclusionReview.clause + ' 除外成立</span>'
+        : '<span class="tag warn" style="font-family:var(--mono)">' + i.exclusionReview.clause + ' 举证不足</span>') : '') +
+      (codeByItem[i.id] ? ' ' + codeByItem[i.id].map(function(c){
+        return '<span class="tag mute" style="font-family:var(--mono)">' + c + '</span>';
+      }).join(' ') : '') +
+      '<div class="itemNote">' + (i.reason || '符合保单约定，按核定金额计入') + '</div></td></tr>';
+  });
+  $('itemsBody').innerHTML = html + '</tbody></table></div>';
+}
+
+function renderTrace(r){
+  $('traceBody').innerHTML = r.trace.map(function(t){
+    return '<li><div class="tLabel">' + t.label + '</div>' +
+      '<div class="tVal">' + yuan(t.value) + '</div>' +
+      '<div class="tFormula">' + t.formula + '</div>' +
+      (t.note ? '<div class="tNote">' + t.note + '</div>' : '') + '</li>';
+  }).join('');
+}
+
+function renderResult(r){
+  const t = r.totals;
+  $('conclusionHint').textContent = r.conclusion;
+  const sig = String(t.finalPayout) + '|' +
+    r.items.map(function(i){ return i.capped; }).join(',') + '|' +
+    (r.risk ? r.risk.dimensions.map(function(d){ return d.score; }).join(',') : '');
+  const changed = sig !== state.barsSig;
+  state.barsSig = sig;
+  const fromPayout = (typeof state.prevPayout === 'number') ? state.prevPayout : t.finalPayout;
+  state.prevPayout = t.finalPayout;
+
+  let html = '<div class="resultHead">' +
+    '<div><div class="bigCap">本次事故核定赔付金额</div>' +
+    '<div class="bigNum' + (t.finalPayout <= 0 ? ' zero' : '') + '" id="bigPayout">' +
+    yuan(fromPayout) + '</div></div>' +
+    '<div class="rateBox"><div class="bigCap">申报金额 / 赔付率</div>' +
+    '<b>' + yuan(t.totalClaimed) + ' / ' + pct(t.payoutRate) + '</b></div></div>';
+  html += '<div style="margin-top:13px">' + badge(r.conclusion, r.conclusionKind) +
+    '<span style="margin-left:8px;font-size:12.5px;color:var(--muted)">排除金额 ' + yuan(t.deniedAmount) + '</span></div>';
+
+  if (r.cap){
+    const c = r.cap;
+    const bindText = c.binding === 'annual' ? '保险期间累计上限封顶'
+      : (c.binding === 'event' ? '单次事故上限封顶' : '未触及上限');
+    html += '<div class="capBox">' +
+      '<div class="capTop"><span>赔付上限核验 · Sum Insured</span>' +
+      badge(bindText, c.binding === 'none' ? 'ok' : 'warn') +
+      '<span class="capVal">' + yuan(c.applicable) + '</span></div>' +
+      '<div class="capTrack"><i class="' + (c.binding === 'none' ? 'low' : 'mid') +
+        '" style="width:' + Math.max(2, Math.round(c.utilization * 100)) + '%"></i></div>' +
+      '<div class="capMeta">' +
+      '保险金额 <b>' + yuan(c.sumInsured) + '</b>' +
+      (c.concentration < 1 ? ' × 风险集中度 <b>' + c.concentration + '</b>' : '') +
+      ' → 单次适用上限 <b>' + yuan(c.effectiveLimit) + '</b><br>' +
+      '保险期间累计 <b>' + yuan(c.annualLimit) + '</b>，已用 <b>' + yuan(c.annualUsed) +
+      '</b>，剩余 <b>' + yuan(c.annualRemaining) + '</b><br>' +
+      '本次核定应赔 <b>' + yuan(c.beforeCap) + '</b>，受上限约束后实赔 <b>' + yuan(t.finalPayout) +
+      '</b>，上限占用 <b>' + Math.round(c.utilization * 100) + '%</b>' +
+      (c.shortfall > 0
+        ? '，因上限未获赔付 <b style="color:var(--warn)">' + yuan(c.shortfall) + '</b>' : '') +
+      '</div></div>';
+  }
+
+  const maxV = Math.max.apply(null, r.items.map(function(i){ return Math.max(i.claimed, i.capped, 1); }));
+  html += '<div class="bars' + (changed ? ' anim' : '') + '">';
+  r.items.forEach(function(i){
+    const w = Math.max(1, Math.round((i.capped / maxV) * 100));
+    const dw = i.claimed > i.capped ? Math.round(((i.claimed - i.capped) / maxV) * 100) : 0;
+    html += '<div class="bar"><div class="barTop"><span>' + i.catName +
+      ' <span style="color:var(--muted)">' + i.note + '</span></span>' +
+      '<span class="num">' + yuan(i.capped) + '</span></div>' +
+      '<div class="barTrack"><i style="width:' + w + '%"></i></div>' +
+      (dw > 0 ? '<div class="barTrack" style="height:4px;margin-top:2px"><i class="denied" style="width:' + dw + '%"></i></div>' : '') +
+      '</div>';
+  });
+  html += '</div>';
+
+  if (r.risk){
+    const lv = r.risk.level;
+    const lvKind = lv === 'low' ? 'ok' : (lv === 'mid' ? 'warn' : 'bad');
+    html += '<div class="fraud"><div class="fraudTop">风险画像 ' +
+      badge('风险等级 ' + LEVEL_TEXT[lv], lvKind) +
+      badge(r.risk.action, lvKind === 'ok' ? 'ok' : 'warn') +
+      '<span class="fraudScore">综合风险分 ' + r.risk.composite.toFixed(2) + '</span></div>' +
+      '<div class="dims' + (changed ? ' anim' : '') + '" style="margin-top:8px">';
+    r.risk.dimensions.forEach(function(d){
+      html += '<div class="dimRow"><div class="dimName">' + d.name + '</div>' +
+        '<div class="dimTrack"><i class="' + d.level + '" style="width:' +
+        Math.max(2, Math.round(d.score * 100)) + '%"></i></div>' +
+        '<div class="dimScore">' + d.score.toFixed(2) + '</div>' +
+        '<div style="width:22px;flex:none">' + LEVEL_TEXT[d.level] + '</div></div>' +
+        '<div class="dimDetail">' + d.detail + '</div>';
+    });
+    html += '</div>';
+
+    if (r.risk.codes.length){
+      html += '<table class="rcTable"><thead><tr><th style="width:13%">编码</th>' +
+        '<th style="width:44%">风险因子</th><th style="width:17%">涉及项</th>' +
+        '<th class="r" style="width:14%">金额</th><th style="width:12%">性质</th></tr></thead><tbody>';
+      r.risk.codes.forEach(function(c){
+        html += '<tr><td class="rcCode">' + c.code + '</td>' +
+          '<td>' + c.name + '</td>' +
+          '<td>' + (c.items.length ? c.items.join('、') : '案件级') + '</td>' +
+          '<td class="r num">' + (c.amount > 0 ? yuan(c.amount) : '—') + '</td>' +
+          '<td class="rcKind">' + (c.kind === 'risk'
+            ? '<span class="tag bad">风险类</span>'
+            : (c.kind === 'compliance'
+                ? '<span class="tag warn">合规类</span>'
+                : '<span class="tag mute">合同约定类</span>')) + '</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    html += '<div class="exposure">风险敞口 <b>' + yuan(r.risk.exposure.risk) + '</b> 元，' +
+      '占申报金额 <b>' + Math.round(r.risk.exposure.rate * 100) + '%</b>；' +
+      '合同约定类核减 <b>' + yuan(r.risk.exposure.contract) + '</b> 元（条款正常作用，不计入风险敞口）。</div>';
+    html += '</div>';
+  }
+
+  if (r.affiliate && r.affiliate.checked){
+    const hits = r.affiliate.hits;
+    html += '<div class="fraud"><div class="fraudTop">第三方关联方穿透 ' +
+      (hits.length ? badge('命中 ' + hits.length + ' 家', 'bad') : badge('未发现关联', 'ok')) +
+      (hits.length ? '<span class="fraudScore">核减 ' + yuan(r.affiliate.adjustment) + '</span>' : '') +
+      '</div>';
+    if (hits.length){
+      html += '<ul class="fraudList">' + hits.map(function(h){
+        return '<li><span class="fName">' + h.issuerName + ' · 涉及 ' + h.items.join('、') + '</span>' +
+          '<span class="fVal">' + h.findings.map(function(f){ return f.type; }).join('、') + '</span></li>';
+      }).join('') + '</ul>' +
+      '<div class="itemNote" style="margin-top:8px">命中关联关系的费用按独立第三方报价重新核定，' +
+      '差额不予赔付；相关费用改为直付服务商，不向被保人支付现金。</div>';
+    } else {
+      html += '<div class="itemNote" style="margin-top:8px">已核查 ' + r.affiliate.checkedCount +
+        ' 家第三方主体，未发现与被保人的法定代表人、股东、注册地址或联系电话重叠。</div>';
+    }
+    html += '</div>';
+  }
+  if (r.assessment && r.assessment.checked){
+    const a = r.assessment;
+    html += '<div class="fraud"><div class="fraudTop">第三方定损 ' +
+      badge('独立机构出具 · 核赔无权修改', 'chain') +
+      '<span class="fraudScore">定损核减 ' + yuan(a.cut) + '</span></div>' +
+      '<ul class="fraudList">' +
+      '<li><span class="fName">定损机构</span><span class="fVal">' + a.adjuster.name + '</span></li>' +
+      '<li><span class="fName">资质</span><span class="fVal">' + a.adjuster.license + '</span></li>' +
+      '<li><span class="fName">运营主体</span><span class="fVal">' + a.adjuster.operator.slice(0, 16) + '…</span></li>' +
+      '<li><span class="fName">定损报告号</span><span class="fVal">' + a.reportNo + '</span></li>' +
+      '<li><span class="fName">核定损失合计</span><span class="fVal">' + yuan(a.assessedTotal) + '</span></li>' +
+      '</ul>' +
+      '<div class="itemNote" style="margin-top:8px">损失金额以第三方定损报告为唯一来源，' +
+      '核赔 Agent 无权修改；对定损结论有异议的，须提请独立复核。</div></div>';
+  }
+
+  if (r.exclusions && r.exclusions.checked && r.exclusions.assertions.length){
+    const ex = r.exclusions;
+    html += '<div class="fraud"><div class="fraudTop">除外责任核验 ' +
+      badge('成立 ' + ex.upheld + ' 项 · 举证不足 ' + ex.denied + ' 项', ex.denied ? 'warn' : 'mute') +
+      '<span class="fraudScore">涉及 ' + yuan(ex.deniedAmount) + '</span></div>' +
+      '<ul class="fraudList">' + ex.assertions.map(function(a){
+        return '<li><span class="fName">' + a.itemId + ' ' + a.catName + ' · ' +
+          a.clause + ' ' + a.name +
+          (a.missing.length ? '<br>举证缺口：' + a.missing.join('、') : '<br>举证材料齐备') +
+          '</span><span class="fVal">' + (a.upheld ? '除外成立' : '除外不成立') + '</span></li>';
+      }).join('') + '</ul>' +
+      '<div class="itemNote" style="margin-top:8px">保险人对其主张的除外事实负举证责任，' +
+      '举证不能的不得据此拒赔；本单因举证不足仍须赔付 ' + yuan(ex.deniedAmount) + ' 元。</div></div>';
+  }
+
+  if (r.subrogation && r.subrogation.checked){
+    const g = r.subrogation;
+    const gKind = g.liable ? 'ok' : 'mute';
+    html += '<div class="fraud"><div class="fraudTop">代位求偿 ' +
+      badge(g.liable ? '已锁定责任主体' : '无可追偿主体', gKind) +
+      (g.liable ? '<span class="fraudScore">可追偿 ' + yuan(g.recoverable) + '</span>' : '') + '</div>';
+    if (g.liable){
+      html += '<ul class="fraudList">' +
+        '<li><span class="fName">责任主体</span><span class="fVal">' + g.liable + '</span></li>' +
+        '<li><span class="fName">溯源报告</span><span class="fVal">' + g.traceReport + '</span></li>' +
+        '<li><span class="fName">责任比例</span><span class="fVal">' + Math.round(g.share * 100) + '%</span></li>' +
+        '<li><span class="fName">追偿上限（已赔付金额）</span><span class="fVal">' + yuan(g.limit) + '</span></li>' +
+        '<li><span class="fName">按比例可追偿</span><span class="fVal">' + yuan(g.recoverable) + '</span></li>' +
+        '</ul>' +
+        '<div class="itemNote" style="margin-top:8px">定责依据：' + g.basis + '<br>' +
+        '证据材料：' + g.evidence.join('、') + '<br>' +
+        '代位求偿以已赔付金额为限，追偿回款全额回补风险池。</div>';
+    } else {
+      html += '<div class="itemNote" style="margin-top:8px">' +
+        '事件溯源未锁定可追偿的第三方责任主体，本案不产生代位求偿权。</div>';
+    }
+    html += '</div>';
+  }
+
+  $('resultBody').innerHTML = html;
+  animateNumber($('bigPayout'), fromPayout, t.finalPayout, changed ? 700 : 0);
+}
+
+function recompute(){
+  const aff = state.agent.ctx ? state.agent.ctx.affiliation : null;
+  const r = adjudicate(state.policy, state.scenario, state.tampered, aff);
+  renderItems(r);
+  renderTrace(r);
+  renderResult(r);
+  return r;
+}
+
+/* ============ 智能体控制台 ============ */
+
+function renderAgent(){
+  const a = state.agent;
+  const revealed = a.steps.slice(0, a.revealed);
+  let html = '<div class="agentBar">' + AGENT_ROSTER.map(function(g){
+    return '<div class="agCard p-' + g.party + '">' +
+      '<span class="agRole">' + g.role + '</span>' +
+      '<span class="agName">' + g.name + '</span>' +
+      '<span class="agOp">' + g.operator + '</span></div>';
+  }).join('') + '</div>';
+
+  if (!revealed.length){
+    html += '<div class="empty">尚未运行。点击"运行智能体"，观察它如何查勘、核验存证、' +
+      '在规则引擎的约束下完成赔付核定。</div>';
+  } else {
+    html += '<div class="steps">';
+    revealed.forEach(function(s, idx){
+      const isEnd = s.tool === '(结束)';
+      const kind = isEnd ? 'ok' : (s.ok ? 'ok' : 'bad');
+      const tag = isEnd ? badge('流程结束', 'mute')
+        : (s.ok ? badge('执行成功', 'ok') : badge('被引擎拒绝', 'bad'));
+      const body = isEnd ? s.observation : (s.ok ? s.observation : s.error);
+      const hasArgs = s.args && Object.keys(s.args).length > 0;
+      const newest = (idx === revealed.length - 1 && a.running) ? ' new' : '';
+      html += '<div class="step' + newest + '">' +
+        '<div class="sIdx ' + kind + '">' + String(s.index).padStart(2, '0') + '</div>' +
+        '<div class="sMain"><div class="sTop"><span class="sTool">' + s.tool + '</span>' + tag + '</div>' +
+        (s.thought ? '<div class="sThought">' + escapeHtml(s.thought) + '</div>' : '') +
+        (hasArgs ? '<div class="sArgs">参数 ' + escapeHtml(JSON.stringify(s.args)) + '</div>' : '') +
+        (body ? '<div class="sObs' + ((!isEnd && !s.ok) ? ' bad' : '') + '">' + escapeHtml(body) + '</div>' : '') +
+        '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  const ctx = a.ctx;
+  let justFinished = false;
+  if (a.finished && ctx && ctx.payout){
+    const t = ctx.payout.totals;
+    justFinished = !a.verdictShown;
+    a.verdictShown = true;
+    const kind = ctx.payout.conclusionKind === 'ok' ? 'ok'
+      : (ctx.payout.conclusionKind === 'bad' ? '' : 'warn');
+    html += '<div class="verdict ' + kind + (justFinished ? ' new' : '') + '">' +
+      '<div class="verdictRow"><div><div class="verdictMeta">智能体核定赔付金额</div>' +
+      '<div class="verdictNum' + (t.finalPayout <= 0 ? ' zero' : '') + '" id="verdictPayout">' +
+      yuan(typeof state.prevVerdict === 'number' ? state.prevVerdict : t.finalPayout) + '</div></div>' +
+      '<div style="margin-left:auto;text-align:right"><div class="verdictMeta">结论</div>' +
+      '<div style="font-weight:600;font-size:15px;margin-top:2px">' + ctx.closed + '</div></div></div>' +
+      '<div class="verdictMeta" style="margin-top:8px">申报 <b>' + yuan(t.totalClaimed) + '</b>' +
+      '　赔付率 <b>' + pct(t.payoutRate) + '</b>' +
+      '　风险等级 <b>' + LEVEL_TEXT[ctx.payout.risk.level] + '</b>' +
+      '（综合风险分 <b>' + ctx.payout.risk.composite.toFixed(2) + '</b>）' +
+      '　处置 <b>' + ctx.payout.risk.action + '</b>' +
+      '　风险敞口 <b>' + yuan(ctx.payout.risk.exposure.risk) + '</b>' +
+      '　人工复核工单 <b>' + ctx.escalations.length + '</b> 张' +
+      '　推理步数 <b>' + a.steps.length + '</b></div></div>';
+  }
+
+  $('agentTrace').innerHTML = html;
+  if (a.finished && ctx && ctx.payout){
+    const target = ctx.payout.totals.finalPayout;
+    const fromV = (typeof state.prevVerdict === 'number') ? state.prevVerdict : target;
+    animateNumber($('verdictPayout'), fromV, target, 760);
+    state.prevVerdict = target;
+  } else {
+    state.prevVerdict = null;
+  }
+
+  $('runProgress').style.width = (a.finished ? 100 : Math.min(88, a.steps.length * 11)) + '%';
+
+  $('consoleHint').textContent = a.stale ? '场景已变更，轨迹待更新'
+    : (a.finished ? '核定完成' : (a.running ? '运行中' : '待运行'));
+
+  const toolCount = a.steps.filter(function(s){ return s.tool !== '(结束)'; }).length;
+  $('runStat').innerHTML = '<span class="dot' + (a.running ? ' live' : '') + '"></span>' +
+    (a.running ? '运行中' : (a.finished ? '已结案' : '待运行')) +
+    '　工具调用 <b>' + toolCount + '</b> 次' +
+    '　步数 <b>' + a.steps.length + '/16</b>' +
+    (a.stale ? '　' + badge('轨迹已过期', 'warn') : '');
+
+  $('btnRun').disabled = a.running;
+  $('btnStep').disabled = a.running || a.finished;
+
+  if (a.running){
+    const all = $('agentTrace').querySelectorAll('.step');
+    if (all.length) scrollIntoViewSoft(all[all.length - 1], 'nearest');
+  } else if (justFinished){
+    scrollIntoViewSoft($('agentTrace').querySelector('.verdict'), 'center');
+  }
+}
+
+function startContext(){
+  const caseData = buildScenario(state.scenario.id);
+  return newContext(caseData, state.policy, Object.assign({}, state.tampered));
+}
+
+function agentStep(){
+  const a = state.agent;
+  if (!a.ctx) a.ctx = startContext();
+  if (a.finished) return false;
+
+  const action = planNextAction(a.history, a.ctx.policy.causationThreshold);
+  if (action.final !== undefined && action.tool === undefined){
+    a.steps.push({ index:a.steps.length + 1, tool:'(结束)', args:{}, ok:true,
+      observation:action.final, error:'', thought:action.thought });
+    a.finished = true;
+    a.revealed = a.steps.length;
+    renderAgent();
+    return false;
+  }
+
+  const result = callTool(a.ctx, action.tool, action.args);
+  const step = {
+    index:a.steps.length + 1, tool:action.tool, args:action.args || {},
+    ok:result.ok, error:result.error, observation:result.summary || '', thought:action.thought || ''
+  };
+  a.steps.push(step);
+  a.history.push({ tool:action.tool, args:action.args, ok:result.ok, error:result.error,
+    data:result.data, observation:result.summary || '' });
+  a.revealed = a.steps.length;
+
+  if (a.ctx.closed){ a.finished = true; }
+  if (a.steps.length >= 16){ a.finished = true; }
+
+  const r = recompute();
+  renderAgent();
+  renderEvent();
+  return !a.finished;
+}
+
+function stopPlayback(){
+  if (state.timer){ clearTimeout(state.timer); state.timer = null; }
+  state.agent.running = false;
+}
+
+function playNext(){
+  const a = state.agent;
+  if (!a.running) return;
+  const go = agentStep();
+  if (!go){ a.running = false; renderAgent(); return; }
+  renderAgent();
+  state.timer = setTimeout(playNext, 620);
+}
+
+function runAll(){
+  stopPlayback();
+  readPolicy();
+  state.agent = { history:[], ctx:null, steps:[], revealed:0, running:true, finished:false, stale:false };
+  renderAgent();
+  state.timer = setTimeout(playNext, 260);
+}
+
+function stepOnce(){
+  stopPlayback();
+  readPolicy();
+  if (state.agent.finished || state.agent.stale){
+    state.agent = { history:[], ctx:null, steps:[], revealed:0, running:false, finished:false, stale:false };
+  }
+  agentStep();
+}
+
+/* ============ 事件绑定 ============ */
+
+document.addEventListener('click', function(ev){
+  const t = ev.target;
+  const chip = t.closest ? t.closest('[data-scenario]') : null;
+  if (chip){ loadScenario(chip.getAttribute('data-scenario')); return; }
+
+  const tamper = t.closest ? t.closest('[data-tamper]') : null;
+  if (tamper){
+    const id = tamper.getAttribute('data-tamper');
+    state.tampered[id] = !state.tampered[id];
+    renderEvent();
+    recompute();
+    markStale();
+    return;
+  }
+});
+
+document.addEventListener('input', function(ev){
+  if (ev.target && ev.target.id && /^p[A-Z]|^sl_/.test(ev.target.id)){
+    readPolicy();
+    recompute();
+    markStale();
+  }
+});
+
+document.addEventListener('change', function(ev){
+  if (ev.target && ev.target.getAttribute && ev.target.getAttribute('data-exclusion') !== null){
+    readPolicy();
+    recompute();
+    markStale();
+  }
+});
+
+$('btnRun').addEventListener('click', runAll);
+$('btnStep').addEventListener('click', stepOnce);
+$('btnClear').addEventListener('click', function(){ stopPlayback(); resetAgentTrace(); });
+$('btnPrint').addEventListener('click', function(){ window.print(); });
+$('btnReset').addEventListener('click', function(){ loadScenario(state.scenario.id); });
+
+window.addEventListener('hashchange', function(){
+  const m = /scenario=([a-z0-9-]+)/.exec(window.location.hash || '');
+  const id = m && PRESETS.some(function(p){ return p.id === m[1]; }) ? m[1] : 'base';
+  if (id !== state.scenario.id) loadScenario(id);
+});
+
+(function init(){
+  const m = /scenario=([a-z0-9-]+)/.exec(window.location.hash || '');
+  const id = m && PRESETS.some(function(p){ return p.id === m[1]; }) ? m[1] : 'base';
+  loadScenario(id);
+})();
+</script>
+<script src="../suite-ui.js"></script>
+<script src="../embedded.js"></script>
+</body>
+</html>

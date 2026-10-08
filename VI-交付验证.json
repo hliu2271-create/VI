@@ -1,0 +1,66 @@
+{
+  "version": "VI",
+  "status": "LOCAL_CHECKS_PASS_PUBLIC_DEPLOYED_ACCESS_UNVERIFIED",
+  "verifiedAt": "2026-10-08T02:08:11.143Z",
+  "publicDemo": {
+    "url": "https://aegis-computeshield-demo-vi.jocund-tetra-6250.chatgpt.site",
+    "deploymentStatus": "succeeded",
+    "accessMode": "public",
+    "sourceCommit": "76d193143884b676cca800c047a7c6f068be8965",
+    "anonymousVerification": "Cloudflare 403 on current verification network; external availability unverified"
+  },
+  "tests": {
+    "mobile": {
+      "status": "PASS",
+      "file": "reports/mobile-demo-VI.json",
+      "scope": "Chromium Android and WebKit iPhone emulation; not physical-device testing",
+      "checks": [
+        "Android Chrome: UI quote/issuance, idempotency, isolated visitors, six tabs, retained input, report downloads with byte hashes, kill/revive/history, lab isolation, memory evidence download/hash, Request/URL fetch, model boundary, 16px fields, wallet guide, floating video, portrait/landscape fit and no private-host requests",
+        "iPhone WebKit: UI quote/issuance, idempotency, isolated visitors, six tabs, retained input, report downloads with byte hashes, kill/revive/history, lab isolation, memory evidence download/hash, Request/URL fetch, model boundary, 16px fields, wallet guide, floating video, portrait/landscape fit and no private-host requests"
+      ]
+    },
+    "keyboard": {
+      "status": "PASS",
+      "scope": "Simulated viewport shrink, input-to-input transition and restoration"
+    },
+    "privacy": {
+      "status": "PASS",
+      "file": "reports/privacy-VI.json",
+      "exclusions": "Dependencies, Git/hosting metadata and screenshots excluded; release assembled from source allowlist"
+    },
+    "review": {
+      "status": "PASS",
+      "importantIssuesResolved": [
+        "Both public signing-contract entry points blocked",
+        "Reports navigate to static original JSON; actual bytes match SHA-256",
+        "Focus transition preserves keyboard baseline",
+        "Simulated kill/revive and elapsed-time history",
+        "Failure reports use relative paths and privacy scan runs last"
+      ]
+    }
+  },
+  "sourceZip": {
+    "contents": "Source, assets, media, documentation and verification records",
+    "excluded": [
+      ".git",
+      ".openai",
+      "node_modules",
+      "dist",
+      "VI-预览",
+      "runtime credentials",
+      "uploads",
+      "historical user attachments"
+    ]
+  },
+  "previousArchives": {
+    "3.zip": "a7b3954735a8e03105bcf174aa16355104837d845c7278e7b87deb294c552e76",
+    "I.zip": "b8157090ded1611d162af79d26531379638929ec251d743407c5a0e013a76124",
+    "II.zip": "2959cd345d9a40d915496880cfbe00370a8e1321f99df83a4f5412af4d078a0c",
+    "III.zip": "f98c057253590701935ae312e7694ac14c0bf8c7a3c095ad246b1960990dfb98",
+    "IV.zip": "5301949f0bd7aa7fca4d8723f34a25e2fa9392fd4a9e4db556c810c3bfdc56ec",
+    "V.zip": "9f01b9ed3932de54005a091626ee427d51c3dc4e57274b52870234182be92d50"
+  },
+  "oldProductsOverwritten": 0,
+  "targetChainDeployed": false,
+  "physicalMobileDevicesTested": false
+}

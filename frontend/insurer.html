@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+<title>Aegis 神盾 · 保险核心</title>
+<link rel="stylesheet" href="insurer.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Regular.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Medium.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Semibold.min.css">
+<link rel="stylesheet" href="assets/fonts/MiSans-Bold.min.css">
+<link rel="stylesheet" href="suite-theme.css">
+<script>if(window.parent!==window && new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('workbench-embedded');</script><link rel="stylesheet" href="embedded.css">
+<link rel="stylesheet" href="insurance-flow.css">
+<link rel="stylesheet" href="/mobile-VI.css"><script src="/mobile-VI.js" defer></script></head>
+<body data-suite="insurer">
+
+<div class="subbar" id="subBar" aria-live="polite">
+  <span class="sb-idx mono" id="sbIdx">①</span>
+  <span class="sb-txt" id="sbTxt"></span>
+  <span class="sb-tag mono" id="sbTag">随机场景 · 可行性演练</span>
+</div>
+
+<header class="hd">
+  <div class="hd-in">
+    <a class="lg" href="insurer.html">Aegis 神盾<span class="lg-tag">INSURANCE CORE</span></a>
+    <nav class="nv">
+      <a class="on" data-view="ov" onclick="goView('ov')">总览</a>
+      <a data-view="apply" onclick="goView('apply')">投保</a>
+      <a data-view="wk" onclick="goView('wk')">赔案<span class="badge" id="nbOpen"></span></a>
+      <a data-view="ev" onclick="goView('ev')">证据</a>
+      <a data-view="mon" onclick="goView('mon')">监控</a>
+      <a data-view="fin" onclick="goView('fin')">账务</a>
+      <span class="vsep"></span>
+      <a href="lab.html">实验室</a>
+      <a href="index.html">品牌首页</a>
+      <a href="market.html">行情终端</a>
+      <a href="plan.html">计划书</a>
+    </nav>
+    <div class="hd-r">
+      <span class="srv" id="insuredChip" style="display:none" title="被保标的：当前监控系统真实探测的目标"><span class="dot ok"></span><span id="insuredTxt">—</span></span>
+      <span class="srv"><span class="dot" id="srvDot"></span><span id="srvTxt">连接中</span></span>
+      <span id="clock">--:--:--</span>
+      <span class="switch" id="autoSw" onclick="toggleAuto()"><i></i><span id="autoTxt">自动演练 开</span></span>
+      <details class="advanced-tools"><summary>演示工具</summary><div><p>以下操作会改变当前演示数据。</p><button class="btn" onclick="demo60()">运行 60 秒故障演练</button><button class="btn" onclick="resetAll()">重建演示数据</button></div></details>
+    </div>
+  </div>
+</header>
+
+<main class="pg">
+  <div class="vw-hd">
+    <div class="label" id="vwLabel">— 01 · OVERVIEW</div>
+    <h1 id="vwTitle">经营总览<span class="chev"> ›</span></h1>
+    <span class="vw-sub" id="vwSub">承保 · 核保 · 理赔 · 追偿 全流程</span>
+  </div>
+
+  <!-- ================= 总览 ================= -->
+  <section class="view on" id="vw-ov">
+    <div class="overview-lead"><div><span class="overview-eyebrow">当前业务</span><h2>保障运行，一目了然。</h2><p id="insuranceSummary">正在同步经营数据…</p></div><button class="btn pri" onclick="goView('apply'); document.getElementById('fNode').focus()">开始投保 <span aria-hidden="true">→</span></button></div><div class="stats" id="stats"></div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="ch"><span class="num-idx">01</span><h2>资金与赔付走势<span class="chev">›</span></h2><span class="csub" id="chartSub"></span><span class="cverd" id="chartVerdict"></span></div>
+      <div class="cb" id="ovChart"></div>
+    </div>
+    <div class="cols">
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">03</span><h2>被保标的<span class="chev">›</span></h2><span class="csub" id="nodeSub"></span></div>
+          <div class="cb" id="nodes"></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">04</span><h2>有效保单<span class="chev">›</span></h2><span class="csub" id="polSub"></span></div>
+          <div class="cb list" id="pols"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="num-idx">05</span><h2>理赔引擎<span class="chev">›</span></h2><span class="csub" id="engSub"></span></div>
+          <div class="cb" id="eng"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="view" id="vw-apply">
+    <ol class="flow-steps" aria-label="投保进度"><li class="current" data-step="1"><b>01</b> 配置保障</li><li data-step="2"><b>02</b> 确认报价</li><li data-step="3"><b>03</b> 查看保单</li></ol>
+    <div class="application-layout">        <div class="card application-card" id="applicationCard">
+          <div class="ch"><h2>保障配置</h2><span class="csub">01 / 填写投保信息</span></div>
+          <div class="cb">
+            <div class="f"><label>被保节点</label><select id="fNode"></select></div>
+            <div class="f"><label>险种</label><select id="fProd">
+              <option value="DOWNTIME">节点宕机险</option>
+              <option value="LATENCY">延迟超标险</option>
+              <option value="HASHRATE">算力不足险</option>
+            </select></div>
+            <div class="frow">
+              <div class="f"><label>保额 BOT</label><input id="fSum" type="number" min="1" step="any" value="20000" inputmode="decimal"></div>
+              <div class="f"><label>期间 天</label><input id="fDays" type="number" min="1" max="3650" step="1" value="30" inputmode="numeric"></div>
+            </div>
+            <div class="frow">
+              <div class="f"><label>免赔额 BOT</label><input id="fDed" type="number" min="0" step="any" value="500" inputmode="decimal"></div>
+              <div class="f f-act"><button class="btn pri" id="quoteBtn" onclick="quote()">获取报价</button></div>
+            </div>
+          </div>
+        </div>
+
+      <div class="card confirmation-card"><div class="ch"><h2>报价与条款</h2><span class="csub">02 / 确认后出单</span></div><div class="cb">
+        <div class="quote-empty" id="quoteEmpty"><span class="quote-symbol" aria-hidden="true">◎</span><h3>先确定你的保障需求</h3><p>选择节点、险种与保额，即可查看保费和核保依据。</p></div>
+        <div class="quote" id="quote"><div class="q1"><span id="qDec"></span><b id="qPrem"></b></div><div id="quoteTerms" class="quote-terms"></div><details class="quote-reasons"><summary>查看核保依据</summary><div class="qd" id="qDetail"></div></details></div>
+        <p class="flow-status" id="flowStatus" role="status" aria-live="polite">填写左侧信息，获取本次报价。</p>
+        <button class="btn pri issue-action" id="issueBtn" onclick="issue()" disabled>确认条款并出单</button><p class="flow-note">本地业务演示 · BOT 为演示计价单位</p>
+      </div></div>
+    </div>
+    <section class="policy-receipt" id="policyReceipt" hidden tabindex="-1" aria-labelledby="receiptTitle"><div class="receipt-head"><div><span class="receipt-kicker">POLICY ISSUED</span><h2 id="receiptTitle">保单已生效</h2></div><span class="receipt-badge">已承保</span></div><div id="receiptDetails"></div><div class="receipt-actions"><button class="btn pri" id="receiptMonitor" onclick="goView('mon')">查看节点监控 →</button><button class="btn" onclick="goView('ov')">返回总览</button><button class="btn" id="newApplication">继续投保</button></div></section>
+  </section>
+  <dialog id="policyDialog" class="policy-dialog"><div class="receipt-head"><h2>保单详情</h2><button class="btn" id="policyDialogClose" aria-label="关闭保单详情">关闭 ×</button></div><div id="policyDialogBody"></div><p class="flow-note">本地演示记录 · 当前服务重启后会重建</p></dialog>
+
+  <!-- ================= 赔案工作台 ================= -->
+  <section class="view" id="vw-wk">
+    <div class="wk">
+      <div class="wk-q">
+        <div class="wk-qhd">
+          <span>赔案队列</span>
+          <div class="wk-act">
+            <button class="btn sm" onclick="manualClaim()">人工报案</button>
+            <button class="btn sm danger" onclick="attack()">节点压力演练</button>
+          </div>
+        </div>
+        <div class="wk-list" id="claimList"></div>
+      </div>
+      <div class="wk-d" id="claimDetail"></div>
+    </div>
+  </section>
+
+  <!-- ================= 证据中心 ================= -->
+  <section class="view" id="vw-ev">
+    <div class="cols">
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">01</span><h2>提交单证<span class="chev">›</span></h2><span class="csub">投保人 / 节点运营方</span></div>
+          <div class="cb">
+            <div id="evBanner"></div>
+            <div class="frow">
+              <div class="f"><label>关联赔案</label><select id="evClaim"></select></div>
+              <div class="f"><label>单证类型</label><select id="evKind"></select></div>
+            </div>
+            <div class="frow">
+              <div class="f"><label>提交人</label><input id="evBy" value="投保人 · 节点运营方"></div>
+              <div class="f"><label>证据文件</label><div class="dz" id="evDrop"><span id="evName">选择或拖拽文件（≤ 4MB）</span></div></div>
+            </div>
+            <input type="file" id="evFile" hidden>
+            <div class="frow">
+              <button class="btn pri" id="uploadBtn" onclick="uploadEvidence()">提交并核验</button>
+              <button class="btn" onclick="fillDemo('accident')">示例·事故日志</button>
+              <button class="btn" onclick="fillDemo('maintenance')">示例·维护工单</button>
+              <button class="btn" onclick="fillDemo('selfproof')">示例·在线自证</button>
+            </div>
+            <div class="hint">文件保存后计算 SHA-256，规则引擎按六项指标核验；每 3 份或 45 秒形成 Merkle 批次记录。批次记录不代表已提交目标链。</div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">02</span><h2>证据清单<span class="chev">›</span></h2><span class="csub" id="evSub"></span></div>
+          <div class="cb list" id="evList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 监控 ================= -->
+  <section class="view" id="vw-mon">
+    <div class="cols">
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">01</span><h2>监控可用性<span class="chev">›</span></h2><span class="csub" id="monSub"></span></div>
+          <div class="cb">
+            <div id="monStatus"></div>
+            <div id="observers" style="margin-top:10px"></div>
+            <div class="frow" style="margin-top:10px">
+              <button class="btn sm" onclick="blackout()">演练：保险人系统下线 20s</button>
+            </div>
+            <div class="hint">监控中断不能证明节点正常。盲区期间暂停出险判定和报案计时，恢复后补录；补录无果且节点仍离线时，要求节点提供在线证据。</div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">02</span><h2>规则评估记录<span class="chev">›</span></h2><span class="csub" id="aiSub"></span></div>
+          <div class="cb list" id="ai"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 账务 ================= -->
+  <section class="view" id="vw-fin">
+    <div class="cols">
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">01</span><h2>复式记账流水<span class="chev">›</span></h2><span class="csub">借贷记账</span></div>
+          <div class="cb log" id="ledger"></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="ch"><span class="num-idx">02</span><h2>防篡改审计链<span class="chev">›</span></h2><span class="csub" id="audSub"></span></div>
+          <div class="cb log" id="audit"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 当前在做什么 · 常驻活动面板（向展示对象实时交代系统在干什么） -->
+<div class="now" id="demoBar">
+  <div class="now-hd">
+    <span class="now-live"><i class="now-dot"></i><span id="nowMode">实时监控</span></span>
+    <span class="now-time mono" id="demoTime">00:00.0</span>
+    <button class="now-fold" id="nowFold" onclick="toggleNow()" title="收起/展开">—</button>
+  </div>
+
+  <div class="now-step">
+    <span class="now-idx mono" id="nowIdx">●</span>
+    <span class="now-title" id="nowTitle">正在监控被保节点</span>
+  </div>
+
+  <div class="now-what" id="demoTxt">三观察者每秒探测一次节点心跳，节点正常时不做任何出险判定。</div>
+
+  <div class="now-data" id="nowData"></div>
+
+  <div class="now-prog"><i id="demoProg"></i></div>
+  <div class="now-steps" id="nowSteps"></div>
+</div>
+
+<div class="toast-box" id="toastBox"></div>
+<script src="conn-guard.js"></script>
+<script src="insurer.js"></script>
+<script src="insurance-flow.js"></script>
+<script src="suite-ui.js"></script>
+<script src="embedded.js"></script>
+</body>
+</html>

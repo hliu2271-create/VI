@@ -1,0 +1,28 @@
+{
+  "version": "IV",
+  "kind": "target-network-preflight",
+  "status": "not-deployed",
+  "createdAt": "2026-10-07T21:15:31.087Z",
+  "network": "BOT Chain / Bohr",
+  "source": "https://dev-docs.botchain.ai/docs/Developers/quick-guide/",
+  "checks": [
+    {
+      "name": "BOT Chain mainnet",
+      "chainId": 677,
+      "rpc": "https://rpc.botchain.ai",
+      "reachable": false,
+      "error": "RPC timeout"
+    },
+    {
+      "name": "Bohr testnet",
+      "chainId": 968,
+      "rpc": "https://rpc.bohr.life",
+      "reachable": true,
+      "observedChainId": 968,
+      "chainMatches": true
+    }
+  ],
+  "signerConfigured": false,
+  "deployments": [],
+  "reason": "本版未执行目标链部署；无本版目标链合约地址和交易回执。连通性检查不代表部署完成。"
+}

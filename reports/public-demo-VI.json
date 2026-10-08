@@ -1,0 +1,18 @@
+{
+  "version": "VI",
+  "scope": "Anonymous public Chromium browser and direct HTTPS downloads; no logged-in site account",
+  "status": "UNVERIFIED",
+  "url": "https://aegis-computeshield-demo-vi.jocund-tetra-6250.chatgpt.site",
+  "checks": [],
+  "errors": [],
+  "httpStatus": 403,
+  "responseTitle": "Attention Required! | Cloudflare",
+  "responseText": "Sorry, you have been blocked\nYou are unable to access chatgpt.site\nWhy have I been blocked?\n\nThis website is using a security service to protect itself from online attacks. The act",
+  "error": "Public browser response 403",
+  "createdAt": "2026-10-08T02:06:59.726Z",
+  "attemptResult": "FAIL",
+  "deploymentStatus": "succeeded",
+  "accessMode": "public",
+  "boundary": "The current verification connection received Cloudflare 403 before reaching the application. Outside-network access has not been verified.",
+  "sourceCommit": "76d193143884b676cca800c047a7c6f068be8965"
+}
