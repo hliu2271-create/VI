@@ -1,13 +1,13 @@
 {
   "version": "VI",
-  "status": "LOCAL_CHECKS_PASS_PUBLIC_DEPLOYED_ACCESS_UNVERIFIED",
-  "verifiedAt": "2026-10-08T02:08:11.143Z",
+  "status": "LOCAL_CHECKS_PASS_PUBLIC_DEPLOYED_ACCESS_VERIFIED",
+  "verifiedAt": "2026-10-08T03:23:46.000Z",
   "publicDemo": {
-    "url": "https://aegis-computeshield-demo-vi.jocund-tetra-6250.chatgpt.site",
+    "url": "https://fabulous-advertisement-draw-accent.trycloudflare.com/",
     "deploymentStatus": "succeeded",
     "accessMode": "public",
     "sourceCommit": "76d193143884b676cca800c047a7c6f068be8965",
-    "anonymousVerification": "Cloudflare 403 on current verification network; external availability unverified"
+    "anonymousVerification": "HTTP 200 from an external network; index page, built demo entry and static assets reachable"
   },
   "tests": {
     "mobile": {

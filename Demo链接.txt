@@ -1,7 +1,7 @@
 Aegis / ComputeShield · VI
-https://aegis-computeshield-demo-vi.jocund-tetra-6250.chatgpt.site
+https://fabulous-advertisement-draw-accent.trycloudflare.com/
 
 部署状态：成功；访问权限：公开。
-当前测试连接被托管平台 Cloudflare 返回 403，外部可访问性尚未验证。
+演示地址经外部网络实测返回 200，页面与静态资源均可访问（Cloudflare 隧道）。
 本地静态功能、Android Chrome/iPhone WebKit 模拟与隐私扫描已通过。
 源码可通过 npm run build:demo 和 npm run preview:demo 本地体验。

@@ -1,7 +1,7 @@
 Aegis / ComputeShield · VI
 
 公开 Demo：
-https://aegis-computeshield-demo-vi.jocund-tetra-6250.chatgpt.site
+https://fabulous-advertisement-draw-accent.trycloudflare.com/
 
 无需登录或连接钱包。首页「观看演示」播放视频，向下滚动自动转为小窗。
 进入同页业务工作区可报价、出单、模拟节点宕机/恢复、做理赔实验、核查原始报告。
@@ -22,4 +22,4 @@ npm run preview:demo
 VI.zip 是独立源码包。没有 Git 历史、托管身份、依赖缓存或历史上传资料。
 本版沿用 IV 机制与 V 视觉，首页桌面结构保留，装饰卡片和渐变保留。
 
-公开部署已成功且权限为公开；当前验收连接被托管平台 Cloudflare 返回 403，外部可访问性尚未验证。详见 reports/public-demo-VI.json。
+公开部署已成功且权限为公开；演示地址经外部网络实测返回 200，页面与静态资源均可访问。详见 reports/public-demo-VI.json。
