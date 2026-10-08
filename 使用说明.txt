@@ -1,7 +1,7 @@
 Aegis / ComputeShield · VI
 
 公开 Demo：
-https://fabulous-advertisement-draw-accent.trycloudflare.com/
+https://aegis-computeshield.app.workbuddy.host/
 
 无需登录或连接钱包。首页「观看演示」播放视频，向下滚动自动转为小窗。
 进入同页业务工作区可报价、出单、模拟节点宕机/恢复、做理赔实验、核查原始报告。

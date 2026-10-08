@@ -2,7 +2,7 @@
   "version": "VI",
   "scope": "Anonymous public HTTPS access to the deployed demo; no logged-in site account",
   "status": "VERIFIED",
-  "url": "https://fabulous-advertisement-draw-accent.trycloudflare.com/",
+  "url": "https://aegis-computeshield.app.workbuddy.host/",
   "checks": [
     "GET / returns HTTP 200, Content-Type text/html; charset=utf-8, title \"Aegis 神盾 · 算力保险协议 | ComputeShield\"",
     "Built demo entry /demo/bridge.js returns HTTP 200 (demo rules injected by tools/build-demo.cjs)",

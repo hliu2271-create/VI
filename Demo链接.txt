@@ -1,5 +1,5 @@
 Aegis / ComputeShield · VI
-https://fabulous-advertisement-draw-accent.trycloudflare.com/
+https://aegis-computeshield.app.workbuddy.host/
 
 部署状态：成功；访问权限：公开。
 演示地址经外部网络实测返回 200，页面与静态资源均可访问（Cloudflare 隧道）。
